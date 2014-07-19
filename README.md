@@ -29,7 +29,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
  * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead.
- * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to Google, fork and build from source.
+ * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
 
 What's not done:
  * Access to GSON configuration
