@@ -20,18 +20,20 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complex, more of your time. Get over it.
+ * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
+ * Method parameters must be `req, res[, request message]`. 
+ * The return type of your method can be any type, or void. If you return null, that's OK.
+ * Request and response messages are JSON and processed by Gson. You can access the Gson configuration.
+ * Content Type gets set to `application/json` and character encoding is `UTF8` so you don't have to do that.
  * Assumes no context path. Why would you run more than one webapp in the same container? The container is the webapp.
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
- * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
- * Method parameters must be `req, res[, request message]`. 
- * The return type of your method can be void, or a response message.
- * All request and response messages are JSON and processed by Gson. You can access the Gson configuration.
- * Content Type is pre-set to `application/json` so you don't have to do that.
  * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead.
- * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you can Google, fork and build from source.
+ * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to Google, fork and build from source.
 
 What's not done:
+ * Access to GSON configuration
+ * Helper classes
  * Streaming, multipart
  * HEAD
  * ContextInitialised, ContextDestroyed,
