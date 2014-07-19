@@ -148,7 +148,7 @@ NB this will also work if you want to deploy to Heroku:
 
 ### Run
 
-This is what you want, right? Minimum time-to-working. This runs on 8080 with remote debug on port 8000.
+This is what you want, right? Minimum time-to-working. This runs your app on port 8080 with remote debug on 8000.
 
     #!/bin/bash
     mvn clean package && java -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -jar target/dependency/jetty-runner.jar target/myapp.war
