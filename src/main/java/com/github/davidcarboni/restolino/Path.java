@@ -33,7 +33,7 @@ public class Path {
 	public String firstSegment() {
 		String result = null;
 		if (segments.size() > 0)
-			result = segments.get(1);
+			result = segments.get(0);
 		return result;
 	}
 
