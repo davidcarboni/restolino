@@ -2,7 +2,7 @@ package com.github.davidcarboni.restolino;
 
 import java.lang.reflect.Method;
 
-class RequestHandler {
+public class RequestHandler {
 
 	Class<?> endpointClass;
 	Method method;

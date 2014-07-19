@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.helpers;
+package com.github.davidcarboni.restolino.json;
 
 //import org.bson.types.ObjectId;
 import com.google.gson.Gson;

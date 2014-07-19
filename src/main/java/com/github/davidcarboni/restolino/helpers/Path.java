@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino;
+package com.github.davidcarboni.restolino.helpers;
 
 import java.net.URISyntaxException;
 import java.util.ArrayList;
