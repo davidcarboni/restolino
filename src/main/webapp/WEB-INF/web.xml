@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	version="3.0" metadata-complete="true">
+
+	<display-name>Restolino</display-name>
+	<description>Simple REST framework.</description>
+
+	<filter>
+		<filter-name>filter</filter-name>
+		<filter-class>com.github.davidcarboni.restolino.servlet.Filter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>filter</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<servlet>
+		<servlet-name>app</servlet-name>
+		<servlet-class>com.github.davidcarboni.restolino.App</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>app</servlet-name>
+		<url-pattern>/app/*</url-pattern>
+	</servlet-mapping>
+
+</web-app>
