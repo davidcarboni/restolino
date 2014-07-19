@@ -98,6 +98,7 @@ You don't want to spend time editing this stuff before you get started, right?
         <servlet>
             <servlet-name>app</servlet-name>
             <servlet-class>com.github.davidcarboni.restolino.App</servlet-class>
+            <load-on-startup>1</load-on-startup>
         </servlet>
         <servlet-mapping>
             <servlet-name>app</servlet-name>
