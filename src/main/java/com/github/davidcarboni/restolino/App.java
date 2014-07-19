@@ -393,7 +393,7 @@ public class App extends HttpServlet {
 			if (boom != null) {
 				try {
 					// Attempt to handle the error gracefully:
-					boom.handle(request, response, t, requestHandler);
+					boom.handle(request, response, requestHandler, t);
 				} catch (Throwable t2) {
 					t2.printStackTrace();
 				}
