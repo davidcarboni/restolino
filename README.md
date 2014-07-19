@@ -150,13 +150,13 @@ You don't want to spend time editing this stuff before you get started, right?
         </filter-mapping>
 
         <servlet>
-            <servlet-name>app</servlet-name>
-            <servlet-class>com.github.davidcarboni.restolino.App</servlet-class>
+            <servlet-name>api</servlet-name>
+            <servlet-class>com.github.davidcarboni.restolino.Api</servlet-class>
             <load-on-startup>1</load-on-startup>
         </servlet>
         <servlet-mapping>
-            <servlet-name>app</servlet-name>
-            <url-pattern>/app/*</url-pattern>
+            <servlet-name>api</servlet-name>
+            <url-pattern>/api/*</url-pattern>
         </servlet-mapping>
 
     </web-app>

@@ -13,7 +13,7 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * This {@link javax.servlet.Filter} enables the app to run without a servlet
+ * This {@link javax.servlet.Filter} enables the api to run without a servlet
  * context path.
  * 
  * @author David Carboni
@@ -42,7 +42,7 @@ public class Filter implements javax.servlet.Filter {
 			chain.doFilter(request, response);
 		} else {
 			// Page requests to Webulizor:
-			request.getRequestDispatcher("/app" + path).forward(request,
+			request.getRequestDispatcher("/api" + path).forward(request,
 					response);
 		}
 	}
