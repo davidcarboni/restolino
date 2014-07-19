@@ -24,5 +24,5 @@ public interface Boom {
 	 * @return Something to be converted to JSON, or null.
 	 */
 	public Object handle(HttpServletRequest req, HttpServletResponse res,
-			Throwable t, RequestHandler requestHandler);
+			RequestHandler requestHandler, Throwable t);
 }
