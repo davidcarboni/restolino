@@ -28,6 +28,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * All request and response messages are JSON and processed by Gson. You can access the Gson configuration.
  * Content Type is pre-set to `application/json` so you don't have to do that.
  * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead.
+ * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you can Google, fork and build from source.
 
 What's not done:
  * Streaming
@@ -35,12 +36,14 @@ What's not done:
  * ContextInitialised, ContextDestroyed,
  * application context
  * helper classes
+ * full implementation of biting sarcasm above
 
 How it works
  * Any request that has a file extension is delegated to the servlet container
  * Any request that does not have a file extension is mapped to an endpoint
  * Unmapped requests will go to your `NotFound` implementation, or generate a 404 by default.
  * Errored requests will go to your `Boom` implementation, or generate a 500 by default.
+ * If you're a purist, this is not for you - there are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
 ### Web.xml
 
