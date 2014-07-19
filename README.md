@@ -115,7 +115,7 @@ You don't want to spend time editing this stuff before you get started, right?
 
 NB this will also work if you want to deploy to Heroku:
 
----xml
+```xml
 </build>
     </plugins>
         <plugin>
@@ -143,7 +143,7 @@ NB this will also work if you want to deploy to Heroku:
         </plugin>
     </plugins>
 </build>
----
+```
 
 
 ### Run
