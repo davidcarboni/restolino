@@ -79,6 +79,7 @@ Paste this into your web.xml and it should work without modification.
 You don't want to spend time editing this stuff before you get started, right?
 
 ---xml
+
     <?xml version="1.0" encoding="UTF-8"?>
     <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
