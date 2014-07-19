@@ -44,7 +44,8 @@ How it works
  * Any request that does not have a file extension is mapped to an endpoint
  * Unmapped requests will go to your `NotFound` implementation, or generate a 404 by default.
  * Errored requests will go to your `Boom` implementation, or generate a 500 by default.
- * If you're a purist, this is not for you - there are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
+ * If you're a purist, this is not the framework you are looking for. 
+ * There are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
 
 ### Dependencies:
