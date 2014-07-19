@@ -31,7 +31,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you can Google, fork and build from source.
 
 What's not done:
- * Streaming
+ * Streaming, multipart
  * HEAD
  * ContextInitialised, ContextDestroyed,
  * application context
