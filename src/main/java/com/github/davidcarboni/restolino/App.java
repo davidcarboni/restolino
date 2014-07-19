@@ -324,9 +324,7 @@ public class App extends HttpServlet {
 		if (home != null && StringUtils.equals("/", request.getPathInfo())) {
 			// Handle a / request:
 			Object responseMessage = home.get(request, response);
-			if (responseMessage != null)
-				writeMessage(response, responseMessage.getClass(),
-						responseMessage);
+			writeMessage(response, responseMessage.getClass(), responseMessage);
 		} else {
 			doMethod(request, response, get);
 		}
@@ -375,8 +373,7 @@ public class App extends HttpServlet {
 				Object responseMessage = invoke(request, response, handler,
 						requestHandler.method,
 						requestHandler.requestMessageType);
-				if (requestHandler.responseMessageType != null
-						&& responseMessage != null) {
+				if (requestHandler.responseMessageType != null) {
 					writeMessage(response, requestHandler.responseMessageType,
 							responseMessage);
 				}
@@ -448,17 +445,22 @@ public class App extends HttpServlet {
 	}
 
 	private static void writeMessage(HttpServletResponse response,
-			Class<?> responseMessageType, Object message) {
+			Class<?> responseMessageType, Object responseMessage) {
 
-		try (OutputStreamWriter writer = new OutputStreamWriter(
-				response.getOutputStream(), "UTF8")) {
+		if (responseMessage != null) {
 
-			Serialiser.getBuilder().create()
-					.toJson(message, responseMessageType, writer);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Unsupported encoding", e);
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading message", e);
+			response.setContentType("application/json");
+			response.setCharacterEncoding("UTF8");
+			try (OutputStreamWriter writer = new OutputStreamWriter(
+					response.getOutputStream(), "UTF8")) {
+
+				Serialiser.getBuilder().create()
+						.toJson(responseMessage, responseMessageType, writer);
+			} catch (UnsupportedEncodingException e) {
+				throw new RuntimeException("Unsupported encoding", e);
+			} catch (IOException e) {
+				throw new RuntimeException("Error reading message", e);
+			}
 		}
 	}
 
