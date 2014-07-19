@@ -10,6 +10,8 @@ It's not comprehensive, won't give you the flexibility you want and doesn't real
 
 What it does do is get you started and stays out of your way, because configuring frameworks is a distraction from what you are actually trying to achieve.
 
+If you're a purist, this is not the framework you are looking for. 
+
 And that's it.
 
 
@@ -17,7 +19,6 @@ And that's it.
 
 Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful:
 
- * If you're a purist, this is not the framework you are looking for. 
  * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complex, more of your time. Get over it.
