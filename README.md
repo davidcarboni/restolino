@@ -4,7 +4,7 @@ Restolino
 
 ### What is it?
 
-A brutally opinionated, super-simple REST framework for Java.
+A brutally opinionated, super-simple REST API framework for Java.
 
 It's not comprehensive, won't give you the flexibility you want and doesn't really care about your special needs.
 
@@ -78,9 +78,56 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
 ```
 
 
+### Maven build
+
+The configuration below adds Jetty. NB this will also work if you want to deploy to Heroku.
+This also configures your project for Java 1.7.
+
+```xml
+<build>
+    <finalName>myapi</finalName>
+    <plugins>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.1</version>
+            <configuration>
+                <source>1.7</source>
+                <target>1.7</target>
+                <encoding>UTF-8</encoding>
+            </configuration>
+        </plugin>
+        <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-dependency-plugin</artifactId>
+            <version>2.3</version>
+            <executions>
+                <execution>
+                    <phase>package</phase>
+                    <goals>
+                        <goal>copy</goal>
+                    </goals>
+                    <configuration>
+                        <artifactItems>
+                            <artifactItem>
+                                <groupId>org.eclipse.jetty</groupId>
+                                <artifactId>jetty-runner</artifactId>
+                                <version>9.0.4.v20130625</version>
+                                <destFileName>jetty-runner.jar</destFileName>
+                            </artifactItem>
+                        </artifactItems>
+                    </configuration>
+                </execution>
+            </executions>
+        </plugin>
+    </plugins>
+</build>
+```
+
+
 ### Web.xml
 
-Paste this into your web.xml and it should work without modification. 
+Paste this into your `web.xml` (`src/main/webapp/WEB-INF/`) and it should work without modification. 
 You don't want to spend time editing this stuff before you get started, right?
 
 ```xml
@@ -116,45 +163,15 @@ You don't want to spend time editing this stuff before you get started, right?
 ```
 
 
-### Add Jetty - Maven build
-
-NB this will also work if you want to deploy to Heroku:
-
-```xml
-<build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-dependency-plugin</artifactId>
-            <version>2.3</version>
-            <executions>
-                <execution>
-                    <phase>package</phase>
-                    <goals>
-                        <goal>copy</goal>
-                    </goals>
-                    <configuration>
-                        <artifactItems>
-                            <artifactItem>
-                                <groupId>org.eclipse.jetty</groupId>
-                                <artifactId>jetty-runner</artifactId>
-                                <version>9.0.4.v20130625</version>
-                                <destFileName>jetty-runner.jar</destFileName>
-                            </artifactItem>
-                        </artifactItems>
-                    </configuration>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-</build>
-```
-
-
 ### Run
 
-This is what you want, right? Minimum time-to-working. This runs your app on port 8080 with remote debug on 8000.
+This is what you want, right? Minimum time-to-working. This runs your api on port 8080 with remote debug on 8000.
 
-    #!/bin/bash
-    mvn clean package && java -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -jar target/dependency/jetty-runner.jar target/myapp.war
+    mvn clean package && java -Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n -jar target/dependency/jetty-runner.jar target/myapi.war
+
+### Is it really that cool?
+
+I was able to create a project from scratch (the hard way, thanks Eclipse) and get to a running api in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the confusion of debugging the config.
+
+Honestly, I build this in a day so don't expect a miracles, but hopefully it will give you a boost with getting stuff done rather than learning to love someone else's framework.
 
