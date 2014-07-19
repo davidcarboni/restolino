@@ -17,7 +17,9 @@ And that's it.
 
 ### Opinions
 
-Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful:
+Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful.
+
+#### Getting started
 
  * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
@@ -34,7 +36,8 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
  * There are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
-What's not done:
+#### What's not done
+
  * Access to GSON configuration
  * Helper classes
  * Streaming, multipart
@@ -44,7 +47,8 @@ What's not done:
  * helper classes
  * full implementation of biting sarcasm
 
-How it works
+#### How it works
+
  * Any request that has a file extension is delegated to the servlet container
  * Any request that does not have a file extension is mapped to an endpoint
  * Unmapped requests will go to your `NotFound` implementation, or generate a 404 by default.
