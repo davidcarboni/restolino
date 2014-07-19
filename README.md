@@ -17,6 +17,7 @@ And that's it.
 
 Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful:
 
+ * Assumes no context path. Why would you run more than one webapp in the same container? The container is the webapp.
  * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
@@ -45,41 +46,6 @@ How it works
  * Errored requests will go to your `Boom` implementation, or generate a 500 by default.
  * If you're a purist, this is not for you - there are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
-### Web.xml
-
-Paste this into your web.xml and it should work without modification. 
-You don't want to spend time editing this stuff before you get started, right?
-
----xml
-    <?xml version="1.0" encoding="UTF-8"?>
-    <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
-                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
-        version="3.0" metadata-complete="true">
-
-        <display-name>Restolino</display-name>
-        <description>Simple REST framework.</description>
-
-        <filter>
-            <filter-name>filter</filter-name>
-            <filter-class>com.github.davidcarboni.restolino.Filter</filter-class>
-        </filter>
-        <filter-mapping>
-            <filter-name>filter</filter-name>
-            <url-pattern>/*</url-pattern>
-        </filter-mapping>
-
-        <servlet>
-            <servlet-name>app</servlet-name>
-            <servlet-class>com.github.davidcarboni.restolino.App</servlet-class>
-        </servlet>
-        <servlet-mapping>
-            <servlet-name>app</servlet-name>
-            <url-pattern>/app/*</url-pattern>
-        </servlet-mapping>
-
-    </web-app>
----
 
 ### Dependencies:
 
@@ -102,6 +68,44 @@ You don't want to spend time editing this stuff before you get started, right?
             
     </dependencies>
 ```
+
+
+### Web.xml
+
+Paste this into your web.xml and it should work without modification. 
+You don't want to spend time editing this stuff before you get started, right?
+
+---xml
+    <?xml version="1.0" encoding="UTF-8"?>
+    <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
+                      http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+        version="3.0" metadata-complete="true">
+
+        <display-name>Restolino</display-name>
+        <description>Simple REST framework.</description>
+
+        <filter>
+            <filter-name>filter</filter-name>
+            <filter-class>com.github.davidcarboni.restolino.servlet.Filter</filter-class>
+        </filter>
+        <filter-mapping>
+            <filter-name>filter</filter-name>
+            <url-pattern>/*</url-pattern>
+        </filter-mapping>
+
+        <servlet>
+            <servlet-name>app</servlet-name>
+            <servlet-class>com.github.davidcarboni.restolino.App</servlet-class>
+        </servlet>
+        <servlet-mapping>
+            <servlet-name>app</servlet-name>
+            <url-pattern>/app/*</url-pattern>
+        </servlet-mapping>
+
+    </web-app>
+---
+
 
 ### Add Jetty - Maven build
 
