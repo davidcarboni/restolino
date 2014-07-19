@@ -78,7 +78,8 @@ How it works
 Paste this into your web.xml and it should work without modification. 
 You don't want to spend time editing this stuff before you get started, right?
 
----xml
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
     <web-app xmlns="http://java.sun.com/xml/ns/javaee" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://java.sun.com/xml/ns/javaee
                       http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
@@ -107,7 +108,7 @@ You don't want to spend time editing this stuff before you get started, right?
         </servlet-mapping>
 
     </web-app>
----
+```
 
 
 ### Add Jetty - Maven build
