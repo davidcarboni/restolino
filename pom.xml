@@ -109,7 +109,7 @@
 
 	</dependencies>
 	<build>
-		<finalName>webulizor</finalName>
+		<finalName>restolino</finalName>
 
 		<!-- Include the README, NOTICE and LICENSE files: -->
 		<resources>
