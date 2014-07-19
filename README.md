@@ -39,7 +39,7 @@ What's not done:
  * ContextInitialised, ContextDestroyed,
  * application context
  * helper classes
- * full implementation of biting sarcasm above
+ * full implementation of biting sarcasm
 
 How it works
  * Any request that has a file extension is delegated to the servlet container
