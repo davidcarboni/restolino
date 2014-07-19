@@ -23,7 +23,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
 
  * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
- * Endpoint names are lowercased class names. More complex, more of your time. Get over it.
+ * Endpoint names are lowercased class names. More complexity would need, more of your time. Get over it.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
  * Method parameters must be `req, res[, request message]`. 
  * The return type of your method can be any type, or void. If you return null, that's OK.
