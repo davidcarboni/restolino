@@ -116,8 +116,8 @@ You don't want to spend time editing this stuff before you get started, right?
 NB this will also work if you want to deploy to Heroku:
 
 ```xml
-</build>
-    </plugins>
+<build>
+    <plugins>
         <plugin>
             <groupId>org.apache.maven.plugins</groupId>
             <artifactId>maven-dependency-plugin</artifactId>
