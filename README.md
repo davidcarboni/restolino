@@ -17,6 +17,7 @@ And that's it.
 
 Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful:
 
+ * If you're a purist, this is not the framework you are looking for. 
  * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complex, more of your time. Get over it.
@@ -46,7 +47,6 @@ How it works
  * Any request that does not have a file extension is mapped to an endpoint
  * Unmapped requests will go to your `NotFound` implementation, or generate a 404 by default.
  * Errored requests will go to your `Boom` implementation, or generate a 500 by default.
- * If you're a purist, this is not the framework you are looking for. 
  * There are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
 
