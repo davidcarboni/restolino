@@ -6,9 +6,9 @@ Restolino
 
 A brutally opinionated, super-simple REST framework for Java.
 
-It's not comprehensive, won't give you the flexibility you want and doesn't reall care about your special needs.
+It's not comprehensive, won't give you the flexibility you want and doesn't really care about your special needs.
 
-What it does want to do is get you started and get out of your way, because configuring frameworks is a distraction from building your idea.
+What it does do is get you started and stays out of your way, because configuring frameworks is a distraction from what you are actually trying to achieve.
 
 And that's it.
 
@@ -17,12 +17,12 @@ And that's it.
 
 Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful:
 
- * Assumes no context path. Why would you run more than one webapp in the same container? The container is the webapp.
- * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
- * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
- * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
+ * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complex, more of your time. Get over it.
+ * Assumes no context path. Why would you run more than one webapp in the same container? The container is the webapp.
+ * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
+ * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
  * Method parameters must be `req, res[, request message]`. 
  * The return type of your method can be void, or a response message.
