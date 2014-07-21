@@ -21,7 +21,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
 
 #### Getting started
 
- * You can only GET /. Why would you PUT, POST or DELETE the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
+ * You can only `GET` `/`. Why would you `PUT`, `POST` or `DELETE` the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)`.
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complexity would need more of your time. Get over it.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
@@ -33,6 +33,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
  * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead.
+ * `OPTIONS` will query the configuration and tell you which of `GET`, `PUT`, `POST` and `DELETE` are implemented for that endpoint. `OPTIONS` on `/` will return GET if you have implemented `Home`.
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
  * There are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
@@ -41,7 +42,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Access to GSON configuration
  * Helper classes
  * Streaming, multipart
- * HEAD, OPTIONS, TRACE
+ * `HEAD`, `TRACE`
  * ContextInitialised, ContextDestroyed,
  * application context
  * helper classes
