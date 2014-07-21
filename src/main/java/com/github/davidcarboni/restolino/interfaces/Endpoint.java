@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino;
+package com.github.davidcarboni.restolino.interfaces;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
