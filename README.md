@@ -41,7 +41,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Access to GSON configuration
  * Helper classes
  * Streaming, multipart
- * HEAD
+ * HEAD, OPTIONS, TRACE
  * ContextInitialised, ContextDestroyed,
  * application context
  * helper classes
