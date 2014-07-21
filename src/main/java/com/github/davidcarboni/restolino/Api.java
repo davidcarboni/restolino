@@ -8,6 +8,7 @@ import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -115,6 +116,8 @@ public class Api extends HttpServlet {
 		// Configure the classes:
 		for (Class<?> endpointClass : endpoints) {
 			System.out.println(" - " + endpointClass.getSimpleName());
+			String endpointName = StringUtils.lowerCase(endpointClass
+					.getSimpleName());
 			for (Method method : endpointClass.getMethods()) {
 
 				// Skip Object methods
@@ -154,13 +157,11 @@ public class Api extends HttpServlet {
 					// System.out.println("    >   annotation " +
 					// annotation.getClass().getName());
 					for (Annotation annotation : annotations) {
-						String name = endpointClass.getSimpleName()
-								.toLowerCase();
 
 						Map<String, RequestHandler> map = getMap(annotation
 								.getClass());
 						if (map != null) {
-							clashCheck(name, annotation.getClass(),
+							clashCheck(endpointName, annotation.getClass(),
 									endpointClass, method);
 							System.out.print("   - "
 									+ annotation.getClass().getInterfaces()[0]
@@ -182,7 +183,7 @@ public class Api extends HttpServlet {
 										+ requestHandler.responseMessageType
 												.getSimpleName());
 							}
-							map.put(name, requestHandler);
+							map.put(endpointName, requestHandler);
 							System.out.println();
 						}
 					}
@@ -322,7 +323,7 @@ public class Api extends HttpServlet {
 	protected void doGet(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
 
-		if (home != null && StringUtils.equals("/", request.getPathInfo())) {
+		if (home != null && isRootRequest(request)) {
 			// Handle a / request:
 			Object responseMessage = home.get(request, response);
 			writeMessage(response, responseMessage.getClass(), responseMessage);
@@ -347,6 +348,50 @@ public class Api extends HttpServlet {
 	protected void doDelete(HttpServletRequest request,
 			HttpServletResponse response) throws ServletException {
 		doMethod(request, response, delete);
+	}
+
+	@Override
+	protected void doOptions(HttpServletRequest request,
+			HttpServletResponse response) throws ServletException {
+
+		List<String> result = new ArrayList<>();
+
+		if (home != null && isRootRequest(request)) {
+
+			// We only allow GET to the root resource:
+			result.add("GET");
+
+		} else {
+
+			// Determint which methods are configured:
+			if (mapRequestPath(get, request) != null)
+				result.add("GET");
+			if (mapRequestPath(put, request) != null)
+				result.add("PUT");
+			if (mapRequestPath(post, request) != null)
+				result.add("POST");
+			if (mapRequestPath(delete, request) != null)
+				result.add("DELETE");
+		}
+
+		writeMessage(response, List.class, result);
+	}
+
+	/**
+	 * Determines if the given request is for the root resource (ie /).
+	 * 
+	 * @param request
+	 *            The {@link HttpServletRequest}
+	 * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
+	 *         or "/" ten true.
+	 */
+	private static boolean isRootRequest(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		if (StringUtils.isBlank(path))
+			return true;
+		if (StringUtils.equals("/", path))
+			return true;
+		return false;
 	}
 
 	/**
@@ -480,7 +525,7 @@ public class Api extends HttpServlet {
 
 		String endpointName = Path.newInstance(request).firstSegment();
 		endpointName = StringUtils.lowerCase(endpointName);
-		System.out.println("Mapping endpoint " + endpointName);
+		// System.out.println("Mapping endpoint " + endpointName);
 		return requestHandlers.get(endpointName);
 	}
 
