@@ -32,7 +32,6 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import com.github.davidcarboni.restolino.helpers.DefaultRequestHandler;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.interfaces.Boom;
 import com.github.davidcarboni.restolino.interfaces.Endpoint;
