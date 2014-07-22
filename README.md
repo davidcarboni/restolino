@@ -32,8 +32,9 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Assumes no context path. Why would you run more than one webapp in the same container? The container is the webapp.
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
- * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead.
+ * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead. See the `com.github.davidcarboni.restolino.helpers` package
  * `OPTIONS` will query the configuration and tell you which of `GET`, `PUT`, `POST` and `DELETE` are implemented for that endpoint. `OPTIONS` on `/` will return GET if you have implemented `Home`.
+ * To see all the interfaces and annotations you can use, have a look in the `com.github.davidcarboni.restolino.interfaces` package.
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
  * There are non-private fields in the classes. I consider it visual clutter for little benefit. Like semi-colons in Javascript.
 
