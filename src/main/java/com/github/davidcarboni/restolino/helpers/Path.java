@@ -10,6 +10,13 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.utils.URIBuilder;
 
+/**
+ * Provides path parsing. This helps with getting parameters from the path, or
+ * the name of the current endpoint.
+ * 
+ * @author david
+ *
+ */
 public class Path {
 
 	public static Path newInstance(HttpServletRequest request) {
@@ -30,6 +37,9 @@ public class Path {
 		this.segments = Arrays.asList(segments);
 	}
 
+	/**
+	 * @return The first path segment. This should be the endpoint name.
+	 */
 	public String firstSegment() {
 		String result = null;
 		if (segments.size() > 0)
@@ -37,11 +47,23 @@ public class Path {
 		return result;
 	}
 
+	/**
+	 * @return The last path segment. This is useful if you're expecting a
+	 *         parameter such as an ID, e.g.:
+	 * 
+	 *         <pre>
+	 * /users/{ID}
+	 * </pre>
+	 */
 	public String lastSegment() {
 		String result = null;
 		if (segments.size() > 0)
 			result = segments.get(segments.size() - 1);
 		return result;
+	}
+
+	public List<String> segments() {
+		return segments;
 	}
 
 }
