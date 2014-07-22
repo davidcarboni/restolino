@@ -32,6 +32,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import com.github.davidcarboni.restolino.helpers.DefaultRequestHandler;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.interfaces.Boom;
 import com.github.davidcarboni.restolino.interfaces.Endpoint;
@@ -56,6 +57,7 @@ public class Api extends HttpServlet {
 	Map<String, RequestHandler> put = new HashMap<>();
 	Map<String, RequestHandler> post = new HashMap<>();
 	Map<String, RequestHandler> delete = new HashMap<>();
+	RequestHandler defaultRequestHandler;
 
 	// Map<Class<?>, Map<String, RequestHandler>> methodsa = new
 	// HashMap<Class<?>, Map<String, RequestHandler>>();
@@ -91,6 +93,18 @@ public class Api extends HttpServlet {
 		urls.add(ClasspathHelper.forWebInfClasses(servletContext));
 		Reflections reflections = new Reflections(
 				new ConfigurationBuilder().setUrls(urls));
+
+		// Get the default handler:
+		defaultRequestHandler = new RequestHandler();
+		defaultRequestHandler.endpointClass = DefaultRequestHandler.class;
+		try {
+			defaultRequestHandler.method = DefaultRequestHandler.class
+					.getMethod("notImplemented", HttpServletRequest.class,
+							HttpServletResponse.class);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new ServletException(
+					"Code issue - default request handler not found", e);
+		}
 
 		configureEndpoints(reflections);
 		configureHome(reflections);
@@ -189,6 +203,16 @@ public class Api extends HttpServlet {
 					}
 				}
 			}
+
+			// Set default handlers where needed:
+			if (!get.containsKey(endpointName))
+				get.put(endpointName, defaultRequestHandler);
+			if (!put.containsKey(endpointName))
+				put.put(endpointName, defaultRequestHandler);
+			if (!post.containsKey(endpointName))
+				post.put(endpointName, defaultRequestHandler);
+			if (!delete.containsKey(endpointName))
+				delete.put(endpointName, defaultRequestHandler);
 		}
 
 	}
