@@ -27,7 +27,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
  * Method parameters must be `req, res[, request message]`. 
  * The return type of your method can be any type, or void. If you return null, that's OK.
- * Request and response messages are assumed to be JSON and processed by Gson. You can access the Gson configuration.
+ * Request and response messages are assumed to be JSON and processed by Gson. If you need to add custom type adapters for serialisation, you can access the GsonBuilder via `Serialiser.getBuilder()`.
  * Content Type gets set to `application/json` and character encoding is `UTF8` so you don't have to do that.
  * Assumes no context path. Why would you run more than one webapp in the same container? The container is the webapp.
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
