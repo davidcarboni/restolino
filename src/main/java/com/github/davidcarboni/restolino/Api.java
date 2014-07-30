@@ -7,16 +7,13 @@ import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -30,7 +27,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
-import org.reflections.util.ConfigurationBuilder;
 
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.interfaces.Boom;
@@ -85,13 +81,41 @@ public class Api extends HttpServlet {
 	@Override
 	public void init() throws ServletException {
 
+		// At some point we'll see if we can dynamically reload classes:
+		setup(Api.class.getClassLoader());
+
+		// // Set up reflections:
+		// ServletContext servletContext = getServletContext();
+		// Set<URL> urls = new HashSet<>(
+		// ClasspathHelper.forWebInfLib(servletContext));
+		// urls.add(ClasspathHelper.forWebInfClasses(servletContext));
+		// Reflections reflections = new Reflections(
+		// new ConfigurationBuilder().setUrls(urls));
+		// new Reflections(ClasspathHelper.forClassLoader(classLoaders));
+		//
+		// // Get the default handler:
+		// defaultRequestHandler = new RequestHandler();
+		// defaultRequestHandler.endpointClass = DefaultRequestHandler.class;
+		// try {
+		// defaultRequestHandler.method = DefaultRequestHandler.class
+		// .getMethod("notImplemented", HttpServletRequest.class,
+		// HttpServletResponse.class);
+		// } catch (NoSuchMethodException | SecurityException e) {
+		// throw new ServletException(
+		// "Code issue - default request handler not found", e);
+		// }
+		//
+		// configureEndpoints(reflections);
+		// configureHome(reflections);
+		// configureNotFound(reflections);
+		// configureBoom(reflections);
+	}
+
+	void setup(ClassLoader classLoader) {
+
 		// Set up reflections:
-		ServletContext servletContext = getServletContext();
-		Set<URL> urls = new HashSet<>(
-				ClasspathHelper.forWebInfLib(servletContext));
-		urls.add(ClasspathHelper.forWebInfClasses(servletContext));
 		Reflections reflections = new Reflections(
-				new ConfigurationBuilder().setUrls(urls));
+				ClasspathHelper.forClassLoader(classLoader));
 
 		// Get the default handler:
 		defaultRequestHandler = new RequestHandler();
@@ -101,7 +125,7 @@ public class Api extends HttpServlet {
 					.getMethod("notImplemented", HttpServletRequest.class,
 							HttpServletResponse.class);
 		} catch (NoSuchMethodException | SecurityException e) {
-			throw new ServletException(
+			throw new RuntimeException(
 					"Code issue - default request handler not found", e);
 		}
 
