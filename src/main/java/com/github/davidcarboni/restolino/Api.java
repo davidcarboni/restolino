@@ -421,7 +421,8 @@ public class Api extends HttpServlet {
 				result.add("DELETE");
 		}
 
-		writeMessage(response, List.class, result);
+		response.setHeader("Allow", StringUtils.join(result, ','));
+		// writeMessage(response, List.class, result);
 	}
 
 	/**
