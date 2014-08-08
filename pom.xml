@@ -1,9 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.davidcarboni</groupId>
 	<artifactId>restolino</artifactId>
-	<version>0.0.3-SNAPSHOT</version>
+	<version>0.0.3</version>
 	<name>Restolino</name>
 	<description>
 		An unreasonably opinionated Java REST micro-framework with an efficient, reloadable workflow in development.
@@ -23,7 +22,7 @@
 		<url>https://github.com/davidcarboni/restolino</url>
 		<connection>scm:git:git://github.com/davidcarboni/restolino.git</connection>
 		<developerConnection>scm:git:git@github.com:davidcarboni/restolino.git</developerConnection>
-		<tag>HEAD</tag>
+		<tag>restolino-0.0.3</tag>
 	</scm>
 
 	<properties>
