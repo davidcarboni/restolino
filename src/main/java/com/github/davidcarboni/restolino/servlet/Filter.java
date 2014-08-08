@@ -1,5 +1,6 @@
 package com.github.davidcarboni.restolino.servlet;
 
+import java.io.File;
 import java.io.IOException;
 
 import javax.servlet.FilterChain;
@@ -21,9 +22,38 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Filter implements javax.servlet.Filter {
 
+	boolean reloadFiles;
+	boolean reloadClasses;
+
 	@Override
-	public void init(FilterConfig filterConfig) {
-		// No implementation.
+	public void init(FilterConfig filterConfig) throws ServletException {
+
+		String path = System.getProperty(StaticServlet.KEY_FILES);
+		reloadFiles = StringUtils.isNotBlank(path);
+		File directory;
+
+		if (StringUtils.isNotBlank(path)) {
+
+			// Get the canonical path
+			// This enables us to check that requested files are in the web
+			// root.
+			try {
+				directory = new File(path).getCanonicalFile();
+			} catch (IOException e) {
+				throw new ServletException("Error getting canonical file for: "
+						+ path);
+			}
+
+			// Check that the directory is valid:
+			if (!directory.exists())
+				throw new ServletException("Directory does not exist: "
+						+ directory);
+			else if (!directory.isDirectory())
+				throw new ServletException("Directory is not a directory: "
+						+ directory);
+
+			StaticServlet.directory = directory;
+		}
 	}
 
 	@Override
@@ -41,9 +71,14 @@ public class Filter implements javax.servlet.Filter {
 			// Static content goes to default servlet:
 			chain.doFilter(request, response);
 		} else {
-			// Page requests to Webulizor:
-			request.getRequestDispatcher("/api" + path).forward(request,
-					response);
+			if (reloadFiles)
+				// Page requests to the reloadable static servlet:
+				request.getRequestDispatcher("/static" + path).forward(request,
+						response);
+			else
+				// Delegate requests to the API:
+				request.getRequestDispatcher("/api" + path).forward(request,
+						response);
 		}
 	}
 
