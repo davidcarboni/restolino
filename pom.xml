@@ -3,6 +3,7 @@
 	<groupId>com.github.davidcarboni</groupId>
 	<artifactId>restolino</artifactId>
 	<version>0.0.4-SNAPSHOT</version>
+	<packaging>jar</packaging>
 	<name>Restolino</name>
 	<description>
 		An unreasonably opinionated Java REST micro-framework with an efficient, reloadable workflow in development.
@@ -17,6 +18,11 @@
 			<comments>A business-friendly OSS license</comments>
 		</license>
 	</licenses>
+
+	<organization>
+		<name>Carboni</name>
+		<url>https://github.com/carboni/</url>
+	</organization>
 
 	<scm>
 		<url>https://github.com/davidcarboni/restolino</url>
@@ -108,8 +114,8 @@
 			</dependency> -->
 
 	</dependencies>
+	
 	<build>
-		<finalName>restolino</finalName>
 
 		<!-- Include the README, NOTICE and LICENSE files: -->
 		<resources>
@@ -151,7 +157,7 @@
 				</configuration>
 			</plugin>
 
-			<!-- source JAR -->
+			<!-- Source JAR -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-source-plugin</artifactId>
@@ -167,7 +173,7 @@
 				</executions>
 			</plugin>
 
-			<!-- javadoc JAR -->
+			<!-- Javadoc JAR -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-javadoc-plugin</artifactId>
@@ -242,7 +248,6 @@
 
 	</profiles>
 
-	<!-- Required: developer information: -->
 	<developers>
 		<developer>
 			<id>david</id>
