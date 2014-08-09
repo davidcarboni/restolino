@@ -327,7 +327,9 @@ public class Api {
 		if (home != null && isRootRequest(request)) {
 			// Handle a / request:
 			Object responseMessage = home.get(request, response);
-			writeMessage(response, responseMessage.getClass(), responseMessage);
+			if (responseMessage != null)
+				writeMessage(response, responseMessage.getClass(),
+						responseMessage);
 		} else {
 			doMethod(request, response, get);
 		}
