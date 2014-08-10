@@ -5,7 +5,8 @@ import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * Provides convenience parameter parsing.
+ * Provides convenience parsing for String parameters that need to be handled as
+ * numbers.
  * 
  * @author david
  *
