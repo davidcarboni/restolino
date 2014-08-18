@@ -9,7 +9,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Enumeration;
 
-public class ReverseClassLoader extends ClassLoader {
+public class ReverseClassLoader extends URLClassLoader {
 
 	public static ReverseClassLoader newInstance(Path path, ClassLoader parent) {
 
@@ -38,7 +38,7 @@ public class ReverseClassLoader extends ClassLoader {
 	URLClassLoader childClassLoader;
 
 	public ReverseClassLoader(URL[] urls, ClassLoader parent) {
-		super(parent);
+		super(new URL[0], parent);
 		childClassLoader = new URLClassLoader(urls, null);
 	}
 

@@ -57,7 +57,7 @@ public class Monitor implements Runnable {
 			path.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
 
 			// Loop for each change detected:
-			while (true) {
+			do {
 
 				try {
 					// This blocks until an event occurs:
@@ -121,10 +121,10 @@ public class Monitor implements Runnable {
 
 				// Rescan:
 				// This covers errors and exiting when a folder is deleted,
-				// and generally covers any kind of exit from the loop:
+				// and generally any kind of exit from the loop:
 				Scanner.scan();
 
-			}
+			} while (true);
 
 		} catch (IOException e) {
 			System.out.println("Error closing WatchService for " + path);

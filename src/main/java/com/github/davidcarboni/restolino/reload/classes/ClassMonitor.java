@@ -1,13 +1,17 @@
 package com.github.davidcarboni.restolino.reload.classes;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.github.davidcarboni.restolino.Api;
 
 public class ClassMonitor {
 
+	public static URL url;
 	static Path path;
 	static ClassLoader parent;
 	public static volatile ClassLoader classLoader;
@@ -15,24 +19,28 @@ public class ClassMonitor {
 	public static void start(String path, ClassLoader parent)
 			throws IOException {
 
-		// Check the path has a value
-		// (could use StringUtils, but this is the only call,
-		// so it avoids a dependency just for this line):
-		if (path != null && !path.trim().equals("")) {
+		if (StringUtils.isNotBlank(path)) {
 			ClassMonitor.parent = parent;
 			ClassMonitor.path = FileSystems.getDefault().getPath(path);
+			ClassMonitor.url = ClassMonitor.path.toUri().toURL();
 			Scanner.start(ClassMonitor.path);
 		}
 	}
 
 	public static void reload() {
-		classLoader = ReverseClassLoader.newInstance(path, parent);
-		if (classLoader != null) {
-			System.out.println("New class loader created for path " + path);
-			Api.init();
-			// setup();
-		} else
-			System.out.println("Class loader not created for path " + path);
+		ClassLoader classLoader;
+		try {
+			classLoader = ReverseClassLoader.newInstance(path, parent);
+			if (classLoader != null) {
+				System.out.println("New class loader created for path " + path);
+				ClassMonitor.classLoader = classLoader;
+				Api.setup(classLoader);
+			} else
+				System.out.println("Class loader not created for path " + path);
+		} catch (Exception e) {
+			System.out.println("Error reloading classes.");
+			e.printStackTrace();
+		}
 	}
 
 	// public static void main(String[] args) throws IOException,
