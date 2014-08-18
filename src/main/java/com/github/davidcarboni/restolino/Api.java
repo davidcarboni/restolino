@@ -7,6 +7,8 @@ import java.io.UnsupportedEncodingException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -25,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.http.HttpStatus;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.interfaces.Boom;
@@ -45,10 +48,10 @@ public class Api {
 	static final String KEY_CLASSES = "restolino.classes";
 
 	static RequestHandler defaultRequestHandler;
-	static Map<String, RequestHandler> get = new HashMap<>();
-	static Map<String, RequestHandler> put = new HashMap<>();
-	static Map<String, RequestHandler> post = new HashMap<>();
-	static Map<String, RequestHandler> delete = new HashMap<>();
+	static Map<String, RequestHandler> get;
+	static Map<String, RequestHandler> put;
+	static Map<String, RequestHandler> post;
+	static Map<String, RequestHandler> delete;
 
 	static Map<String, RequestHandler> getMap(Class<? extends Annotation> type) {
 		if (GET.class.isAssignableFrom(type))
@@ -85,11 +88,50 @@ public class Api {
 		}
 	}
 
-	static void setup(ClassLoader classLoader) {
+	public static void setup(ClassLoader classLoader) {
 
-		// Set up reflections:
+		// Configuration
+		ConfigurationBuilder configuration = new ConfigurationBuilder();
+		// ArrayList<ClassLoader> classLoaders = new ArrayList<>();
+		// ClassLoader c = classLoader;
+		// do {
+		// classLoaders.add(c);
+		// c = c.getParent();
+		// } while (c != null);
+		// if (ClassMonitor.url != null)
+		// configuration.setUrls(ClassMonitor.url);
+		// configuration.setClassLoaders(classLoaders
+		// .toArray(new ClassLoader[classLoaders.size()]));
+
+		// System.out.println(" -> " + classLoader.getClass().getName());
+		// System.out.println(" ---> "
+		// + classLoader.getParent().getClass().getName());
+		//
+		// // Set up reflections:
+		// ArrayList<URL> urls = new ArrayList<>();
+		// ClassLoader parent = classLoader.getParent();
+		// while (parent != null) {
+		// System.out.println("Adding URLs from "
+		// + parent.getClass().getName());
+		// if (URLClassLoader.class.isAssignableFrom(parent.getClass())) {
+		// for (URL url : ((URLClassLoader) parent).getURLs()) {
+		// System.out.println(" - " + url);
+		// if (!StringUtils.endsWith(url.toString(), "/classes/"))
+		// urls.add(url);
+		// else
+		// System.out.println("   [skipped]");
+		// }
+		// }
+		// parent = parent.getParent();
+		// }
 		Reflections reflections = new Reflections(
 				ClasspathHelper.forClassLoader(classLoader));
+		// System.out.println("Ref");
+		// for (ClassLoader cl :
+		// reflections.getConfiguration().getClassLoaders()) {
+		// System.out.println(" r-> " + cl.getClass().getName());
+		// }
+		// ClasspathHelper.forClassLoader(classLoader));
 
 		// Get the default handler:
 		defaultRequestHandler = new RequestHandler();
@@ -103,7 +145,7 @@ public class Api {
 					"Code issue - default request handler not found", e);
 		}
 
-		configureEndpoints(reflections);
+		configureEndpoints(reflections, classLoader);
 		configureHome(reflections);
 		configureNotFound(reflections);
 		configureBoom(reflections);
@@ -115,7 +157,14 @@ public class Api {
 	 * @param reflections
 	 *            The instance to use to find classes.
 	 */
-	static void configureEndpoints(Reflections reflections) {
+	static void configureEndpoints(Reflections reflections,
+			ClassLoader classLoader) {
+
+		// [Re]initialise the maps:
+		get = new HashMap<>();
+		put = new HashMap<>();
+		post = new HashMap<>();
+		delete = new HashMap<>();
 
 		System.out.println("Scanning for endpoints..");
 		Set<Class<?>> endpoints = reflections
@@ -129,6 +178,22 @@ public class Api {
 			System.out.println(" - " + endpointClass.getSimpleName());
 			String endpointName = StringUtils.lowerCase(endpointClass
 					.getSimpleName());
+			System.out.println(" -> "
+					+ endpointClass.getClassLoader().getClass().getName());
+			if (endpointClass.getClassLoader().getParent() != null)
+				System.out.println(" ---> "
+						+ endpointClass.getClassLoader().getParent().getClass()
+								.getName());
+			for (URL url : ((URLClassLoader) endpointClass.getClassLoader())
+					.getURLs()) {
+				System.out.println(" * " + url);
+			}
+			try {
+				endpointClass = Class.forName(endpointClass.getName(), true,
+						classLoader);
+			} catch (ClassNotFoundException e) {
+				throw new RuntimeException(e);
+			}
 			for (Method method : endpointClass.getMethods()) {
 
 				// Skip Object methods
@@ -289,7 +354,6 @@ public class Api {
 		E result = null;
 
 		// Get annotated classes:
-		System.out.println("Looking for a " + name + " endpoint..");
 		Set<Class<? extends E>> endpointClasses = reflections
 				.getSubTypesOf(type);
 
@@ -466,10 +530,10 @@ public class Api {
 				result = method.invoke(handler, request, response);
 			}
 		} catch (Exception e) {
-			System.out.println("Error");
+			System.out.println("!Error: " + e.getMessage());
 			throw new RuntimeException("Error invoking method "
 					+ method.getName() + " on "
-					+ handler.getClass().getSimpleName());
+					+ handler.getClass().getSimpleName(), e);
 		}
 
 		System.out.println("Result is " + result);
