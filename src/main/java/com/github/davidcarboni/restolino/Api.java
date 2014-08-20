@@ -34,51 +34,11 @@ public class Api {
 
 	public static void setup(ClassLoader classLoader) {
 
-		// Configuration
-		// ConfigurationBuilder configuration = new ConfigurationBuilder();
-		// ArrayList<ClassLoader> classLoaders = new ArrayList<>();
-		// ClassLoader c = classLoader;
-		// do {
-		// classLoaders.add(c);
-		// c = c.getParent();
-		// } while (c != null);
-		// if (ClassMonitor.url != null)
-		// configuration.setUrls(ClassMonitor.url);
-		// configuration.setClassLoaders(classLoaders
-		// .toArray(new ClassLoader[classLoaders.size()]));
-
-		// System.out.println(" -> " + classLoader.getClass().getName());
-		// System.out.println(" ---> "
-		// + classLoader.getParent().getClass().getName());
-		//
-		// // Set up reflections:
-		// ArrayList<URL> urls = new ArrayList<>();
-		// ClassLoader parent = classLoader.getParent();
-		// while (parent != null) {
-		// System.out.println("Adding URLs from "
-		// + parent.getClass().getName());
-		// if (URLClassLoader.class.isAssignableFrom(parent.getClass())) {
-		// for (URL url : ((URLClassLoader) parent).getURLs()) {
-		// System.out.println(" - " + url);
-		// if (!StringUtils.endsWith(url.toString(), "/classes/"))
-		// urls.add(url);
-		// else
-		// System.out.println("   [skipped]");
-		// }
-		// }
-		// parent = parent.getParent();
-		// }
+		// We set up reflections to use the classLoader for loading classes
+		// and also to use the classLoader to determine the list of URLs:
 		Reflections reflections = new Reflections(new ConfigurationBuilder()
 				.addClassLoader(classLoader).addUrls(
 						ClasspathHelper.forClassLoader(classLoader)));
-		System.out.println(reflections.getConfiguration().getUrls());
-		// ClasspathHelper.forClassLoader(classLoader));
-		// System.out.println("Ref");
-		// for (ClassLoader cl :
-		// reflections.getConfiguration().getClassLoaders()) {
-		// System.out.println(" r-> " + cl.getClass().getName());
-		// }
-		// ClasspathHelper.forClassLoader(classLoader));
 
 		configureEndpoints(reflections, classLoader);
 		ApiServlet.home = configureHome(reflections);
@@ -111,15 +71,11 @@ public class Api {
 
 		// Configure the classes:
 		for (Class<?> endpointClass : endpoints) {
-			System.out.println(" - " + endpointClass.getSimpleName());
 			String endpointName = StringUtils.lowerCase(endpointClass
 					.getSimpleName());
-			try {
-				endpointClass = Class.forName(endpointClass.getName(), true,
-						classLoader);
-			} catch (ClassNotFoundException e) {
-				throw new RuntimeException(e);
-			}
+			System.out.println(" - /" + endpointName + " ("
+					+ endpointClass.getName() + ")");
+
 			for (Method method : endpointClass.getMethods()) {
 
 				// Skip Object methods
@@ -129,20 +85,6 @@ public class Api {
 				// We're looking for public methods that take reqest, responso
 				// and optionally a message type:
 				Class<?>[] parameterTypes = method.getParameterTypes();
-				// System.out.println("Examining method " + method.getName());
-				// if (Modifier.isPublic(method.getModifiers()))
-				// System.out.println(".public");
-				// System.out.println("." + parameterTypes.length +
-				// " parameters");
-				// if (parameterTypes.length == 2 || parameterTypes.length == 3)
-				// {
-				// if (HttpServletRequest.class
-				// .isAssignableFrom(parameterTypes[0]))
-				// System.out.println(".request OK");
-				// if (HttpServletResponse.class
-				// .isAssignableFrom(parameterTypes[1]))
-				// System.out.println(".response OK");
-				// }
 				if (Modifier.isPublic(method.getModifiers())
 						&& parameterTypes.length >= 2
 						&& HttpServletRequest.class
@@ -153,11 +95,6 @@ public class Api {
 					// Which HTTP method(s) will this method respond to?
 					List<Annotation> annotations = Arrays.asList(method
 							.getAnnotations());
-					// System.out.println("    > processing " +
-					// method.getName());
-					// for (Annotation annotation : annotations)
-					// System.out.println("    >   annotation " +
-					// annotation.getClass().getName());
 					for (Annotation annotation : annotations) {
 
 						Map<String, RequestHandler> map = ApiServlet
