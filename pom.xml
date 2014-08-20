@@ -64,7 +64,7 @@
 			<scope>test</scope>
 		</dependency>
 
-		<!-- Main: -->
+		<!-- Servlet: -->
 		<dependency>
 			<groupId>javax.servlet</groupId>
 			<artifactId>javax.servlet-api</artifactId>
@@ -76,6 +76,18 @@
 			<artifactId>javax.ws.rs-api</artifactId>
 			<version>2.0</version>
 		</dependency>
+
+        <!-- Jetty -->
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>9.2.2.v20140723</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-webapp</artifactId>
+            <version>9.2.2.v20140723</version>
+        </dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.glassfish.jersey.media</groupId> -->
 <!-- 			<artifactId>jersey-media-multipart</artifactId> -->
@@ -127,10 +139,16 @@
 					<include>LICENSE*</include>
 				</includes>
 			</resource>
+			<resource>
+				<directory>${project.basedir}/src/main/webapp</directory>
+				<includes>
+					<include>**/web.xml</include>
+				</includes>
+			</resource>
 		</resources>
 
 		<plugins>
-
+		
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -150,12 +168,27 @@
 				<configuration>
 					<archive>
 						<manifest>
+							<mainClass>com.github.davidcarboni.restolino.Main</mainClass>
 							<addDefaultImplementationEntries>true</addDefaultImplementationEntries>
 							<addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
 						</manifest>
 					</archive>
 				</configuration>
 			</plugin>
+			
+			<!-- Dependencies -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-dependency-plugin</artifactId>
+                <version>2.8</version>
+                <executions>
+                    <execution>
+                        <id>copy-dependencies</id>
+                        <phase>package</phase>
+                        <goals><goal>copy-dependencies</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 			<!-- Source JAR -->
 			<plugin>

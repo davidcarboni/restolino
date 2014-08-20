@@ -3,7 +3,7 @@ package com.github.davidcarboni.restolino.interfaces;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.davidcarboni.restolino.RequestHandler;
+import com.github.davidcarboni.restolino.servlet.RequestHandler;
 
 /**
  * Implementing this interface allows you to handle exceptions.

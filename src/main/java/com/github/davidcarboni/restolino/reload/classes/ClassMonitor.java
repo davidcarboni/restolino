@@ -2,16 +2,18 @@ package com.github.davidcarboni.restolino.reload.classes;
 
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.davidcarboni.restolino.Api;
+import com.github.davidcarboni.restolino.servlet.ApiServlet;
 
 public class ClassMonitor {
 
 	public static URL url;
+	public static URL[] urls;
 	static Path path;
 	static ClassLoader parent;
 	public static volatile ClassLoader classLoader;
@@ -23,6 +25,7 @@ public class ClassMonitor {
 			ClassMonitor.parent = parent;
 			ClassMonitor.path = FileSystems.getDefault().getPath(path);
 			ClassMonitor.url = ClassMonitor.path.toUri().toURL();
+			ClassMonitor.urls = new URL[] { url };
 			Scanner.start(ClassMonitor.path);
 		}
 	}
@@ -30,11 +33,11 @@ public class ClassMonitor {
 	public static void reload() {
 		ClassLoader classLoader;
 		try {
-			classLoader = ReverseClassLoader.newInstance(path, parent);
+			classLoader = new URLClassLoader(urls, parent);
 			if (classLoader != null) {
 				System.out.println("New class loader created for path " + path);
 				ClassMonitor.classLoader = classLoader;
-				Api.setup(classLoader);
+				ApiServlet.setup(classLoader);
 			} else
 				System.out.println("Class loader not created for path " + path);
 		} catch (Exception e) {

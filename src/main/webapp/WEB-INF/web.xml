@@ -18,12 +18,20 @@
 
 	<servlet>
 		<servlet-name>api</servlet-name>
-		<servlet-class>com.github.davidcarboni.restolino.Api</servlet-class>
+		<servlet-class>com.github.davidcarboni.restolino.servlet.ApiServlet</servlet-class>
 		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet>
+		<servlet-name>static</servlet-name>
+		<servlet-class>com.github.davidcarboni.restolino.servlet.StaticServlet</servlet-class>
+		<load-on-startup>2</load-on-startup>
 	</servlet>
 	<servlet-mapping>
 		<servlet-name>api</servlet-name>
 		<url-pattern>/api/*</url-pattern>
 	</servlet-mapping>
-
+	<servlet-mapping>
+		<servlet-name>static</servlet-name>
+		<url-pattern>/static/*</url-pattern>
+	</servlet-mapping>
 </web-app>
