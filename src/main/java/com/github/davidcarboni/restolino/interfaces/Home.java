@@ -1,5 +1,7 @@
 package com.github.davidcarboni.restolino.interfaces;
 
+import java.io.IOException;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -22,6 +24,11 @@ public interface Home {
 	 * @param res
 	 *            The {@link HttpServletResponse}
 	 * @return Something to be converted to JSON.
+	 * @throws IOException
+	 *             If an error occurs in sending the response. This will
+	 *             typically be thrown by attempts to write to the response
+	 *             stream.
 	 */
-	public Object get(HttpServletRequest req, HttpServletResponse res);
+	public Object get(HttpServletRequest req, HttpServletResponse res)
+			throws IOException;
 }
