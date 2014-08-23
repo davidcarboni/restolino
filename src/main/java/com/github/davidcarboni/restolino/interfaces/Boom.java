@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.davidcarboni.restolino.servlet.RequestHandler;
+import com.github.davidcarboni.restolino.RequestHandler;
 
 /**
  * Implementing this interface allows you to handle exceptions.
@@ -24,7 +24,8 @@ public interface Boom {
 	 * @param e
 	 *            The {@link Exception}
 	 * @param endpoint
-	 *            The class that the error occurred in.
+	 *            The class that the error occurred in. This will be null for a
+	 *            root ('/') request.
 	 * @return Something to be converted to JSON, or null.
 	 * @throws IOException
 	 *             If an error occurs in sending the response. This will
