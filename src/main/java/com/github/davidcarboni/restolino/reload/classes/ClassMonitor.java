@@ -2,9 +2,10 @@ package com.github.davidcarboni.restolino.reload.classes;
 
 import java.io.IOException;
 import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
+import javax.servlet.ServletException;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -15,14 +16,11 @@ public class ClassMonitor {
 	public static URL url;
 	public static URL[] urls;
 	static Path path;
-	static ClassLoader parent;
-	public static volatile ClassLoader classLoader;
 
 	public static void start(String path, ClassLoader parent)
 			throws IOException {
 
 		if (StringUtils.isNotBlank(path)) {
-			ClassMonitor.parent = parent;
 			ClassMonitor.path = FileSystems.getDefault().getPath(path);
 			ClassMonitor.url = ClassMonitor.path.toUri().toURL();
 			ClassMonitor.urls = new URL[] { url };
@@ -33,14 +31,11 @@ public class ClassMonitor {
 	public static void reload() {
 		ClassLoader classLoader;
 		try {
-			classLoader = new URLClassLoader(urls, parent);
-			if (classLoader != null) {
-				System.out.println("New class loader created for path " + path);
-				ClassMonitor.classLoader = classLoader;
-				ApiServlet.setup(classLoader);
-			} else
-				System.out.println("Class loader not created for path " + path);
-		} catch (Exception e) {
+			classLoader = new WinkyClassLoader(urls,
+					ClassMonitor.class.getClassLoader());
+			System.out.println("New class loader created for path " + path);
+			ApiServlet.setup(classLoader);
+		} catch (ServletException e) {
 			System.out.println("Error reloading classes.");
 			e.printStackTrace();
 		}
