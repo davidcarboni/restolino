@@ -9,7 +9,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.BaseHolder.Source;
 import org.eclipse.jetty.servlet.ServletHolder;
-import org.eclipse.jetty.util.resource.Resource;
 import org.eclipse.jetty.webapp.WebAppContext;
 
 import com.github.davidcarboni.restolino.servlet.ApiServlet;
@@ -43,10 +42,11 @@ public class Main {
 		WebAppContext root = new WebAppContext();
 
 		root.setContextPath("/");
-		Resource webxml = Resource.newClassPathResource("WEB-INF/web.xml");
+		// Resource webxml = Resource.newClassPathResource("WEB-INF/web.xml");
 		// root.setDescriptor(webxml);
 
-		root.addFilter(Filter.class, "/*", EnumSet.of(DispatcherType.FORWARD));
+		root.addFilter(Filter.class, "/*",
+				EnumSet.of(DispatcherType.FORWARD, DispatcherType.values()));
 		addServlet(root, ApiServlet.class, "/api");
 		addServlet(root, StaticServlet.class, "/static");
 

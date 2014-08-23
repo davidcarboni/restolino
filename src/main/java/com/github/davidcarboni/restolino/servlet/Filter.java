@@ -60,6 +60,8 @@ public class Filter implements javax.servlet.Filter {
 	public void doFilter(ServletRequest request, ServletResponse response,
 			FilterChain chain) throws IOException, ServletException {
 
+		System.out.println("Filter");
+
 		// Determine if this is a static content request:
 		HttpServletRequest req = (HttpServletRequest) request;
 		String path = req.getRequestURI().substring(
@@ -68,17 +70,19 @@ public class Filter implements javax.servlet.Filter {
 		boolean isStaticContent = StringUtils.isNotBlank(extension);
 
 		if (isStaticContent) {
-			// Static content goes to default servlet:
-			chain.doFilter(request, response);
-		} else {
+			System.out.println("Static");
 			if (reloadFiles)
 				// Page requests to the reloadable static servlet:
 				request.getRequestDispatcher("/static" + path).forward(request,
 						response);
 			else
-				// Delegate requests to the API:
-				request.getRequestDispatcher("/api" + path).forward(request,
-						response);
+				// Static content goes to default servlet:
+				chain.doFilter(request, response);
+		} else {
+			System.out.println("API");
+			// Send requests to the API:
+			request.getRequestDispatcher("/api" + path).forward(request,
+					response);
 		}
 	}
 

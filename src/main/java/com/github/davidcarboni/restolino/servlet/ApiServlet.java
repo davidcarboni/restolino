@@ -47,14 +47,15 @@ public class ApiServlet extends HttpServlet {
 				classLoader = new URLClassLoader(new URL[] { FileSystems
 						.getDefault().getPath(path).toUri().toURL() },
 						classLoader);
-				// Monitor for changes:
+				// Monitor for changes - this will call setup():
 				ClassMonitor.start(path, classLoader);
 			} catch (IOException e) {
 				throw new ServletException("Error starting class reloader", e);
 			}
+		} else {
+			setup(classLoader);
 		}
-
-		setup(classLoader);
+		System.out.println(this.getClass().getSimpleName() + " initialised.");
 	}
 
 	public static void setup(ClassLoader classLoader) throws ServletException {
@@ -80,28 +81,33 @@ public class ApiServlet extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
+		System.out.println(request.getMethod());
 		api.get(request, response);
 	}
 
 	@Override
 	public void doPut(HttpServletRequest request, HttpServletResponse response) {
+		System.out.println(request.getMethod());
 		api.put(request, response);
 	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) {
+		System.out.println(request.getMethod());
 		api.post(request, response);
 	}
 
 	@Override
 	public void doDelete(HttpServletRequest request,
 			HttpServletResponse response) {
+		System.out.println(request.getMethod());
 		api.delete(request, response);
 	}
 
 	@Override
 	public void doOptions(HttpServletRequest request,
 			HttpServletResponse response) {
+		System.out.println(request.getMethod());
 		api.options(request, response);
 	}
 

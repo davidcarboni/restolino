@@ -26,6 +26,8 @@ public class ClassMonitor {
 			ClassMonitor.urls = new URL[] { url };
 			Scanner.start(ClassMonitor.path);
 		}
+
+		reload();
 	}
 
 	public static void reload() {
