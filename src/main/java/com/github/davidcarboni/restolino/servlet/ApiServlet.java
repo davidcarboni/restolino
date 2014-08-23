@@ -1,38 +1,19 @@
 package com.github.davidcarboni.restolino.servlet;
 
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.OutputStreamWriter;
-import java.io.UnsupportedEncodingException;
-import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.HttpStatus;
 
 import com.github.davidcarboni.restolino.Api;
-import com.github.davidcarboni.restolino.DefaultRequestHandler;
-import com.github.davidcarboni.restolino.helpers.Path;
-import com.github.davidcarboni.restolino.interfaces.Boom;
-import com.github.davidcarboni.restolino.interfaces.Home;
-import com.github.davidcarboni.restolino.interfaces.NotFound;
-import com.github.davidcarboni.restolino.json.Serialiser;
 import com.github.davidcarboni.restolino.reload.classes.ClassMonitor;
 
 /**
@@ -44,29 +25,6 @@ import com.github.davidcarboni.restolino.reload.classes.ClassMonitor;
 public class ApiServlet extends HttpServlet {
 
 	public static Api api;
-
-	public static RequestHandler defaultRequestHandler;
-	public static Map<String, RequestHandler> get;
-	public static Map<String, RequestHandler> put;
-	public static Map<String, RequestHandler> post;
-	public static Map<String, RequestHandler> delete;
-
-	public static Map<String, RequestHandler> getMap(
-			Class<? extends Annotation> type) {
-		if (GET.class.isAssignableFrom(type))
-			return get;
-		else if (PUT.class.isAssignableFrom(type))
-			return put;
-		else if (POST.class.isAssignableFrom(type))
-			return post;
-		else if (DELETE.class.isAssignableFrom(type))
-			return delete;
-		return null;
-	}
-
-	public static Home home;
-	public static Boom boom;
-	public static NotFound notFound;
 
 	static final String KEY_CLASSES = "restolino.classes";
 
@@ -94,268 +52,57 @@ public class ApiServlet extends HttpServlet {
 			} catch (IOException e) {
 				throw new ServletException("Error starting class reloader", e);
 			}
-		} else {
-			// Running without reloading.
-			// Everything should be covered by the classloader:
-			setup(classLoader);
 		}
 
-		// Get the default handler:
-		defaultRequestHandler = new RequestHandler();
-		defaultRequestHandler.endpointClass = DefaultRequestHandler.class;
-		try {
-			defaultRequestHandler.method = DefaultRequestHandler.class
-					.getMethod("notImplemented", HttpServletRequest.class,
-							HttpServletResponse.class);
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(
-					"Code issue - default request handler not found", e);
-		}
+		setup(classLoader);
 	}
 
 	public static void setup(ClassLoader classLoader) throws ServletException {
 
-		// Api api = new Api();
+		// api = new Api(classLoader);
 		// api.setup(classLoader);
 		try {
+
 			Class<?> api = Class.forName(
 					"com.github.davidcarboni.restolino.Api", true, classLoader);
 			// Invoke the setup method:
-			api.getMethod("setup", ClassLoader.class).invoke(api, classLoader);
+			ApiServlet.api = (Api) api.getConstructor(ClassLoader.class)
+					.newInstance(classLoader);
+			// api.getMethod("setup", ClassLoader.class).invoke(api,
+			// classLoader);
 		} catch (InvocationTargetException | ClassNotFoundException
 				| IllegalAccessException | IllegalArgumentException
-				| NoSuchMethodException | SecurityException e) {
+				| NoSuchMethodException | SecurityException
+				| InstantiationException e) {
 			throw new ServletException("Error setting up API", e);
 		}
 	}
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-
-		if (home != null && isRootRequest(request)) {
-			// Handle a / request:
-			Object responseMessage = home.get(request, response);
-			if (responseMessage != null)
-				writeMessage(response, responseMessage.getClass(),
-						responseMessage);
-		} else {
-			doMethod(request, response, get);
-		}
+		api.get(request, response);
 	}
 
 	@Override
 	public void doPut(HttpServletRequest request, HttpServletResponse response) {
-		doMethod(request, response, put);
+		api.put(request, response);
 	}
 
 	@Override
 	public void doPost(HttpServletRequest request, HttpServletResponse response) {
-		doMethod(request, response, post);
+		api.post(request, response);
 	}
 
 	@Override
 	public void doDelete(HttpServletRequest request,
 			HttpServletResponse response) {
-		doMethod(request, response, delete);
+		api.delete(request, response);
 	}
 
 	@Override
 	public void doOptions(HttpServletRequest request,
 			HttpServletResponse response) {
-
-		List<String> result = new ArrayList<>();
-
-		if (home != null && isRootRequest(request)) {
-
-			// We only allow GET to the root resource:
-			result.add("GET");
-
-		} else {
-
-			// Determine which methods are configured:
-			if (mapRequestPath(get, request) != null)
-				result.add("GET");
-			if (mapRequestPath(put, request) != null)
-				result.add("PUT");
-			if (mapRequestPath(post, request) != null)
-				result.add("POST");
-			if (mapRequestPath(delete, request) != null)
-				result.add("DELETE");
-		}
-
-		response.setHeader("Allow", StringUtils.join(result, ','));
-		// writeMessage(response, List.class, result);
-	}
-
-	/**
-	 * Determines if the given request is for the root resource (ie /).
-	 * 
-	 * @param request
-	 *            The {@link HttpServletRequest}
-	 * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
-	 *         or "/" ten true.
-	 */
-	private static boolean isRootRequest(HttpServletRequest request) {
-		String path = request.getPathInfo();
-		if (StringUtils.isBlank(path))
-			return true;
-		if (StringUtils.equals("/", path))
-			return true;
-		return false;
-	}
-
-	/**
-	 * GO!
-	 * 
-	 * @param request
-	 *            The request.
-	 * @param response
-	 *            The response.
-	 * @param requestHandlers
-	 *            One of the handler maps.
-	 */
-	static void doMethod(HttpServletRequest request,
-			HttpServletResponse response,
-			Map<String, RequestHandler> requestHandlers) {
-
-		// Locate a request handler:
-		RequestHandler requestHandler = mapRequestPath(requestHandlers, request);
-
-		try {
-
-			if (requestHandler != null) {
-
-				Object handler = instantiate(requestHandler.endpointClass);
-				Object responseMessage = invoke(request, response, handler,
-						requestHandler.method,
-						requestHandler.requestMessageType);
-				if (requestHandler.responseMessageType != null) {
-					writeMessage(response, requestHandler.responseMessageType,
-							responseMessage);
-				}
-
-			} else {
-
-				// Not found
-				response.setStatus(HttpStatus.SC_NOT_FOUND);
-				if (notFound != null)
-					notFound.handle(request, response);
-			}
-		} catch (Throwable t) {
-
-			// Set a default response code:
-			response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
-
-			if (boom != null) {
-				try {
-					// Attempt to handle the error gracefully:
-					boom.handle(request, response, requestHandler, t);
-				} catch (Throwable t2) {
-					t2.printStackTrace();
-				}
-			} else {
-				t.printStackTrace();
-			}
-		}
-
-	}
-
-	/**
-	 * Locates a {@link RequestHandler} for the path of the given request.
-	 * 
-	 * @param requestHandlers
-	 *            One of the handler maps.
-	 * @param request
-	 *            The request.
-	 * @return A matching handler, if one exists.
-	 */
-	private static RequestHandler mapRequestPath(
-			Map<String, RequestHandler> requestHandlers,
-			HttpServletRequest request) {
-
-		String endpointName = Path.newInstance(request).firstSegment();
-		endpointName = StringUtils.lowerCase(endpointName);
-		// System.out.println("Mapping endpoint " + endpointName);
-		return requestHandlers.get(endpointName);
-	}
-
-	private static Object instantiate(Class<?> endpointClass) {
-
-		// Instantiate:
-		Object result = null;
-		try {
-			result = endpointClass.newInstance();
-		} catch (InstantiationException e) {
-			throw new RuntimeException("Unable to instantiate "
-					+ endpointClass.getSimpleName(), e);
-		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Unable to access "
-					+ endpointClass.getSimpleName(), e);
-		} catch (NullPointerException e) {
-			throw new RuntimeException("No class to instantiate", e);
-		}
-		return result;
-
-	}
-
-	private static Object invoke(HttpServletRequest request,
-			HttpServletResponse response, Object handler, Method method,
-			Class<?> requestMessage) {
-		Object result = null;
-
-		System.out.println("Invoking method " + method.getName() + " on "
-				+ handler.getClass().getSimpleName() + " for request message "
-				+ requestMessage);
-		try {
-			if (requestMessage != null) {
-				Object message = readMessage(request, requestMessage);
-				result = method.invoke(handler, request, response, message);
-			} else {
-				result = method.invoke(handler, request, response);
-			}
-		} catch (Exception e) {
-			System.out.println("!Error: " + e.getMessage());
-			throw new RuntimeException("Error invoking method "
-					+ method.getName() + " on "
-					+ handler.getClass().getSimpleName(), e);
-		}
-
-		System.out.println("Result is " + result);
-		return result;
-	}
-
-	private static Object readMessage(HttpServletRequest request,
-			Class<?> requestMessageType) {
-
-		try (InputStreamReader streamReader = new InputStreamReader(
-				request.getInputStream(), "UTF8")) {
-			return Serialiser.getBuilder().create()
-					.fromJson(streamReader, requestMessageType);
-		} catch (UnsupportedEncodingException e) {
-			throw new RuntimeException("Unsupported encoding", e);
-		} catch (IOException e) {
-			throw new RuntimeException("Error reading message", e);
-		}
-	}
-
-	private static void writeMessage(HttpServletResponse response,
-			Class<?> responseMessageType, Object responseMessage) {
-
-		if (responseMessage != null) {
-
-			response.setContentType("application/json");
-			response.setCharacterEncoding("UTF8");
-			try (OutputStreamWriter writer = new OutputStreamWriter(
-					response.getOutputStream(), "UTF8")) {
-
-				Serialiser.getBuilder().create()
-						.toJson(responseMessage, responseMessageType, writer);
-			} catch (UnsupportedEncodingException e) {
-				throw new RuntimeException("Unsupported encoding", e);
-			} catch (IOException e) {
-				throw new RuntimeException("Error reading message", e);
-			}
-		}
+		api.options(request, response);
 	}
 
 }

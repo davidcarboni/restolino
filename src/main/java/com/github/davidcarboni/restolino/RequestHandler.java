@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.servlet;
+package com.github.davidcarboni.restolino;
 
 import java.lang.reflect.Method;
 

@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.github.davidcarboni.restolino.interfaces.Home;
 
-public class HomeRedirect implements Home {
+public class HomeRedirect {
 
 	private String path;
 
@@ -25,7 +25,10 @@ public class HomeRedirect implements Home {
 		this.path = uri.toString();
 	}
 
-	@Override
+	/**
+	 * Extending this class and implementing {@link Home} will make use of this
+	 * method.
+	 */
 	public Object get(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		res.sendRedirect(path);
