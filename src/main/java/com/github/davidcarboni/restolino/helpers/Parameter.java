@@ -1,7 +1,5 @@
 package com.github.davidcarboni.restolino.helpers;
 
-import javax.servlet.http.HttpServletRequest;
-
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -22,8 +20,8 @@ public class Parameter {
 	 * @return The final segment of the path as an int. If no final segment can
 	 *         be found or parsed, -1.
 	 */
-	public static int getId(HttpServletRequest req) {
-		return toInt(Path.newInstance(req).lastSegment());
+	public static int getId(Path path) {
+		return toInt(path.lastSegment());
 	}
 
 	/**
@@ -58,7 +56,15 @@ public class Parameter {
 		return result;
 	}
 
-	private static boolean isDigits(String value) {
+	/**
+	 * Convenience method for determining whether a string contains only digits,
+	 * handling null.
+	 * 
+	 * @param value
+	 *            The value to test.
+	 * @return If the parameter is not null and contains only 0-9, true.
+	 */
+	public static boolean isDigits(String value) {
 		return StringUtils.isNotBlank(value) && value.matches("\\d+");
 	}
 }
