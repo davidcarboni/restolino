@@ -7,9 +7,18 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.github.davidcarboni.restolino.interfaces.Endpoint;
 import com.github.davidcarboni.restolino.interfaces.Home;
 
-public class HomeRedirect {
+/**
+ * Extend this class and annotate your subclass with {@link Endpoint}. This
+ * class provides the functionality needed to send a redirect. Typical intended
+ * use is to redirect <code>GET /</code> to a static index page.
+ * 
+ * @author david
+ *
+ */
+public abstract class HomeRedirect {
 
 	private String path;
 
