@@ -5,14 +5,9 @@ import static org.junit.Assert.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Before;
 import org.junit.Test;
 
 public class ParameterTest {
-
-	@Before
-	public void setUp() throws Exception {
-	}
 
 	@Test
 	public void shouldParseLastSegmentOfPath() {
