@@ -81,7 +81,7 @@ public class ApiServlet extends HttpServlet {
 
 	@Override
 	public void doGet(HttpServletRequest request, HttpServletResponse response) {
-		System.out.println(request.getMethod());
+		System.out.println("API " + request.getMethod());
 		api.get(request, response);
 	}
 
