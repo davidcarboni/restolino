@@ -2,6 +2,7 @@ package com.github.davidcarboni.restolino;
 
 import javax.servlet.Servlet;
 
+import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.BaseHolder.Source;
@@ -23,7 +24,11 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
-		Server server = new Server(8080);
+		String port = System.getenv("PORT");
+		if (StringUtils.isBlank(port))
+			port = "8080";
+		System.out.println("Using port " + port);
+		Server server = new Server(Integer.parseInt(port));
 		Handler mainHandler = new MainHandler();
 		server.setHandler(mainHandler);
 		server.start();
