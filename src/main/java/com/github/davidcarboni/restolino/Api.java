@@ -4,8 +4,6 @@ import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -80,24 +78,25 @@ public class Api {
 	}
 
 	public Api(ClassLoader classLoader) {
+		// ClassLoader classLoader = Api.class.getClassLoader();
 
 		// Print out class loaders:
 		// ClassLoader classLoader = getClass().getClassLoader();
-		System.out.println("ClassLoader:");
-		ClassLoader current = classLoader;
-		do {
-			System.out.println(" : " + current.getClass().getSimpleName());
-			if (URLClassLoader.class.isAssignableFrom(current.getClass())) {
-				for (URL url : ((URLClassLoader) current).getURLs()) {
-					System.out.println("  - " + url);
-				}
-			}
-
-			// Level up:
-			current = current.getParent();
-			if (current != null)
-				System.out.println("Parent:");
-		} while (current != null);
+		// System.out.println("ClassLoader:");
+		// ClassLoader current = classLoader;
+		// do {
+		// System.out.println(" : " + current.getClass().getSimpleName());
+		// if (URLClassLoader.class.isAssignableFrom(current.getClass())) {
+		// for (URL url : ((URLClassLoader) current).getURLs()) {
+		// System.out.println("  - " + url);
+		// }
+		// }
+		//
+		// // Level up:
+		// current = current.getParent();
+		// if (current != null)
+		// System.out.println("Parent:");
+		// } while (current != null);
 
 		// Build a reflections instance to find classes:
 		Reflections reflections = createReflections(classLoader);
@@ -128,7 +127,7 @@ public class Api {
 		System.out.println("Scanning for endpoints..");
 		Set<Class<?>> endpoints = reflections
 				.getTypesAnnotatedWith(Endpoint.class);
-		System.out.println(reflections.getConfiguration().getUrls());
+		// System.out.println(reflections.getConfiguration().getUrls());
 
 		System.out.println("Found " + endpoints.size() + " endpoints.");
 		System.out.println("Examining endpoint methods..");
@@ -565,7 +564,7 @@ public class Api {
 		Reflections reflections = new Reflections(new ConfigurationBuilder()
 				.addClassLoader(classLoader).addUrls(
 						ClasspathHelper.forClassLoader(classLoader)));
-		System.out.println(reflections.getConfiguration().getUrls());
+		// System.out.println(reflections.getConfiguration().getUrls());
 		return reflections;
 	}
 
