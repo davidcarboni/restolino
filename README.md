@@ -8,7 +8,7 @@ A brutally opinionated, super-simple REST API framework for Java.
 
 It's not comprehensive, won't give you the flexibility you want and doesn't really care about your special needs.
 
-What it does do is get you started and stays out of your way, because configuring frameworks is a distraction from what you are actually trying to achieve. Java is a great language with loads of support, but it's not efficient for the Web. This is my way of changing that.
+What it does do is get you started and stays out of your way, because configuring frameworks is a distraction from what you are actually trying to achieve. Java is a great language with loads of support, but it's not efficient for the Web. This is my way of changing that. It's good for REST and it's also a nice quick-and-dirty static file server.
 
 If you're a purist, this is not the framework you are looking for. 
 
