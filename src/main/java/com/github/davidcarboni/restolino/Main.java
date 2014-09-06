@@ -27,7 +27,8 @@ public class Main {
 		String port = System.getenv("PORT");
 		if (StringUtils.isBlank(port))
 			port = "8080";
-		System.out.println("Using port " + port);
+		System.out.println("Using port " + port
+				+ " (specify a PORT environment variable to change it)");
 		Server server = new Server(Integer.parseInt(port));
 		Handler mainHandler = new MainHandler();
 		server.setHandler(mainHandler);
