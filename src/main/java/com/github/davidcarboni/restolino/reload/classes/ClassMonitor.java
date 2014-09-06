@@ -5,11 +5,9 @@ import java.net.URL;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
-import javax.servlet.ServletException;
-
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.davidcarboni.restolino.servlet.ApiServlet;
+import com.github.davidcarboni.restolino.handlers.ApiHandler;
 
 public class ClassMonitor {
 
@@ -31,16 +29,17 @@ public class ClassMonitor {
 	}
 
 	public static void reload() {
-		ClassLoader classLoader;
-		try {
-			classLoader = new WinkyClassLoader(urls,
-					ClassMonitor.class.getClassLoader());
-			System.out.println("New class loader created for path " + path);
-			ApiServlet.setup(classLoader);
-		} catch (ServletException e) {
-			System.out.println("Error reloading classes.");
-			e.printStackTrace();
-		}
+		ApiHandler.setupApi();
+		// ClassLoader classLoader = ApiHandler.setupApi();
+		// try {
+		// classLoader = new WinkyClassLoader(urls,
+		// ClassMonitor.class.getClassLoader());
+		// System.out.println("New class loader created for path " + path);
+		// ApiServlet.setup(classLoader);
+		// } catch (ServletException e) {
+		// System.out.println("Error reloading classes.");
+		// e.printStackTrace();
+		// }
 	}
 
 	// public static void main(String[] args) throws IOException,
