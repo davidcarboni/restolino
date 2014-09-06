@@ -17,7 +17,7 @@ import com.github.davidcarboni.restolino.interfaces.Home;
  * @author david
  *
  */
-public abstract class HomeRedirect {
+public abstract class HomeRedirect implements Home {
 
 	private String path;
 
@@ -37,6 +37,7 @@ public abstract class HomeRedirect {
 	 * Extending this class and implementing {@link Home} will make use of this
 	 * method.
 	 */
+	@Override
 	public Object get(HttpServletRequest req, HttpServletResponse res)
 			throws IOException {
 		res.sendRedirect(path);

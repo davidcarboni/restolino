@@ -9,6 +9,7 @@ import java.net.URLClassLoader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -349,9 +350,13 @@ public class Api {
 			Reflections reflections) {
 		E result = null;
 
-		// Get annotated classes:
-		Set<Class<? extends E>> endpointClasses = reflections
-				.getSubTypesOf(type);
+		// Get concrete subclasses:
+		Set<Class<? extends E>> foundClasses = reflections.getSubTypesOf(type);
+		Set<Class<? extends E>> endpointClasses = new HashSet<>();
+		for (Class<? extends E> clazz : foundClasses) {
+			if (!Modifier.isAbstract(clazz.getModifiers()))
+				endpointClasses.add(clazz);
+		}
 
 		if (endpointClasses.size() == 0)
 
