@@ -2,10 +2,12 @@ package com.github.davidcarboni.restolino.servlet;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Map.Entry;
 
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
+import javax.servlet.ServletRegistration;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
@@ -64,8 +66,10 @@ public class Filter implements javax.servlet.Filter {
 
 		// Determine if this is a static content request:
 		HttpServletRequest req = (HttpServletRequest) request;
-		String path = req.getRequestURI().substring(
-				req.getContextPath().length());
+		String contextPath = "";
+		if (req.getContextPath() != null)
+			contextPath = req.getContextPath();
+		String path = req.getRequestURI().substring(contextPath.length());
 		String extension = FilenameUtils.getExtension(path);
 		boolean isStaticContent = StringUtils.isNotBlank(extension);
 
