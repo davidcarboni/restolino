@@ -8,6 +8,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
+import com.github.davidcarboni.restolino.Configuration;
+
 /**
  * A {@link ResourceHandler} implementation that serves resources from the given
  * base {@link URL}. This is used to serve static content from the classpath,
@@ -20,13 +22,15 @@ public class FilesHandler extends ResourceHandler {
 
 	static String KEY_FILES = "restolino.files";
 	static String filesResourceName = "files";
+	Configuration configuration;
 
-	FilesHandler(URL url) {
+	FilesHandler(URL url, Configuration configuration) {
+		this.configuration = configuration;
 		Resource base = Resource.newResource(url);
 		setBaseResource(base);
 	}
 
-	public static ResourceHandler newInstance() {
+	public static ResourceHandler newInstance(Configuration configuration) {
 		URL url = null;
 
 		// If the property is set, reload from a local directory:
@@ -55,7 +59,7 @@ public class FilesHandler extends ResourceHandler {
 		FilesHandler result = null;
 		if (url != null) {
 			System.out.println("Set up file handler for URL: " + url);
-			result = new FilesHandler(url);
+			result = new FilesHandler(url, configuration);
 		}
 		return result;
 	}

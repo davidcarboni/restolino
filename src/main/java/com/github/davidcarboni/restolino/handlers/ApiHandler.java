@@ -14,6 +14,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.github.davidcarboni.restolino.Api;
+import com.github.davidcarboni.restolino.Configuration;
 
 public class ApiHandler extends AbstractHandler {
 
@@ -24,8 +25,12 @@ public class ApiHandler extends AbstractHandler {
 	static URL reloadableClassesUrl;
 	static volatile Api api;
 
-	public ApiHandler(ClassLoader classLoader, URL classpathClassesUrll) {
+	private Configuration configuration;
+
+	public ApiHandler(ClassLoader classLoader, URL classpathClassesUrll,
+			Configuration configuration) {
 		ApiHandler.classLoader = classLoader;
+		this.configuration = configuration;
 		if (classpathClassesUrll != null)
 			System.out
 					.println("Classes are included in the classpath. No reloading will be configured ("

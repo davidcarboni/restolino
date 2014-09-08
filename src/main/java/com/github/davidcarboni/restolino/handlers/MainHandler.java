@@ -16,14 +16,18 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
+import com.github.davidcarboni.restolino.Configuration;
 import com.github.davidcarboni.restolino.reload.classes.ClassMonitor;
 
 public class MainHandler extends AbstractHandler {
 
 	ResourceHandler fileHandler;
 	Handler apiHandler;
+	Configuration configuration;
 
 	public MainHandler() {
+
+		configuration = new Configuration();
 		setupFilesHandler();
 		setupApiHandler();
 
@@ -35,7 +39,7 @@ public class MainHandler extends AbstractHandler {
 	}
 
 	private void setupFilesHandler() {
-		fileHandler = FilesHandler.newInstance();
+		fileHandler = FilesHandler.newInstance(configuration);
 		if (fileHandler == null) {
 			System.out.println("No file handler configured. "
 					+ "No resource found on the classpath "
@@ -47,7 +51,7 @@ public class MainHandler extends AbstractHandler {
 
 		ClassLoader classLoader = MainHandler.class.getClassLoader();
 		URL classesUrl = null;
-		apiHandler = new ApiHandler(classLoader, classesUrl);
+		apiHandler = new ApiHandler(classLoader, classesUrl, configuration);
 
 		if (URLClassLoader.class.isAssignableFrom(classLoader.getClass())) {
 			@SuppressWarnings("resource")
