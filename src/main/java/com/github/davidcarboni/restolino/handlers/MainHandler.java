@@ -23,9 +23,9 @@ public class MainHandler extends AbstractHandler {
 	Handler apiHandler;
 	Configuration configuration;
 
-	public MainHandler() {
+	public MainHandler(Configuration configuration) {
 
-		configuration = new Configuration();
+		this.configuration = configuration;
 		setupFilesHandler();
 		setupApiHandler();
 

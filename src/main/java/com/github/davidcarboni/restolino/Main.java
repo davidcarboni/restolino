@@ -2,7 +2,6 @@ package com.github.davidcarboni.restolino;
 
 import javax.servlet.Servlet;
 
-import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.servlet.BaseHolder.Source;
@@ -24,13 +23,11 @@ public class Main {
 
 	public static void main(String[] args) throws Exception {
 
-		String port = System.getenv("PORT");
-		if (StringUtils.isBlank(port))
-			port = "8080";
-		System.out.println("Using port " + port
+		Configuration configuration = new Configuration();
+		System.out.println("Using port " + configuration.port
 				+ " (specify a PORT environment variable to change it)");
-		Server server = new Server(Integer.parseInt(port));
-		Handler mainHandler = new MainHandler();
+		Server server = new Server(configuration.port);
+		Handler mainHandler = new MainHandler(configuration);
 		server.setHandler(mainHandler);
 		server.start();
 		// server.dumpStdErr();
