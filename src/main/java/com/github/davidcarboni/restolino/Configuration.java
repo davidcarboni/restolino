@@ -15,16 +15,16 @@ public class Configuration {
 	public static final String FILES_RESOURCE = "files";
 
 	/** The server port. */
-	int port = 8080;
+	public int port = 8080;
 
 	/** If files will be dynamically reloaded, true. */
-	boolean filesReloadable;
+	public boolean filesReloadable;
 
 	/**
 	 * If files will be dynamically reloaded, the path from which they are being
 	 * loaded.
 	 */
-	Path filesPath;
+	public Path filesPath;
 
 	/**
 	 * The URL from which files will be served. If reloading, this will
@@ -32,7 +32,7 @@ public class Configuration {
 	 * reloading, this will typically be JAR URL that points to a
 	 * <code>files/...</code> resource directory in your artifact.
 	 */
-	URL filesUrl;
+	public URL filesUrl;
 
 	/**
 	 * If a <code>.../classes</code> entry is present on the classpath, that URL
@@ -43,16 +43,16 @@ public class Configuration {
 	 * messages because the classes on the classpath will take precedence
 	 * (because class loaders delegate upwards).
 	 */
-	URL classesInClasspath;
+	public URL classesInClasspath;
 
 	/** If classes will be dynamically reloaded, true. */
-	boolean classesReloadable;
+	public boolean classesReloadable;
 
 	/**
 	 * If classes will be dynamically reloaded, the path from which they will be
 	 * monitored for changes and loaded.
 	 */
-	Path classesPath;
+	public Path classesPath;
 
 	/**
 	 * The URL from which classes will be served. If reloading, this will
@@ -60,7 +60,7 @@ public class Configuration {
 	 * reloading, this will typically be JAR URL that points to a
 	 * <code>files/...</code> resource directory in your artifact.
 	 */
-	URL classesUrl;
+	public URL classesUrl;
 
 	public Configuration() {
 
