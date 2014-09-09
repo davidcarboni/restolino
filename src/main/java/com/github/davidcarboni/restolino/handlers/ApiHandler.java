@@ -20,47 +20,28 @@ public class ApiHandler extends AbstractHandler {
 
 	static final String KEY_CLASSES = "restolino.classes";
 
-	static ClassLoader classLoader;
-	static ClassLoader reloadableClassLoader;
-	static URL reloadableClassesUrl;
+	private static Configuration configuration;
+	private static ClassLoader classLoader;
 	static volatile Api api;
 
-	private Configuration configuration;
-
-	public ApiHandler(ClassLoader classLoader, URL classpathClassesUrll,
-			Configuration configuration) {
-		ApiHandler.classLoader = classLoader;
-		this.configuration = configuration;
-		if (classpathClassesUrll != null)
+	public ApiHandler(Configuration configuration) {
+		ApiHandler.configuration = configuration;
+		classLoader = ApiHandler.class.getClassLoader();
+		if (configuration.classesInClasspath != null)
 			System.out
 					.println("Classes are included in the classpath. No reloading will be configured ("
-							+ classpathClassesUrll + ")");
-		else {
-			reloadableClassesUrl = getClassesUrl();
-		}
-
+							+ configuration.classesInClasspath + ")");
 		setupApi();
 	}
 
 	public static void setupApi() {
-		// try {
-		if (reloadableClassesUrl != null) {
-			reloadableClassLoader = new URLClassLoader(
-					new URL[] { reloadableClassesUrl }, classLoader);
-			System.out.println("Passing reloadable ClassLoader to API");
-			// api = (Api) Class.forName(Api.class.getName(), false,
-			// reloadableClassLoader).newInstance();
+		if (configuration.classesReloadable) {
+			ClassLoader reloadableClassLoader = new URLClassLoader(
+					new URL[] { configuration.classesUrl }, classLoader);
 			api = new Api(reloadableClassLoader);
 		} else {
-			System.out.println("Passing non-reloadable ClassLoader to API");
-			// api = (Api) Class.forName(Api.class.getName(), false,
-			// classLoader).newInstance();
 			api = new Api(classLoader);
 		}
-		// } catch (InstantiationException | IllegalAccessException
-		// | ClassNotFoundException e) {
-		// throw new RuntimeException(e);
-		// }
 	}
 
 	private static URL getClassesUrl() {
