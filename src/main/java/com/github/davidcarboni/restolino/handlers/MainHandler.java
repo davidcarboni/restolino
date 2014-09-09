@@ -1,7 +1,6 @@
 package com.github.davidcarboni.restolino.handlers;
 
 import java.io.IOException;
-import java.net.URL;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -47,9 +46,6 @@ public class MainHandler extends AbstractHandler {
 	}
 
 	private void setupApiHandler() {
-
-		ClassLoader classLoader = MainHandler.class.getClassLoader();
-		URL classesUrl = null;
 		apiHandler = new ApiHandler(configuration);
 	}
 
