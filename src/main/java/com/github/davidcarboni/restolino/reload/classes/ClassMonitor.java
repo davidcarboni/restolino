@@ -30,44 +30,6 @@ public class ClassMonitor {
 
 	public static void reload() {
 		ApiHandler.setupApi();
-		// ClassLoader classLoader = ApiHandler.setupApi();
-		// try {
-		// classLoader = new WinkyClassLoader(urls,
-		// ClassMonitor.class.getClassLoader());
-		// System.out.println("New class loader created for path " + path);
-		// ApiServlet.setup(classLoader);
-		// } catch (ServletException e) {
-		// System.out.println("Error reloading classes.");
-		// e.printStackTrace();
-		// }
 	}
-
-	// public static void main(String[] args) throws IOException,
-	// InterruptedException, ClassNotFoundException,
-	// IllegalAccessException, IllegalArgumentException,
-	// InvocationTargetException, NoSuchMethodException,
-	// SecurityException, InstantiationException {
-	//
-	// // The path:
-	// Path folder = Paths.get("./target/classes");
-	// System.out.println(folder.toUri().normalize().toURL());
-	//
-	// start(folder.toString(), ClassMonitor.class.getClassLoader());
-	//
-	// ClassLoader previous = null;
-	// while (true) {
-	// Thread.sleep(1000);
-	// if (classLoader != previous) {
-	// previous = classLoader;
-	// System.out
-	// .println(" --- Attempting to access reloaded classes...");
-	// Class<?> type = Class.forName(
-	// "com.github.davidcarboni.jload.ClassMonitor", true,
-	// classLoader);
-	// System.out.println(" --- ");
-	// type.getMethod("thing").invoke(type.newInstance());
-	// }
-	// }
-	// }
 
 }
