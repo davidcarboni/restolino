@@ -78,25 +78,6 @@ public class Api {
 	}
 
 	public Api(ClassLoader classLoader) {
-		// ClassLoader classLoader = Api.class.getClassLoader();
-
-		// Print out class loaders:
-		// ClassLoader classLoader = getClass().getClassLoader();
-		// System.out.println("ClassLoader:");
-		// ClassLoader current = classLoader;
-		// do {
-		// System.out.println(" : " + current.getClass().getSimpleName());
-		// if (URLClassLoader.class.isAssignableFrom(current.getClass())) {
-		// for (URL url : ((URLClassLoader) current).getURLs()) {
-		// System.out.println("  - " + url);
-		// }
-		// }
-		//
-		// // Level up:
-		// current = current.getParent();
-		// if (current != null)
-		// System.out.println("Parent:");
-		// } while (current != null);
 
 		// Build a reflections instance to find classes:
 		Reflections reflections = createReflections(classLoader);
