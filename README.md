@@ -62,7 +62,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.6</version>
         </dependency>
     
         <!-- You'll probably want the Servlet API: -->
