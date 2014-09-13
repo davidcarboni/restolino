@@ -13,12 +13,12 @@ public class Parameter {
 
 	/**
 	 * Convenience method for getting an ID from the last segment of a path.
-	 * Internally this uses {@link Path} and {@link #toInt(String)}.
+	 * Internally this uses {@link #toInt(String)}.
 	 * 
-	 * @param req
-	 *            The request.
+	 * @param path
+	 *            The {@link Path} to inspect.
 	 * @return The final segment of the path as an int. If no final segment can
-	 *         be found or parsed, -1.
+	 *         be found, or it cannot be parsed, -1.
 	 */
 	public static int getId(Path path) {
 		return toInt(path.lastSegment());
