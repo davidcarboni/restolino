@@ -322,9 +322,13 @@ public class Api {
 	 * Locates a single endpoint class.
 	 * 
 	 * @param type
+	 *            The type of the endpoint class.
 	 * @param name
+	 *            The name of the endpoint.
 	 * @param reflections
-	 * @return
+	 *            The {@link Reflections} instance to use to locate the
+	 *            endpoint.
+	 * @return The endpoint.
 	 */
 	private static <E> E getEndpoint(Class<E> type, String name,
 			Reflections reflections) {
@@ -492,7 +496,7 @@ public class Api {
 		return requestHandlers.get(endpointName);
 	}
 
-	private Object instantiate(Class<?> endpointClass) {
+	private static Object instantiate(Class<?> endpointClass) {
 
 		// Instantiate:
 		Object result = null;
@@ -511,7 +515,7 @@ public class Api {
 
 	}
 
-	private Object invoke(HttpServletRequest request,
+	private static Object invoke(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Method method,
 			Class<?> requestMessage) {
 		Object result = null;
@@ -538,6 +542,14 @@ public class Api {
 		return result;
 	}
 
+	/**
+	 * Builds a {@link Reflections} instance that will scan for classes in, and
+	 * load them from, the given class loader.
+	 * 
+	 * @param classLoader
+	 *            The class loader to scan and load from.
+	 * @return A new {@link Reflections} instance.
+	 */
 	private static Reflections createReflections(ClassLoader classLoader) {
 
 		// We set up reflections to use the classLoader for loading classes
