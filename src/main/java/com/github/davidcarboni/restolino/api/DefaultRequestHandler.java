@@ -3,7 +3,7 @@ package com.github.davidcarboni.restolino.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
+import org.eclipse.jetty.http.HttpStatus;
 
 /**
  * This request handler gets set as the default for each HTTP method on each
@@ -25,7 +25,7 @@ public class DefaultRequestHandler {
 	 *            {@link HttpServletResponse}
 	 */
 	public String notImplemented(HttpServletRequest req, HttpServletResponse res) {
-		res.setStatus(HttpStatus.SC_METHOD_NOT_ALLOWED);
+		res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
 		return req.getMethod() + notImplemented + req.getPathInfo();
 	}
 }

@@ -21,7 +21,6 @@ import javax.ws.rs.PUT;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.apache.http.HttpStatus;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
@@ -442,7 +441,7 @@ public class Api {
 			HttpServletResponse response) throws IOException {
 
 		// Set a default response code:
-		response.setStatus(HttpStatus.SC_NOT_FOUND);
+		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 
 		if (notFound != null) {
 			// Attempt to handle the not-found gracefully:
@@ -459,7 +458,7 @@ public class Api {
 			Throwable t) {
 
 		// Set a default response code:
-		response.setStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
 		try {
 			if (boom != null) {
