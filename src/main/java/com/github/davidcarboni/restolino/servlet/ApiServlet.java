@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 
 import com.github.davidcarboni.restolino.Api;
-import com.github.davidcarboni.restolino.reload.classes.ClassMonitor;
+import com.github.davidcarboni.restolino.reload.ClassMonitor;
 
 /**
  * This is the framework controller.

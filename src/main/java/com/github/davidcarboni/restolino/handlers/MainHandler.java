@@ -15,7 +15,7 @@ import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import com.github.davidcarboni.restolino.Configuration;
-import com.github.davidcarboni.restolino.reload.classes.ClassMonitor;
+import com.github.davidcarboni.restolino.reload.ClassMonitor;
 
 public class MainHandler extends AbstractHandler {
 
