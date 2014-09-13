@@ -179,6 +179,15 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
 Why not reload in production? Simple: you want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in production, deploy a new build using your flavour of continuous delivery.
 
 
+### FAQ (Frequently Anticipated Questions)
+
+#### Why not use interfaces for request handlers?
+
+I've tried, but it adds complexity, doesn't add value and makes things harder. Why? Because there may or may not be a request message type and you can return any (or no) response message type. That means an interface would need to define generic types for a vararges parameter (ever tried that?) and return type, or make them Object, which is altogether rather too generic.
+
+Searching for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution then send me a pull request.
+
+
 ### Is it really that cool?
 
 I was able to create a project from scratch and get to a running api in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the opaque confusion of debugging config.
