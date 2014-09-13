@@ -8,31 +8,34 @@ import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 
+/**
+ * Determines the correct configuration, based on environment variables, system
+ * properties and checking the classloader hierarchy for a classes URL.
+ * 
+ * @author david
+ *
+ */
 public class Configuration {
 	public static final String PORT = "PORT";
 	public static final String CLASSES = "restolino.classes";
 	public static final String FILES = "restolino.files";
 	public static final String FILES_RESOURCE = "files";
 
-	/** The server port. */
+	/** The Jetty server port. */
 	public int port = 8080;
 
 	/** If files will be dynamically reloaded, true. */
 	public boolean filesReloadable;
 
 	/**
-	 * If files will be dynamically reloaded, the path from which they are being
-	 * loaded.
-	 */
-	public Path filesPath;
-
-	/**
-	 * The URL from which files will be served. If reloading, this will
-	 * typically be a file URL that corresponds to {@link #filesPath}. If not
-	 * reloading, this will typically be JAR URL that points to a
-	 * <code>files/...</code> resource directory in your artifact.
+	 * If files will be dynamically reloaded, the URL from which they will be
+	 * loaded. If not reloading, this will typically be URL that points to a
+	 * <code>files/...</code> resource directory in your JAR.
 	 */
 	public URL filesUrl;
+
+	/** If classes will be dynamically reloaded, true. */
+	public boolean classesReloadable;
 
 	/**
 	 * If a <code>.../classes</code> entry is present on the classpath, that URL
@@ -45,31 +48,20 @@ public class Configuration {
 	 */
 	public URL classesInClasspath;
 
-	/** If classes will be dynamically reloaded, true. */
-	public boolean classesReloadable;
-
 	/**
-	 * If classes will be dynamically reloaded, the path from which they will be
-	 * monitored for changes and loaded.
-	 */
-	public Path classesPath;
-
-	/**
-	 * The URL from which classes will be served. If reloading, this will
-	 * typically be a file URL that corresponds to {@link #filesPath}. If not
-	 * reloading, this will typically be JAR URL that points to a
-	 * <code>files/...</code> resource directory in your artifact.
+	 * If classes will be dynamically reloaded, a file URL for the path which
+	 * will be monitored for changes in order to trigger reloading.
 	 */
 	public URL classesUrl;
 
 	public Configuration() {
 
 		// The server port:
-		String port = System.getProperty("PORT", System.getenv("PORT"));
+		String port = getValue("PORT");
 
 		// The reloadable parameters:
-		String files = System.getProperty(FILES);
-		String classes = System.getProperty(CLASSES);
+		String files = getValue(FILES);
+		String classes = getValue(CLASSES);
 
 		// Set up the configuration:
 		configurePort(port);
@@ -84,7 +76,7 @@ public class Configuration {
 	 * @param port
 	 *            The value of the {@value Port} parameter.
 	 */
-	private void configurePort(String port) {
+	void configurePort(String port) {
 
 		if (StringUtils.isNotBlank(port)) {
 			try {
@@ -110,9 +102,31 @@ public class Configuration {
 		} else {
 			configureFilesResource();
 		}
-		filesReloadable = filesPath != null;
+		filesReloadable = filesUrl != null;
 
+		// Communicate:
 		showFilesConfiguration();
+	}
+
+	/**
+	 * Sets up configuration for reloading classes.
+	 * 
+	 * @param path
+	 *            The directory that contains compiled classes. This will be
+	 *            monitored for changes.
+	 */
+	void configureClasses(String path) {
+
+		findClassesInClasspath();
+
+		if (StringUtils.isNotBlank(path)) {
+			// If the path is set, set up class reloading:
+			configureClassesReloadable(path);
+		}
+		classesReloadable = classesUrl != null && classesInClasspath == null;
+
+		// Communicate:
+		showClassesConfiguration();
 	}
 
 	/**
@@ -128,7 +142,7 @@ public class Configuration {
 
 		try {
 			// Running with reloading:
-			filesPath = FileSystems.getDefault().getPath(path);
+			Path filesPath = FileSystems.getDefault().getPath(path);
 			filesUrl = filesPath.toUri().toURL();
 		} catch (IOException e) {
 			throw new RuntimeException("Error determining files path/url for: "
@@ -156,29 +170,6 @@ public class Configuration {
 	}
 
 	/**
-	 * Sets up configuration for reloading classes.
-	 * 
-	 * @param path
-	 *            The directory that contains compiled classes. This will be
-	 *            monitored for changes.
-	 */
-	void configureClasses(String path) {
-
-		findClassesInClasspath();
-
-		if (classesInClasspath != null) {
-			System.out
-					.println("WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath: "
-							+ classesInClasspath);
-		} else if (StringUtils.isNotBlank(path)) {
-			// If the path is set, set up class reloading:
-			configureClassesReloadable(path);
-		}
-
-		showClassesConfiguration();
-	}
-
-	/**
 	 * Scans the {@link ClassLoader} hierarchy to check if there is a
 	 * <code>.../classes</code> entry present. This is designed to prevent
 	 * uncertainty and frustration if you have correctly configured class
@@ -188,12 +179,11 @@ public class Configuration {
 	 * precedence over reloaded classes (because class loaders normally delegate
 	 * upwards).
 	 */
-	private void findClassesInClasspath() {
+	void findClassesInClasspath() {
 
 		ClassLoader classLoader = Configuration.class.getClassLoader();
 		do {
 			if (URLClassLoader.class.isAssignableFrom(classLoader.getClass())) {
-				@SuppressWarnings("resource")
 				URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
 
 				findClassesInClassloader(urlClassLoader);
@@ -217,7 +207,7 @@ public class Configuration {
 	 * precedence over reloaded classes (because class loaders normally delegate
 	 * upwards).
 	 */
-	private void findClassesInClassloader(URLClassLoader urlClassLoader) {
+	void findClassesInClassloader(URLClassLoader urlClassLoader) {
 
 		// Check for a "classes" URL:
 		for (URL url : urlClassLoader.getURLs()) {
@@ -238,16 +228,15 @@ public class Configuration {
 	 * time there is a change (so you'll lose stuff like static variable
 	 * values).
 	 */
-	private void configureClassesReloadable(String path) {
+	void configureClassesReloadable(String path) {
 
 		try {
 			// Set up reloading:
-			classesPath = FileSystems.getDefault().getPath(path);
+			Path classesPath = FileSystems.getDefault().getPath(path);
 			classesUrl = classesPath.toUri().toURL();
 		} catch (IOException e) {
 			throw new RuntimeException("Error starting class reloader", e);
 		}
-		classesReloadable = classesUrl != null;
 	}
 
 	/**
@@ -255,30 +244,57 @@ public class Configuration {
 	 */
 	void showFilesConfiguration() {
 
-		// Messages to communicate the resolved configuration:
+		// Message to communicate the resolved configuration:
+		String message;
 		if (filesUrl != null) {
 			String reload = filesReloadable ? "reloadable" : "non-reloadable";
-			System.out.println("Files will be served from: " + filesUrl + " ("
-					+ reload + ")");
+			message = "Files will be served from: " + filesUrl + " (" + reload
+					+ ")";
 		} else {
-			System.out.println("No static files will be served.");
+			message = "No static files will be served.";
 		}
+		System.out.println("Files reloading: " + message);
 	}
 
 	/**
-	 * Prints out a message confirming the dynamic class reloading
-	 * configuration.
+	 * Prints out a message confirming the class reloading configuration.
 	 */
-	private void showClassesConfiguration() {
+	void showClassesConfiguration() {
+
+		// Warning about a classes folder present in the classpath:
 		if (classesInClasspath != null) {
 			System.out
-					.println("WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath: "
+					.println("WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
+							+ "lease launch without including your classes directory: "
 							+ classesInClasspath);
-		} else if (classesReloadable) {
-			System.out.println("Classes will be reloaded from: " + classesUrl);
-		} else {
-			System.out.println("Classes will not be dynamically reloaded.");
 		}
+
+		// Message to communicate the resolved configuration:
+		String message;
+		if (classesReloadable) {
+			message = "Classes will be reloaded from: " + classesUrl;
+		} else {
+			message = "Classes will not be dynamically reloaded.";
+		}
+		System.out.println("Files reloading: " + message);
+	}
+
+	/**
+	 * Gets a configured value for the given key from either the system
+	 * properties or an environment variable.
+	 * 
+	 * @param key
+	 *            The name of the configuration value.
+	 * @return The system property corresponding to the given key (e.g.
+	 *         -Dkey=value). If that is blank, the environment variable
+	 *         corresponding to the given key (e.g. EXPORT key=value). If that
+	 *         is blank, {@link StringUtils#EMPTY}.
+	 */
+	static String getValue(String key) {
+		String result = StringUtils.defaultIfBlank(System.getProperty(key),
+				StringUtils.EMPTY);
+		result = StringUtils.defaultIfBlank(result, System.getenv(key));
+		return result;
 	}
 
 }
