@@ -13,8 +13,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.github.davidcarboni.restolino.Api;
 import com.github.davidcarboni.restolino.Configuration;
+import com.github.davidcarboni.restolino.api.Api;
 
 public class ApiHandler extends AbstractHandler {
 

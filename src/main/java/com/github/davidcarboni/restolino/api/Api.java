@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino;
+package com.github.davidcarboni.restolino.api;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;

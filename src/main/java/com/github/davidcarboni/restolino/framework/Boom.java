@@ -5,7 +5,7 @@ import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.davidcarboni.restolino.RequestHandler;
+import com.github.davidcarboni.restolino.api.RequestHandler;
 
 /**
  * Implementing this interface allows you to handle exceptions.

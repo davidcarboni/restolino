@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino;
+package com.github.davidcarboni.restolino.api;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;

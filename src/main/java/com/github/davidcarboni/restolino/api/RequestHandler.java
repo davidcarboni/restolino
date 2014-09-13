@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino;
+package com.github.davidcarboni.restolino.api;
 
 import java.lang.reflect.Method;
 
