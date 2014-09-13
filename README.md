@@ -4,11 +4,11 @@ Restolino
 
 ### What is it?
 
-A brutally opinionated, super-simple REST API framework for Java.
+Java for the Web. A brutally opinionated, super-simple REST API framework, plus static file serving.
 
 It's not comprehensive, won't give you the flexibility you want and doesn't really care about your special needs.
 
-What it does do is get you started and stays out of your way, because configuring frameworks is a distraction from what you are actually trying to achieve. Java is a great language with loads of support, but it's not efficient for the Web. This is my way of changing that. It's good for REST and it's also a nice quick-and-dirty static file server.
+What it does do is let you work and stays out of your way, because configuring frameworks is a distraction. Java is a great language with loads of support, but it's never been efficient for Web development. This changes that.
 
 If you're a purist, this is not the framework you are looking for. 
 
@@ -17,7 +17,26 @@ And that's it.
 
 ### Opinions
 
-Restolino has unreasonable opinions, but if you want to do simple stuff fast you'll find them useful.
+Restolino has unreasonable opinions:
+
+ * Web applications should be APIs: data should not be wrapped in markup.
+ * HTML/Javascript is youn API client: then you can add mobile apps, IoT devices, etc.
+ * Templating is great: do it in Javascript, not server-side.
+ * Efficient development: add classes, change interfaces, whatever, then refresh.
+ * Immutable releases: single-jar artifact. To make a change in production, deploy a new build and delete the old one.
+ * Stateless requests: production will probably have multiple nodes. Everything gets reinitialised after each development change.
+ * Constraints are your path to simplicity. Enjoy them.
+
+#### How it works
+
+The framework does less than you'd expect, and that's better:
+
+ * Runs an embedded Jetty server with raw `Handler` classes. No Servlets, no Filters, no Context. No `web.xml`.
+ * Requests that have a file extension are static files. They will be handled by a Jetty `ResourceHandler` subclass (`FilesHandler`).
+ * Requests that do not have a file extension are API endpoints.
+ * APIs consume and return JSON. You get direct access to `HttpServletRequest` and `HttpServletResponse`.
+ * Unmapped requests go to your `NotFound` implementation, or generate a 404 by default.
+ * Errored requests go to your `Boom` implementation, or generate a 500 by default.
 
 #### Getting started
 
@@ -39,20 +58,6 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
  * There are non-private fields in the classes. I consider excess modifiers to be visual clutter for little benefit. Like semi-colons in Javascript.
 
-#### What's not done
-
- * Streaming, multipart
- * `HEAD`, `TRACE`
- * full implementation of sarcasm
-
-#### How it works
-
- * Runs and embedded Jetty server, using raw `Handler` classes.
- * Any request that has a file extension is delegated to a `ResourceHandler` subclass to be served as a static file.
- * Any request that does not have a file extension is mapped to an endpoint you define.
- * Unmapped requests will go to your `NotFound` implementation, or generate a 404 by default.
- * Errored requests will go to your `Boom` implementation, or generate a 500 by default.
-
 
 ### Dependencies:
 
@@ -62,7 +67,7 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.8</version>
         </dependency>
     
         <!-- You'll probably want the Servlet API: -->
@@ -70,7 +75,6 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
             <version>3.1.0</version>
-            <scope>provided</scope>
         </dependency>
             
     </dependencies>
@@ -79,7 +83,8 @@ Restolino has unreasonable opinions, but if you want to do simple stuff fast you
 
 ### Maven build
 
-The configuration below provides both a -jar-with-dependencies (for production) and a folder of dependencies for reloading in development (${project.build.directory}/dependency). NB this should work if you want to deploy to Heroku.
+The configuration below provides both a -jar-with-dependencies (for production) and a folder of dependencies for reloading in development (`${project.build.directory}/dependency`). NB this should work if you want to deploy to Heroku.
+
 This also configures your project for Java 1.7.
 
 ```xml
@@ -153,11 +158,14 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
 
     #!/bin/bash
     
+    # Remote debug:
     export JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n"
     
+    # File reloading:
     export RESTOLINO_STATIC="src/main/resources/files"
+    
+    # Class reloading
     export RESTOLINO_CLASSES="target/classes"
-    export RESTOLINO="-Drestolino.files=$RESTOLINO_STATIC -Drestolino.classes=$RESTOLINO_CLASSES"
     
     mvn clean package && \
 
@@ -167,16 +175,17 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
     # Production: non-reloadable
     #java $JAVA_OPTS -jar target/*-jar-with-dependencies.jar
 
-Yunoreload in production? Simple: you want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in production, deploy a new build using your flavour of continuous delivery.
+
+Why not reload in production? Simple: you want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in production, deploy a new build using your flavour of continuous delivery.
 
 
 ### Is it really that cool?
 
-I was able to create a project from scratch (the hard way, thanks Eclipse) and get to a running api in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the confusion of debugging the config.
+I was able to create a project from scratch and get to a running api in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the opaque confusion of debugging config.
 
-Honestly, I build this in a day so don't expect a miracles, but hopefully it will give you a boost with getting stuff done rather than learning to love someone else's framework.
+Honestly, I originally build this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework.
 
-Class reloading took quite a bit longer and I ditched the Servlet/Filter design for embedded Jetty with raw Handlers along the way, but it's worth it. There's something delicious about being able to add new methods, or change annotations, refrest the browser and see changes straight away.
+Class reloading took longer and I ditched Servlets for embedded Jetty and raw Handlers along the way. There's something delicious about being able to add new methods, or change annotations, refrest the browser and see your changes straight away.
 
-The code isn't too pretty, but it should just (about) work. Let me know if you like it.
+The code isn't pretty, but it should just (about) work. Let me know if you like it.
 
