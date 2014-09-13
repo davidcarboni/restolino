@@ -7,7 +7,7 @@ import java.net.URL;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import com.github.davidcarboni.restolino.interfaces.Home;
+import com.github.davidcarboni.restolino.framework.Home;
 
 /**
  * Extend this class and add the {@link Home} interface to your subclass. This

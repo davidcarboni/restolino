@@ -26,11 +26,11 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import com.github.davidcarboni.restolino.framework.Boom;
+import com.github.davidcarboni.restolino.framework.Endpoint;
+import com.github.davidcarboni.restolino.framework.Home;
+import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.helpers.Path;
-import com.github.davidcarboni.restolino.interfaces.Boom;
-import com.github.davidcarboni.restolino.interfaces.Endpoint;
-import com.github.davidcarboni.restolino.interfaces.Home;
-import com.github.davidcarboni.restolino.interfaces.NotFound;
 import com.github.davidcarboni.restolino.json.Serialiser;
 
 /**

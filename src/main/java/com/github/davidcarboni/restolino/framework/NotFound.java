@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.interfaces;
+package com.github.davidcarboni.restolino.framework;
 
 import java.io.IOException;
 
@@ -6,29 +6,30 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * Implementing this interface allows you to respond to GET requests to '/'.
- * about your API.
+ * Implementing this class enables you to handle requests that don't map to an
+ * endpoint.
  * 
  * @author david
  *
  */
-public interface Home {
+public interface NotFound {
 
 	/**
 	 * 
-	 * You'll typically want to return some basic information and usage
-	 * instructions
+	 * You'll typically want to set either a 404 message, or a redirect. Maybe
+	 * log it to help you debug.
 	 * 
 	 * @param req
 	 *            The {@link HttpServletRequest}
 	 * @param res
 	 *            The {@link HttpServletResponse}
-	 * @return Something to be converted to JSON.
+	 * @return A response object to be converted to JSON, or null if no message
+	 *         needs to be returned.
 	 * @throws IOException
 	 *             If an error occurs in sending the response. This will
 	 *             typically be thrown by attempts to write to the response
 	 *             stream.
 	 */
-	public Object get(HttpServletRequest req, HttpServletResponse res)
+	public Object handle(HttpServletRequest req, HttpServletResponse res)
 			throws IOException;
 }

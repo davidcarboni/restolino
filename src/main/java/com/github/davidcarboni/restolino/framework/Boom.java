@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.interfaces;
+package com.github.davidcarboni.restolino.framework;
 
 import java.io.IOException;
 
