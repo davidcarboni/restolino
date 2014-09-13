@@ -1,6 +1,6 @@
 package com.github.davidcarboni.restolino.helpers;
 
-import java.net.URISyntaxException;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -8,7 +8,6 @@ import java.util.List;
 import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIBuilder;
 
 /**
  * Provides path parsing. This helps with getting parameters from the path, or
@@ -26,13 +25,8 @@ public class Path {
 	private List<String> segments = new ArrayList<String>();
 
 	Path(HttpServletRequest request) {
-		URIBuilder builder;
-		try {
-			builder = new URIBuilder(request.getPathInfo());
-		} catch (URISyntaxException e) {
-			throw new RuntimeException("Error parsing request URI", e);
-		}
-		String path = builder.getPath();
+		URI uri = URI.create(request.getPathInfo());
+		String path = uri.getPath();
 		String[] segments = StringUtils.split(path, '/');
 		this.segments = Arrays.asList(segments);
 	}
