@@ -21,12 +21,14 @@ public interface Boom {
 	 *            The {@link HttpServletRequest}
 	 * @param res
 	 *            The {@link HttpServletResponse}
-	 * @param e
-	 *            The {@link Exception}
-	 * @param endpoint
-	 *            The class that the error occurred in. This will be null for a
-	 *            root ('/') request.
-	 * @return Something to be converted to JSON, or null.
+	 * @param t
+	 *            The {@link Throwable}
+	 * @param requestHandler
+	 *            The details of the endpoint that the error occurred in. This
+	 *            will be null for a root ('/') request.
+	 * @return Something to be converted to JSON, or null if either you want no
+	 *         response message, or have written a response directly to
+	 *         <code>res</code>.
 	 * @throws IOException
 	 *             If an error occurs in sending the response. This will
 	 *             typically be thrown by attempts to write to the response
