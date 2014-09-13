@@ -7,7 +7,7 @@ import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.github.davidcarboni.restolino.handlers.ApiHandler;
+import com.github.davidcarboni.restolino.jetty.ApiHandler;
 
 public class ClassMonitor {
 

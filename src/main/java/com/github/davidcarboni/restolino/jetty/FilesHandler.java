@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.handlers;
+package com.github.davidcarboni.restolino.jetty;
 
 import java.net.URL;
 

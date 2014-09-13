@@ -10,7 +10,7 @@ import org.eclipse.jetty.servlet.ServletHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.webapp.WebAppContext;
 
-import com.github.davidcarboni.restolino.handlers.MainHandler;
+import com.github.davidcarboni.restolino.jetty.MainHandler;
 
 /**
  * 
