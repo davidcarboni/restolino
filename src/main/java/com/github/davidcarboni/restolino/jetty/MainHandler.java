@@ -8,7 +8,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ContentType;
+import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -72,8 +72,7 @@ public class MainHandler extends AbstractHandler {
 	static void notFound(String target, HttpServletResponse response)
 			throws IOException {
 		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		response.setContentType(ContentType.TEXT_PLAIN.getMimeType());
-		response.setCharacterEncoding("UTF8");
+		response.setContentType(MimeTypes.Type.TEXT_PLAIN_UTF_8.asString());
 		response.getWriter().println("Not found: " + target);
 	}
 }
