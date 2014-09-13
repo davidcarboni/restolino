@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.reload.classes;
+package com.github.davidcarboni.restolino.reload;
 
 import static java.nio.file.StandardWatchEventKinds.ENTRY_CREATE;
 import static java.nio.file.StandardWatchEventKinds.ENTRY_DELETE;

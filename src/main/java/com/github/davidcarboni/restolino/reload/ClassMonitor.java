@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.reload.classes;
+package com.github.davidcarboni.restolino.reload;
 
 import java.io.IOException;
 import java.net.URL;
