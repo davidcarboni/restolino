@@ -188,7 +188,7 @@ I've tried, but it adds complexity, doesn't add value and makes things harder. W
 Searching for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution then send me a pull request.
 
 
-### Is it really that cool?
+#### Is it really that cool?
 
 I was able to create a project from scratch and get to a running api in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the opaque confusion of debugging config.
 
