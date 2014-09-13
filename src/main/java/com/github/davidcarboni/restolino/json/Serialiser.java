@@ -1,6 +1,5 @@
 package com.github.davidcarboni.restolino.json;
 
-//import org.bson.types.ObjectId;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -17,7 +16,6 @@ import com.google.gson.GsonBuilder;
 public class Serialiser {
 
 	final static String UTF8 = "UTF8";
-	// public static final String bsonDateFormat = "MMMM dd, yyyy HH:mm:ss";
 
 	private static GsonBuilder builder;
 
@@ -25,7 +23,7 @@ public class Serialiser {
 	 * Serialises the given object to Json.
 	 * 
 	 * @param object
-	 *            To be serialised.
+	 *            The object be serialised.
 	 * @return The Json as a String.
 	 */
 	public static String serialise(Object object) {
@@ -51,8 +49,8 @@ public class Serialiser {
 	 * Serialises the given object to Json and writes it to the given
 	 * {@link OutputStream}.
 	 * 
-	 * @param object
-	 *            To be serialised.
+	 * @param responseMessage
+	 *            The message to be serialised.
 	 * @throws IOException
 	 *             If an error occurs in writing the output.
 	 */
@@ -72,8 +70,8 @@ public class Serialiser {
 	 * 
 	 * @param input
 	 *            The stream to deserialise.
-	 * @param type
-	 *            The type to deserialise into.
+	 * @param requestMessageType
+	 *            The message type to deserialise into.
 	 * @return A new instance of the given type.
 	 */
 	public static <O> O deserialise(InputStream input,
@@ -91,8 +89,8 @@ public class Serialiser {
 	 * Serialises the given object to Json and writes it to the given
 	 * {@link HttpServletResponse}.
 	 * 
-	 * @param object
-	 *            To be serialised.
+	 * @param responseMessage
+	 *            The message to be serialised.
 	 * @throws IOException
 	 *             If an error occurs in writing the output.
 	 */
@@ -107,10 +105,10 @@ public class Serialiser {
 	/**
 	 * Deserialises the given {@link HttpServletRequest} to a JSON String.
 	 * 
-	 * @param input
+	 * @param request
 	 *            The request to deserialise.
-	 * @param type
-	 *            The type to deserialise into.
+	 * @param requestMessageType
+	 *            The message type to deserialise into.
 	 * @return A new instance of the given type.
 	 */
 	public static <O> O deserialise(HttpServletRequest request,
@@ -120,27 +118,11 @@ public class Serialiser {
 	}
 
 	/**
-	 * @return A {@link GsonBuilder} with an {@link ObjectIdSerialiser} type
-	 *         adapter registered, plus any additional adapters from
-	 *         {@link #typeAdapters}.
+	 * @return A lazily instantiated and cached {@link GsonBuilder}.
 	 */
 	public static GsonBuilder getBuilder() {
 		if (builder == null) {
-			// Map<Class<?>, Object> typeAdapters = new HashMap<>();
 			builder = new GsonBuilder();
-
-			// May well need type adapters at some point:
-
-			// // result.registerTypeAdapter(ObjectId.class, new
-			// // ObjectIdSerialiser());
-			// for (Class<?> type : typeAdapters.keySet()) {
-			// builder.registerTypeAdapter(type, typeAdapters.get(type));
-			// }
-			// builder.registerTypeAdapter(DateTime.class,
-			// DateTimeSerialiser.class);
-			// builder.registerTypeAdapter(ObjectId.class,
-			// ObjectIdSerialiser.class);
-			// builder.setDateFormat(bsonDateFormat);
 		}
 		return builder;
 	}
