@@ -18,7 +18,6 @@ And that's it.
 ### Opinions
 
 Restolino has unreasonable opinions:
-
  * Web applications should be APIs: data should not be wrapped in markup.
  * HTML/Javascript is youn API client: then you can add mobile apps, IoT devices, etc.
  * Templating is great: do it in Javascript, not server-side.
@@ -48,7 +47,6 @@ The framework does less than you'd expect, and that's better:
  * Method parameters must be `req, res[, request message]`. 
  * The return type of your method can be any type, or void. If you return null, that's OK.
  * Request and response messages are assumed to be JSON and processed by Gson. If you need to add custom type adapters for serialisation, you can access the GsonBuilder via `Serialiser.getBuilder()`.
- * Content Type gets set to `application/json` and character encoding is `UTF8` so you don't have to do that.
  * There's no context path. Why would you run more than one webapp in the same container? The container is the webapp.
  * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
@@ -67,7 +65,7 @@ The framework does less than you'd expect, and that's better:
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.0.8</version>
+            <version>0.0.9</version>
         </dependency>
     
         <!-- You'll probably want the Servlet API: -->
@@ -85,7 +83,7 @@ The framework does less than you'd expect, and that's better:
 
 The configuration below provides both a -jar-with-dependencies (for production) and a folder of dependencies for reloading in development (`${project.build.directory}/dependency`). NB this should work if you want to deploy to Heroku.
 
-This also configures your project for Java 1.7.
+This also configures your project for Java 1.7. NB you could do this more neatly with profiles if you want to:
 
 ```xml
 	<build>
@@ -166,11 +164,13 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
     
     # Class reloading
     export RESTOLINO_CLASSES="target/classes"
+    # Optional package prefix:
+    # export RESTOLINO_PACKAGEPREFIX=com.mycompany.myapp
     
     mvn clean package && \
 
     # Development: reloadable
-    java $JAVA_OPTS -Drestolino.files=$RESTOLINO_STATIC -Drestolino.classes=$RESTOLINO_CLASSES -cp "target/dependency/*" com.github.davidcarboni.restolino.Main
+    java $JAVA_OPTS -Drestolino.files=$RESTOLINO_STATIC -Drestolino.classes=$RESTOLINO_CLASSES -Drestolino.packageprefix=$RESTOLINO_PACKAGEPREFIX -cp "target/dependency/*" com.github.davidcarboni.restolino.Main
     
     # Production: non-reloadable
     #java $JAVA_OPTS -jar target/*-jar-with-dependencies.jar
