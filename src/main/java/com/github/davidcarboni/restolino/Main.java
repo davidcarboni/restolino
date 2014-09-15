@@ -18,8 +18,6 @@ public class Main {
 
 		// Set up the configuration:
 		Configuration configuration = new Configuration();
-		System.out.println("Using port " + configuration.port
-				+ " (specify a PORT environment variable to change it)");
 
 		// Create the Jetty server:
 		Server server = new Server(configuration.port);

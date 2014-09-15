@@ -91,6 +91,11 @@ public class Configuration {
 		if (StringUtils.isNotBlank(port)) {
 			try {
 				this.port = Integer.parseInt(port);
+				System.out
+						.println(this.getClass().getSimpleName()
+								+ ": Using port "
+								+ this.port
+								+ " (specify a PORT environment variable to change it)");
 			} catch (NumberFormatException e) {
 				System.out.println(this.getClass().getSimpleName()
 						+ ": Unable to parse server PORT variable (" + port
