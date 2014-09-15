@@ -7,6 +7,7 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 
 import org.apache.commons.lang3.StringUtils;
+import org.reflections.Reflections;
 
 /**
  * Determines the correct configuration, based on environment variables, system
@@ -18,6 +19,7 @@ import org.apache.commons.lang3.StringUtils;
 public class Configuration {
 	public static final String PORT = "PORT";
 	public static final String CLASSES = "restolino.classes";
+	public static final String PACKAGE_PREFIX = "restolino.packageprefix";
 	public static final String FILES = "restolino.files";
 	public static final String FILES_RESOURCE = "files";
 
@@ -53,6 +55,14 @@ public class Configuration {
 	 * will be monitored for changes in order to trigger reloading.
 	 */
 	public URL classesUrl;
+
+	/**
+	 * If classes will be dynamically reloaded, the package prefix to scan. This
+	 * is optional but, if set, it avoids scanning all classes in all
+	 * dependencies, making reloads faster. This is passed directly to
+	 * {@link Reflections}.
+	 */
+	public String packagePrefix;
 
 	public Configuration() {
 
@@ -123,6 +133,7 @@ public class Configuration {
 			// If the path is set, set up class reloading:
 			configureClassesReloadable(path);
 		}
+		packagePrefix = getValue(PACKAGE_PREFIX);
 		classesReloadable = classesUrl != null && classesInClasspath == null;
 
 		// Communicate:
@@ -272,7 +283,11 @@ public class Configuration {
 		// Message to communicate the resolved configuration:
 		String message;
 		if (classesReloadable) {
-			message = "Classes will be reloaded from: " + classesUrl;
+			if (StringUtils.isNotBlank(packagePrefix))
+				message = "Classes will be reloaded from: " + classesUrl;
+			else
+				message = "Classes will be reloaded from package "
+						+ packagePrefix + " at: " + classesUrl;
 		} else {
 			message = "Classes will not be dynamically reloaded.";
 		}

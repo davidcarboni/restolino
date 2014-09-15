@@ -38,9 +38,9 @@ public class ApiHandler extends AbstractHandler {
 		if (configuration.classesReloadable) {
 			ClassLoader reloadableClassLoader = new URLClassLoader(
 					new URL[] { configuration.classesUrl }, classLoader);
-			api = new Api(reloadableClassLoader);
+			api = new Api(reloadableClassLoader, configuration.packagePrefix);
 		} else {
-			api = new Api(classLoader);
+			api = new Api(classLoader, null);
 		}
 	}
 

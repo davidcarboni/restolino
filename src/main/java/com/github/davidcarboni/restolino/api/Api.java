@@ -76,10 +76,10 @@ public class Api {
 		return null;
 	}
 
-	public Api(ClassLoader classLoader) {
+	public Api(ClassLoader classLoader, String packagePrefix) {
 
 		// Build a reflections instance to find classes:
-		Reflections reflections = createReflections(classLoader);
+		Reflections reflections = createReflections(classLoader, packagePrefix);
 
 		// Set up the API endpoints:
 		configureEndpoints(reflections);
@@ -549,15 +549,23 @@ public class Api {
 	 *            The class loader to scan and load from.
 	 * @return A new {@link Reflections} instance.
 	 */
-	private static Reflections createReflections(ClassLoader classLoader) {
+	private static Reflections createReflections(ClassLoader classLoader,
+			String packagePrefix) {
 
 		// We set up reflections to use the classLoader for loading classes
 		// and also to use the classLoader to determine the list of URLs:
-		Reflections reflections = new Reflections(new ConfigurationBuilder()
-				.addClassLoader(classLoader).addUrls(
-						ClasspathHelper.forClassLoader(classLoader)));
-		// System.out.println(reflections.getConfiguration().getUrls());
+		ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+				.addClassLoader(classLoader);
+		if (StringUtils.isNotBlank(packagePrefix))
+			configurationBuilder.addUrls(ClasspathHelper.forPackage(
+					packagePrefix, classLoader));
+		else
+			configurationBuilder.addUrls(ClasspathHelper
+					.forClassLoader(classLoader));
+		Reflections reflections = new Reflections(configurationBuilder);
+
+		System.out.println("Reflections URLs: "
+				+ reflections.getConfiguration().getUrls());
 		return reflections;
 	}
-
 }
