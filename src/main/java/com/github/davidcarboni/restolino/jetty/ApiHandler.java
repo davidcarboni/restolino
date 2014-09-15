@@ -3,7 +3,6 @@ package com.github.davidcarboni.restolino.jetty;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.FileSystems;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -42,26 +41,6 @@ public class ApiHandler extends AbstractHandler {
 		} else {
 			api = new Api(classLoader, null);
 		}
-	}
-
-	private static URL getClassesUrl() {
-		URL result = null;
-
-		String path = System.getProperty(KEY_CLASSES);
-		if (StringUtils.isNotBlank(path)) {
-			try {
-				// Running with reloading:
-				result = FileSystems.getDefault().getPath(path).toUri().toURL();
-			} catch (IOException e) {
-				throw new RuntimeException("Error starting class reloader", e);
-			}
-		}
-
-		if (result == null) {
-			System.out.println("No URL set up for reloading classes.");
-		}
-
-		return result;
 	}
 
 	@Override
