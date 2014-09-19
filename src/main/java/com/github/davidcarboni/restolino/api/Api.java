@@ -520,8 +520,9 @@ public class Api {
 		Object result = null;
 
 		System.out.println("Invoking method " + method.getName() + " on "
-				+ handler.getClass().getSimpleName() + " for request message "
-				+ requestMessage);
+				+ handler.getClass().getSimpleName());
+		// + " for request message "
+		// + requestMessage);
 		try {
 			if (requestMessage != null) {
 				Object message = Serialiser
@@ -537,7 +538,7 @@ public class Api {
 					+ handler.getClass().getSimpleName(), e);
 		}
 
-		System.out.println("Result is " + result);
+		// System.out.println("Result is " + result);
 		return result;
 	}
 
