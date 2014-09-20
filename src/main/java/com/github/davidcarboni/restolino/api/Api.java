@@ -409,14 +409,17 @@ public class Api {
 
 		} catch (Throwable t) {
 
-			handleError(request, response, requestHandler, t);
+			// Chances are the exception we've actually caught is the reflection
+			// one from Method.invoke(...)
+			Throwable caught = t.getCause();
+			handleError(request, response, requestHandler, caught);
 		}
 
 	}
 
 	private void handleRequest(HttpServletRequest request,
 			HttpServletResponse response, RequestHandler requestHandler)
-			throws IOException {
+			throws Exception {
 
 		// An API endpoint is defined for this request:
 		Object handler = instantiate(requestHandler.endpointClass);
@@ -463,7 +466,10 @@ public class Api {
 		try {
 			if (boom != null) {
 				// Attempt to handle the error gracefully:
-				boom.handle(request, response, requestHandler, t);
+				Object errorResponse = boom.handle(request, response,
+						requestHandler, t);
+				if (errorResponse != null)
+					Serialiser.serialise(response, errorResponse);
 			} else {
 				String stackTrace = ExceptionUtils.getStackTrace(t);
 				System.out.println(stackTrace);
@@ -516,26 +522,29 @@ public class Api {
 
 	private static Object invoke(HttpServletRequest request,
 			HttpServletResponse response, Object handler, Method method,
-			Class<?> requestMessage) {
+			Class<?> requestMessage) throws Exception {
 		Object result = null;
 
 		System.out.println("Invoking method " + method.getName() + " on "
 				+ handler.getClass().getSimpleName());
 		// + " for request message "
 		// + requestMessage);
-		try {
-			if (requestMessage != null) {
-				Object message = Serialiser
-						.deserialise(request, requestMessage);
-				result = method.invoke(handler, request, response, message);
-			} else {
-				result = method.invoke(handler, request, response);
-			}
-		} catch (Exception e) {
-			System.out.println("!Error: " + e.getMessage());
-			throw new RuntimeException("Error invoking method "
-					+ method.getName() + " on "
-					+ handler.getClass().getSimpleName(), e);
+		if (requestMessage != null) {
+			// try (InputStreamReader streamReader = new InputStreamReader(
+			// request.getInputStream(), "UTF8")) {
+			// int c;
+			// while ((c = streamReader.read()) != -1) {
+			// System.out.print((char) c);
+			// }
+			// } catch (UnsupportedEncodingException e) {
+			// throw new RuntimeException("Unsupported encoding " + "UTF8"
+			// + "?", e);
+			// }
+			// result = null;
+			Object message = Serialiser.deserialise(request, requestMessage);
+			result = method.invoke(handler, request, response, message);
+		} else {
+			result = method.invoke(handler, request, response);
 		}
 
 		// System.out.println("Result is " + result);
