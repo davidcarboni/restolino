@@ -6,12 +6,13 @@ import static java.nio.file.StandardWatchEventKinds.ENTRY_MODIFY;
 import static java.nio.file.StandardWatchEventKinds.OVERFLOW;
 
 import java.io.IOException;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+
+import com.github.davidcarboni.restolino.Configuration;
 
 /**
  * Monitors a {@link Path} for changes, including subfolders.
@@ -35,9 +36,13 @@ import java.nio.file.WatchService;
 public class Monitor implements Runnable {
 
 	private Path path;
+	private Configuration configuration;
+	private WatchService watcher;
 
-	public Monitor(Path path) {
+	public Monitor(Path path, Configuration configuration, WatchService watcher) {
 
+		this.configuration = configuration;
+		this.watcher = watcher;
 		// Sanity check:
 		if (!Files.isDirectory(path))
 			throw new IllegalArgumentException(path + " is not a directory.");
@@ -51,7 +56,7 @@ public class Monitor implements Runnable {
 	@Override
 	public void run() {
 
-		try (WatchService watcher = FileSystems.getDefault().newWatchService()) {
+		try {
 
 			// Watch for file changes in this directory:
 			path.register(watcher, ENTRY_CREATE, ENTRY_DELETE, ENTRY_MODIFY);
@@ -102,7 +107,7 @@ public class Monitor implements Runnable {
 					// ENTRY_MODIFY so this avoids reloading twice:
 					if (reload) {
 						System.out.println("Reloading...");
-						ClassMonitor.reload();
+						ClassMonitor.getInstance().reload();
 					}
 
 					if (!key.reset()) {
@@ -122,7 +127,7 @@ public class Monitor implements Runnable {
 				// Rescan:
 				// This covers errors and exiting when a folder is deleted,
 				// and generally any kind of exit from the loop:
-				Scanner.scan();
+				Scanner.scan(configuration, watcher);
 
 			} while (true);
 

@@ -30,7 +30,9 @@ public class MainHandler extends AbstractHandler {
 		setupApiHandler();
 
 		try {
-			ClassMonitor.start(System.getProperty("restolino.classes"), null);
+			ClassMonitor.getInstance().start(
+					System.getProperty("restolino.classes"), null,
+					configuration);
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
