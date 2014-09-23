@@ -451,8 +451,8 @@ public class Api {
 			notFound.handle(request, response);
 		} else {
 			// Default not-found behaviour:
-			Serialiser.serialise(response, "No API endpoint is defined for '"
-					+ request.getPathInfo() + "'");
+			Serialiser.serialise(response, "No API endpoint is defined for "
+					+ request.getPathInfo());
 		}
 	}
 
