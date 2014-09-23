@@ -29,6 +29,7 @@ import com.github.davidcarboni.restolino.framework.Boom;
 import com.github.davidcarboni.restolino.framework.Endpoint;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
+import com.github.davidcarboni.restolino.helpers.HomeRedirect;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 
@@ -213,9 +214,12 @@ public class Api {
 
 		System.out.println("Checking for a / endpoint..");
 		Home home = getEndpoint(Home.class, "/", reflections);
-		if (home != null)
-			System.out.println("Class " + home.getClass().getSimpleName()
-					+ " configured as / endpoint");
+		// We have to manually check HomeRedirect. I believe this is probably
+		// because HomeRedirect is excluded from analysis if a package prefix is
+		// defined:
+		if (home == null)
+			home = getEndpoint(HomeRedirect.class, "/", reflections);
+		printEndpoint(home, "/");
 		this.home = home;
 	}
 
@@ -231,9 +235,7 @@ public class Api {
 		System.out.println("Checking for a not-found endpoint..");
 		NotFound notFound = getEndpoint(NotFound.class, "not-found",
 				reflections);
-		if (notFound != null)
-			System.out.println("Class " + notFound.getClass().getSimpleName()
-					+ " configured as not-found endpoint");
+		printEndpoint(notFound, "not-found");
 		this.notFound = notFound;
 	}
 
@@ -248,10 +250,16 @@ public class Api {
 
 		System.out.println("Checking for an error endpoint..");
 		Boom boom = getEndpoint(Boom.class, "error", reflections);
-		if (boom != null)
-			System.out.println("Class " + boom.getClass().getSimpleName()
-					+ " configured as error endpoint");
+		printEndpoint(boom, "error");
 		this.boom = boom;
+	}
+
+	private void printEndpoint(Object endpoint, String name) {
+		if (endpoint != null)
+			System.out.println("Class " + endpoint.getClass().getSimpleName()
+					+ " configured as " + name + " endpoint");
+		else
+			System.out.println("No " + name + " enpoint configured.");
 	}
 
 	public void get(HttpServletRequest request, HttpServletResponse response) {
@@ -341,13 +349,7 @@ public class Api {
 				endpointClasses.add(clazz);
 		}
 
-		if (endpointClasses.size() == 0)
-
-			// No endpoint found:
-			System.out.println("No " + name
-					+ " endpoint configured. Just letting you know.");
-
-		else {
+		if (endpointClasses.size() != 0) {
 
 			// Dump multiple endpoints:
 			if (endpointClasses.size() > 1) {
