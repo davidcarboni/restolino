@@ -67,8 +67,16 @@ public class Configuration {
 	@Override
 	public String toString() {
 
-		StringBuilder result = new StringBuilder("Configuration:");
+		StringBuilder result = new StringBuilder();
 
+		// Parameters:
+		result.append("\nEnvironment/property values:");
+		result.append("\n * " + PORT + "=" + getValue(PORT));
+		result.append("\n * " + FILES + "=" + getValue(FILES));
+		result.append("\n * " + CLASSES + "=" + getValue(CLASSES));
+
+		// Resolved configuration:
+		result.append("\nResolved configuration:");
 		result.append("\n - port:\t" + port);
 		result.append("\n - filesReloadable:\t" + filesReloadable);
 		result.append("\n - filesUrl:\t" + filesUrl);
@@ -83,7 +91,7 @@ public class Configuration {
 	public Configuration() {
 
 		// The server port:
-		String port = getValue("PORT");
+		String port = getValue(PORT);
 
 		// The reloadable parameters:
 		String files = getValue(FILES);

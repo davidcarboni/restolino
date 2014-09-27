@@ -29,6 +29,7 @@ public class Main {
 
 			// And we're done.
 			System.out.println(configuration);
+			System.out.println("\nCompleted startup process.");
 			server.join();
 
 		} finally {
