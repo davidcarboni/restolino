@@ -1,7 +1,14 @@
 package com.github.davidcarboni.restolino.jetty;
 
+import java.io.IOException;
 import java.net.URL;
 
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+import org.eclipse.jetty.http.HttpStatus;
+import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
@@ -23,6 +30,7 @@ public class FilesHandler extends ResourceHandler {
 	FilesHandler(URL url) {
 		Resource base = Resource.newResource(url);
 		setBaseResource(base);
+
 	}
 
 	public static ResourceHandler newInstance(Configuration configuration) {
@@ -43,7 +51,23 @@ public class FilesHandler extends ResourceHandler {
 		if (url != null) {
 			System.out.println("Set up file handler for URL: " + url);
 			result = new FilesHandler(url);
+		} else {
+			System.out.println("No static file serving configured.");
 		}
 		return result;
+	}
+
+	@Override
+	public void handle(String target, Request baseRequest,
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException, ServletException {
+		super.handle(target, baseRequest, request, response);
+		if (!baseRequest.isHandled()) {
+			response.setContentType("text/html");
+			response.setCharacterEncoding("UTF8");
+			response.setStatus(HttpStatus.NOT_FOUND_404);
+			response.getWriter().print(
+					"404 Not found: " + baseRequest.getRequestURI());
+		}
 	}
 }
