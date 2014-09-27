@@ -64,6 +64,22 @@ public class Configuration {
 	 */
 	public String packagePrefix;
 
+	@Override
+	public String toString() {
+
+		StringBuilder result = new StringBuilder("Configuration:");
+
+		result.append("\n - port:\t" + port);
+		result.append("\n - filesReloadable:\t" + filesReloadable);
+		result.append("\n - filesUrl:\t" + filesUrl);
+		result.append("\n - classesReloadable:\t" + classesReloadable);
+		result.append("\n - classesInClasspath:\t" + classesInClasspath);
+		result.append("\n - classesUrl:\t" + classesUrl);
+		result.append("\n - packagePrefix:\t" + packagePrefix);
+
+		return result.toString();
+	}
+
 	public Configuration() {
 
 		// The server port:
