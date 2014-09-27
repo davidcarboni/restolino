@@ -28,6 +28,7 @@ public class Main {
 			server.start();
 
 			// And we're done.
+			System.out.println(configuration);
 			server.join();
 
 		} finally {
