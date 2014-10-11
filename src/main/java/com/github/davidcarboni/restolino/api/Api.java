@@ -2,6 +2,7 @@ package com.github.davidcarboni.restolino.api;
 
 import java.io.IOException;
 import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -413,7 +414,9 @@ public class Api {
 
 			// Chances are the exception we've actually caught is the reflection
 			// one from Method.invoke(...)
-			Throwable caught = t.getCause();
+			Throwable caught = t;
+			if (InvocationTargetException.class.isAssignableFrom(t.getClass()))
+				caught = t.getCause();
 			handleError(request, response, requestHandler, caught);
 		}
 
