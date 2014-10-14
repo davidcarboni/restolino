@@ -22,6 +22,9 @@ public class Configuration {
 	public static final String PACKAGE_PREFIX = "restolino.packageprefix";
 	public static final String FILES = "restolino.files";
 	public static final String FILES_RESOURCE = "files";
+	public static final String AUTH_USERNAME = "restolino.username";
+	public static final String AUTH_PASSWORD = "restolino.password";
+	public static final String AUTH_REALM = "restolino.realm";
 
 	/** The Jetty server port. */
 	public int port = 8080;
@@ -64,6 +67,38 @@ public class Configuration {
 	 */
 	public String packagePrefix;
 
+	/**
+	 * Whether authentication has been enabled, by setting at least
+	 * {@value #AUTH_USERNAME}.
+	 */
+	public boolean authenticationEnabled;
+
+	/**
+	 * If set, http basic authentication will be enabled and this will be the
+	 * username. ({@value #AUTH_USERNAME})
+	 */
+	public String username;
+
+	/**
+	 * If http basic authentication is enabled (by setting
+	 * {@value #AUTH_USERNAME}) this will be used as the password. (
+	 * {@value #AUTH_PASSWORD})
+	 */
+	public String password;
+
+	/**
+	 * Optional. If http basic authentication is enabled (by setting
+	 * {@value #AUTH_USERNAME}) this will be the "realm". ({@value #AUTH_REALM})
+	 * <p>
+	 * 
+	 * @see <a href=
+	 *      "http://stackoverflow.com/questions/10892336/realm-name-in-tomcat-web-xml"
+	 *      >http://stackoverflow.com/questions/10892336/realm-name-in-
+
+	 *      tomcat-web-xml</a>
+	 */
+	public String realm = "restolino";
+
 	@Override
 	public String toString() {
 
@@ -85,6 +120,19 @@ public class Configuration {
 		result.append("\n - classesUrl:\t" + classesUrl);
 		result.append("\n - packagePrefix:\t" + packagePrefix);
 
+		// Basic authentication
+		result.append("\nAuthentication:");
+		if (authenticationEnabled) {
+			result.append("\n - username:\t" + username);
+			result.append("\n - password:\t"
+					+ (StringUtils.isNotBlank(password) ? "(yes)" : "(no)"));
+			result.append("\n - realm:\t" + realm);
+		} else {
+			result.append("\n - not configured. To enable, set "
+					+ AUTH_USERNAME + ", " + AUTH_PASSWORD
+					+ " and (optionally) " + AUTH_REALM);
+		}
+
 		return result.toString();
 	}
 
@@ -97,10 +145,16 @@ public class Configuration {
 		String files = getValue(FILES);
 		String classes = getValue(CLASSES);
 
+		// Authentication parameters:
+		String username = getValue(AUTH_USERNAME);
+		String password = getValue(AUTH_PASSWORD);
+		String realm = getValue(AUTH_REALM);
+
 		// Set up the configuration:
 		configurePort(port);
 		configureFiles(files);
 		configureClasses(classes);
+		configureAuthentication(username, password, realm);
 	}
 
 	/**
@@ -168,6 +222,18 @@ public class Configuration {
 
 		// Communicate:
 		showClassesConfiguration();
+	}
+
+	private void configureAuthentication(String username, String password,
+			String realm) {
+		if (StringUtils.isNotBlank(username)) {
+			// If the username is set, set up authentication:
+			this.username = username;
+			this.password = password;
+			if (StringUtils.isNotBlank(realm))
+				this.realm = realm;
+			authenticationEnabled = true;
+		}
 	}
 
 	/**

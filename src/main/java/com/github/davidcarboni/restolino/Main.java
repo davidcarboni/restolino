@@ -5,7 +5,6 @@ import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
@@ -40,11 +39,18 @@ public class Main {
 			server = new Server(configuration.port);
 			securityHandler = new ConstraintSecurityHandler();
 
+			// Select the handler to be used:
 			mainHandler = new MainHandler(configuration);
-			server.setHandler(mainHandler);
-			server.start();
+			if (configuration.authenticationEnabled) {
+				securityHandler = newBasicAuth(configuration);
+				securityHandler.setHandler(mainHandler);
+				server.setHandler(securityHandler);
+			} else {
+				server.setHandler(mainHandler);
+			}
 
 			// And we're done.
+			server.start();
 			System.out.println(configuration);
 			System.out.println("\nCompleted startup process.");
 			server.join();
@@ -55,15 +61,6 @@ public class Main {
 	}
 
 	/**
-	 * A simple way to enable HTTP basic authentication. If you want to do
-	 * something more specific, you can wrap the public {@link #mainHandler}
-	 * filed with your own {@link SecurityHandler} and call
-	 * {@link Server#setHandler(Handler)} on the public {@link #server} field.
-	 * <p>
-	 * This gives you a lot of freedom and, as we know,
-	 * "With great power comes great responsibility" (including, it seems, a
-	 * rich heritage of people quoting that phrase).
-	 * <p>
 	 * Adapted from <a href=
 	 * "https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/java/HelloWorld.java"
 	 * >https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/
@@ -82,13 +79,13 @@ public class Main {
 	 *      tomcat-web-xml</a>
 	 * @return
 	 */
-	public static void enableBasicAuth(String username, String password,
-			String realm) {
+	static SecurityHandler newBasicAuth(Configuration configuration) {
 
 		HashLoginService l = new HashLoginService();
-		l.putUser(username, Credential.getCredential(password),
+		l.putUser(configuration.username,
+				Credential.getCredential(configuration.password),
 				new String[] { "user" });
-		l.setName(realm);
+		l.setName(configuration.realm);
 
 		Constraint constraint = new Constraint();
 		constraint.setName(Constraint.__BASIC_AUTH);
@@ -105,8 +102,7 @@ public class Main {
 		basicAuthHandler.addConstraintMapping(cm);
 		basicAuthHandler.setLoginService(l);
 
-		basicAuthHandler.setHandler(mainHandler);
-		server.setHandler(basicAuthHandler);
+		return basicAuthHandler;
 	}
 
 }
