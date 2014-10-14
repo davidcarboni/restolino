@@ -1,8 +1,17 @@
 package com.github.davidcarboni.restolino;
 
+import org.eclipse.jetty.security.ConstraintMapping;
+import org.eclipse.jetty.security.ConstraintSecurityHandler;
+import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.util.security.Constraint;
+import org.eclipse.jetty.util.security.Credential;
 
+import com.github.davidcarboni.restolino.jetty.ApiHandler;
+import com.github.davidcarboni.restolino.jetty.FilesHandler;
 import com.github.davidcarboni.restolino.jetty.MainHandler;
 import com.github.davidcarboni.restolino.reload.ClassMonitor;
 
@@ -15,6 +24,12 @@ import com.github.davidcarboni.restolino.reload.ClassMonitor;
  */
 public class Main {
 
+	public static Server server;
+	public static MainHandler mainHandler;
+	public static ApiHandler apiHandler;
+	public static FilesHandler filesHandler;
+	public static SecurityHandler securityHandler;
+
 	public static void main(String[] args) throws Exception {
 
 		try {
@@ -22,8 +37,10 @@ public class Main {
 			Configuration configuration = new Configuration();
 
 			// Create the Jetty server:
-			Server server = new Server(configuration.port);
-			Handler mainHandler = new MainHandler(configuration);
+			server = new Server(configuration.port);
+			securityHandler = new ConstraintSecurityHandler();
+
+			mainHandler = new MainHandler(configuration);
 			server.setHandler(mainHandler);
 			server.start();
 
@@ -36,4 +53,60 @@ public class Main {
 			ClassMonitor.getInstance().close();
 		}
 	}
+
+	/**
+	 * A simple way to enable HTTP basic authentication. If you want to do
+	 * something more specific, you can wrap the public {@link #mainHandler}
+	 * filed with your own {@link SecurityHandler} and call
+	 * {@link Server#setHandler(Handler)} on the public {@link #server} field.
+	 * <p>
+	 * This gives you a lot of freedom and, as we know,
+	 * "With great power comes great responsibility" (including, it seems, a
+	 * rich heritage of people quoting that phrase).
+	 * <p>
+	 * Adapted from <a href=
+	 * "https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/java/HelloWorld.java"
+	 * >https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/
+	 * java/HelloWorld.java</a>
+	 * 
+	 * @param username
+	 *            The username you want to set.
+	 * @param password
+	 *            The password you want to set.
+	 * @param realm
+	 *            "It's basically something you make up. It doesn't have to match anything, it should just make sense for your application. –  stevedbrown"
+	 * @see <a href=
+	 *      "http://stackoverflow.com/questions/10892336/realm-name-in-tomcat-web-xml"
+	 *      >http://stackoverflow.com/questions/10892336/realm-name-in-
+
+	 *      tomcat-web-xml</a>
+	 * @return
+	 */
+	public static void enableBasicAuth(String username, String password,
+			String realm) {
+
+		HashLoginService l = new HashLoginService();
+		l.putUser(username, Credential.getCredential(password),
+				new String[] { "user" });
+		l.setName(realm);
+
+		Constraint constraint = new Constraint();
+		constraint.setName(Constraint.__BASIC_AUTH);
+		constraint.setRoles(new String[] { "user" });
+		constraint.setAuthenticate(true);
+
+		ConstraintMapping cm = new ConstraintMapping();
+		cm.setConstraint(constraint);
+		cm.setPathSpec("/*");
+
+		ConstraintSecurityHandler basicAuthHandler = new ConstraintSecurityHandler();
+		basicAuthHandler.setAuthenticator(new BasicAuthenticator());
+		basicAuthHandler.setRealmName("myrealm");
+		basicAuthHandler.addConstraintMapping(cm);
+		basicAuthHandler.setLoginService(l);
+
+		basicAuthHandler.setHandler(mainHandler);
+		server.setHandler(basicAuthHandler);
+	}
+
 }
