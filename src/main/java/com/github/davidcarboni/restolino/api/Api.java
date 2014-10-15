@@ -430,7 +430,8 @@ public class Api {
 		Object handler = instantiate(requestHandler.endpointClass);
 		Object responseMessage = invoke(request, response, handler,
 				requestHandler.method, requestHandler.requestMessageType);
-		if (requestHandler.responseMessageType != null) {
+		if (requestHandler.responseMessageType != null
+				&& responseMessage != null) {
 			Serialiser.serialise(response, responseMessage);
 		}
 	}
