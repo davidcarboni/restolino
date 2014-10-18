@@ -30,9 +30,9 @@ public class MainHandler extends AbstractHandler {
 		setupApiHandler();
 
 		try {
-			ClassMonitor.getInstance().start(
-					System.getProperty("restolino.classes"), null,
-					configuration);
+			if (configuration.classesReloadable) {
+				ClassMonitor.start(System.getProperty("restolino.classes"), configuration);
+			}
 		} catch (IOException e) {
 			throw new RuntimeException(e);
 		}
@@ -41,9 +41,7 @@ public class MainHandler extends AbstractHandler {
 	private void setupFilesHandler() {
 		fileHandler = FilesHandler.newInstance(configuration);
 		if (fileHandler == null) {
-			System.out.println("No file handler configured. "
-					+ "No resource found on the classpath "
-					+ "and reloading is not configured.");
+			System.out.println("No file handler configured. " + "No resource found on the classpath " + "and reloading is not configured.");
 		}
 	}
 
@@ -52,16 +50,15 @@ public class MainHandler extends AbstractHandler {
 	}
 
 	@Override
-	public void handle(String target, Request baseRequest,
-			HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-		if (isApiRequest(target))
+		if (isApiRequest(target)) {
 			apiHandler.handle(target, baseRequest, request, response);
-		else if (fileHandler != null)
+		} else if (fileHandler != null) {
 			fileHandler.handle(target, baseRequest, request, response);
-		else
+		} else {
 			notFound(target, response);
+		}
 
 		baseRequest.setHandled(true);
 	}
@@ -71,8 +68,7 @@ public class MainHandler extends AbstractHandler {
 		return StringUtils.isBlank(extension);
 	}
 
-	static void notFound(String target, HttpServletResponse response)
-			throws IOException {
+	static void notFound(String target, HttpServletResponse response) throws IOException {
 		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		response.setContentType(MimeTypes.Type.TEXT_PLAIN_UTF_8.asString());
 		response.getWriter().println("Not found: " + target);

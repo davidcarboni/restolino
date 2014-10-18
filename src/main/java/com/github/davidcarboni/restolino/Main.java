@@ -52,7 +52,7 @@ public class Main {
 			server.join();
 
 		} finally {
-			ClassMonitor.getInstance().close();
+			ClassMonitor.shutdown();
 		}
 	}
 
