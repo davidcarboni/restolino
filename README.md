@@ -205,9 +205,21 @@ I've tried, but it adds complexity, doesn't add value and makes life harder. Why
 Using reflection to search for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution, send me a pull request.
 
 
+#### Is it fast/secure/productionised?
+
+I don't know. What I do know is that both the server and the framework are doing much less before your code gets to see a request. That's a good indicator for performance (less layers) and security (less places for bugs to hide), so chances are good.
+
+Restolino takes more away (Servlets, Filters, Context, etc.) than it adds. If you trust Jetty and want to make simple things freely, Restolino will probably work for you. (see also [http://stackoverflow.com/questions/16063576/lightweight-servlet-container-for-production-use](http://stackoverflow.com/questions/16063576/lightweight-servlet-container-for-production-use))
+
+
+#### Can I switch to Jersey for production?
+
+Yes. Restolino intentionally doesn't stray too far from JAX-RS. If you add `@Path(<classname>)` to your classes and `@Context` to your `HttpServletRequest` and `HttpServletResponse` method parameters, your code should slot straight in to a Jersey application.
+
+
 #### Is it really that cool?
 
-I was able to create a project from scratch and get to a running API in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the opaque confusion of debugging config.
+I was able to create a project from scratch and get to a running API in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the time I've spent debugging config.
 
 Honestly, I originally build this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework. Class reloading took longer and I ditched Servlets for embedded Jetty with raw Handlers along the way. 
 
