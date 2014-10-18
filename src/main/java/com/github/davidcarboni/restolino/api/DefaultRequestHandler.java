@@ -3,8 +3,6 @@ package com.github.davidcarboni.restolino.api;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.eclipse.jetty.http.HttpStatus;
-
 /**
  * This request handler gets set as the default for each HTTP method on each
  * endpoint.
@@ -17,7 +15,7 @@ public class DefaultRequestHandler {
 	static String notImplemented = " is not available for ";
 
 	/**
-	 * Sets a status of {@link HttpStatus#SC_METHOD_NOT_ALLOWED}.
+	 * Sets a status of {@link HttpServletResponse#SC_METHOD_NOT_ALLOWED}.
 	 * 
 	 * @param req
 	 *            {@link HttpServletRequest}
