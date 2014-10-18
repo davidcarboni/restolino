@@ -6,5 +6,5 @@ Chunked response: InputStream.
 Multipart uploads: InputStream/Multipart?
 Asynchronous
 
-Handle form/urlencoded
-Java compiler API to avoid reflection in production?
+Handle form/urlencoded to be a little bit friendly
+Java compiler API to reduce reflection calls?

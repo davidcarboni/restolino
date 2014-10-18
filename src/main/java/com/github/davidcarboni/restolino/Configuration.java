@@ -17,6 +17,7 @@ import org.reflections.Reflections;
  *
  */
 public class Configuration {
+
 	public static final String PORT = "PORT";
 	public static final String CLASSES = "restolino.classes";
 	public static final String PACKAGE_PREFIX = "restolino.packageprefix";
@@ -124,13 +125,10 @@ public class Configuration {
 		result.append("\nAuthentication:");
 		if (authenticationEnabled) {
 			result.append("\n - username:\t" + username);
-			result.append("\n - password:\t"
-					+ (StringUtils.isNotBlank(password) ? "(yes)" : "(no)"));
+			result.append("\n - password:\t" + (StringUtils.isNotBlank(password) ? "(yes)" : "(no)"));
 			result.append("\n - realm:\t" + realm);
 		} else {
-			result.append("\n - not configured. To enable, set "
-					+ AUTH_USERNAME + ", " + AUTH_PASSWORD
-					+ " and (optionally) " + AUTH_REALM);
+			result.append("\n - not configured. To enable, set " + AUTH_USERNAME + ", " + AUTH_PASSWORD + " and (optionally) " + AUTH_REALM);
 		}
 
 		return result.toString();
@@ -169,15 +167,9 @@ public class Configuration {
 		if (StringUtils.isNotBlank(port)) {
 			try {
 				this.port = Integer.parseInt(port);
-				System.out
-						.println(this.getClass().getSimpleName()
-								+ ": Using port "
-								+ this.port
-								+ " (specify a PORT environment variable to change it)");
+				System.out.println(this.getClass().getSimpleName() + ": Using port " + this.port + " (specify a PORT environment variable to change it)");
 			} catch (NumberFormatException e) {
-				System.out.println(this.getClass().getSimpleName()
-						+ ": Unable to parse server PORT variable (" + port
-						+ ") using port " + port);
+				System.out.println(this.getClass().getSimpleName() + ": Unable to parse server PORT variable (" + port + ") using port " + port);
 			}
 		}
 	}
@@ -224,14 +216,14 @@ public class Configuration {
 		showClassesConfiguration();
 	}
 
-	private void configureAuthentication(String username, String password,
-			String realm) {
+	private void configureAuthentication(String username, String password, String realm) {
 		if (StringUtils.isNotBlank(username)) {
 			// If the username is set, set up authentication:
 			this.username = username;
 			this.password = password;
-			if (StringUtils.isNotBlank(realm))
+			if (StringUtils.isNotBlank(realm)) {
 				this.realm = realm;
+			}
 			authenticationEnabled = true;
 		}
 	}
@@ -252,8 +244,7 @@ public class Configuration {
 			Path filesPath = FileSystems.getDefault().getPath(path);
 			filesUrl = filesPath.toUri().toURL();
 		} catch (IOException e) {
-			throw new RuntimeException("Error determining files path/url for: "
-					+ path, e);
+			throw new RuntimeException("Error determining files path/url for: " + path, e);
 		}
 	}
 
@@ -271,7 +262,7 @@ public class Configuration {
 	 */
 	void configureFilesResource() {
 
-		// Check for a resource on the classpath (production):
+		// Check for a resource on the classpath (when deployed):
 		ClassLoader classLoader = Configuration.class.getClassLoader();
 		filesUrl = classLoader.getResource(FILES_RESOURCE);
 	}
@@ -294,8 +285,9 @@ public class Configuration {
 				URLClassLoader urlClassLoader = (URLClassLoader) classLoader;
 
 				findClassesInClassloader(urlClassLoader);
-				if (classesInClasspath != null)
+				if (classesInClasspath != null) {
 					break;
+				}
 			}
 
 			// Check the parent:
@@ -319,8 +311,9 @@ public class Configuration {
 		// Check for a "classes" URL:
 		for (URL url : urlClassLoader.getURLs()) {
 			String urlPath = StringUtils.lowerCase(url.getPath());
-			if (StringUtils.endsWithAny(urlPath, "/classes", "/classes/"))
+			if (StringUtils.endsWithAny(urlPath, "/classes", "/classes/")) {
 				classesInClasspath = url;
+			}
 		}
 	}
 
@@ -355,13 +348,11 @@ public class Configuration {
 		String message;
 		if (filesUrl != null) {
 			String reload = filesReloadable ? "reloadable" : "non-reloadable";
-			message = "Files will be served from: " + filesUrl + " (" + reload
-					+ ")";
+			message = "Files will be served from: " + filesUrl + " (" + reload + ")";
 		} else {
 			message = "No static files will be served.";
 		}
-		System.out.println(this.getClass().getSimpleName() + ": Files: "
-				+ message);
+		System.out.println(this.getClass().getSimpleName() + ": Files: " + message);
 	}
 
 	/**
@@ -371,26 +362,22 @@ public class Configuration {
 
 		// Warning about a classes folder present in the classpath:
 		if (classesInClasspath != null) {
-			System.out
-					.println(this.getClass().getSimpleName()
-							+ ": WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
-							+ "lease launch without including your classes directory: "
-							+ classesInClasspath);
+			System.out.println(this.getClass().getSimpleName() + ": WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
+					+ "lease launch without including your classes directory: " + classesInClasspath);
 		}
 
 		// Message to communicate the resolved configuration:
 		String message;
 		if (classesReloadable) {
-			if (StringUtils.isNotBlank(packagePrefix))
+			if (StringUtils.isNotBlank(packagePrefix)) {
 				message = "Classes will be reloaded from: " + classesUrl;
-			else
-				message = "Classes will be reloaded from package "
-						+ packagePrefix + " at: " + classesUrl;
+			} else {
+				message = "Classes will be reloaded from package " + packagePrefix + " at: " + classesUrl;
+			}
 		} else {
 			message = "Classes will not be dynamically reloaded.";
 		}
-		System.out.println(this.getClass().getSimpleName() + ": Classes: "
-				+ message);
+		System.out.println(this.getClass().getSimpleName() + ": Classes: " + message);
 	}
 
 	/**
@@ -405,8 +392,7 @@ public class Configuration {
 	 *         is blank, {@link StringUtils#EMPTY}.
 	 */
 	static String getValue(String key) {
-		String result = StringUtils.defaultIfBlank(System.getProperty(key),
-				StringUtils.EMPTY);
+		String result = StringUtils.defaultIfBlank(System.getProperty(key), StringUtils.EMPTY);
 		result = StringUtils.defaultIfBlank(result, System.getenv(key));
 		return result;
 	}

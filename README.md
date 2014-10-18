@@ -22,8 +22,9 @@ Restolino has unreasonable opinions:
  * HTML/Javascript is youn API client: then you can add mobile apps, IoT devices, etc.
  * Templating is great: do it in Javascript, not server-side.
  * Efficient development: add classes, change interfaces, whatever, then refresh.
- * Immutable releases: single-jar artifact. To make a change in production, deploy a new build and delete the old one.
- * Stateless requests: production will probably have multiple nodes. Everything gets reinitialised after each development change.
+ * Immutable releases: single-jar artifact. To make a change to the deployed version, deploy a new build and delete the old one (blue-green and all that).
+ * Stateless requests: when deployed, you'll probably have multiple nodes. Everything gets reinitialised after each development change. That makes stetefulness difficult, which is a good thing.
+ * Restolino will cause your design to hurt and adapt. You'll be better for it in the long run.
  * Constraints are your path to simplicity. Enjoy them.
 
 #### How it works
@@ -67,13 +68,6 @@ The framework does less than you'd expect, and that's better:
             <artifactId>restolino</artifactId>
             <version>0.0.9</version>
         </dependency>
-    
-        <!-- You'll probably want the Servlet API: -->
-        <dependency>
-            <groupId>javax.servlet</groupId>
-            <artifactId>javax.servlet-api</artifactId>
-            <version>3.1.0</version>
-        </dependency>
             
     </dependencies>
 ```
@@ -81,7 +75,7 @@ The framework does less than you'd expect, and that's better:
 
 ### Maven build
 
-The configuration below provides both a -jar-with-dependencies (for production) and a folder of dependencies for reloading in development (`${project.build.directory}/dependency`). NB this should work if you want to deploy to Heroku.
+The configuration below provides both a -jar-with-dependencies (for deployment) and a folder of dependencies for reloading in development (`${project.build.directory}/dependency`). NB this should work if you want to deploy to Heroku.
 
 This also configures your project for Java 1.7. NB you could do this more neatly with profiles if you want to:
 
@@ -101,7 +95,7 @@ This also configures your project for Java 1.7. NB you could do this more neatly
 				</configuration>
 			</plugin>
 			
-			<!-- An assembly that includes all dependencies is produced to run in production: -->
+			<!-- An assembly that includes all dependencies is produced for deployment: -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
 				<version>2.4.1</version>
@@ -172,11 +166,11 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
     # Development: reloadable
     java $JAVA_OPTS -Drestolino.files=$RESTOLINO_STATIC -Drestolino.classes=$RESTOLINO_CLASSES -Drestolino.packageprefix=$RESTOLINO_PACKAGEPREFIX -cp "target/dependency/*" com.github.davidcarboni.restolino.Main
     
-    # Production: non-reloadable
+    # Deployment: non-reloadable
     #java $JAVA_OPTS -jar target/*-jar-with-dependencies.jar
 
 
-Why not reload in production? Simple: you want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in production, deploy a new build using your flavour of continuous delivery.
+Why not reload when deployed? Simple: you want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in, deploy a new build using your flavour of continuous delivery.
 
 
 ### FAQ (Frequently Anticipated Questions)

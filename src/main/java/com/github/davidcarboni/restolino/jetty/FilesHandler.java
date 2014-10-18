@@ -37,13 +37,13 @@ public class FilesHandler extends ResourceHandler {
 		FilesHandler.configuration = configuration;
 		URL url = null;
 
-		// If the property is set, reload from a local directory:
+		// If the property is set, reload from a local directory (in
+		// development):
 		if (configuration.filesReloadable) {
 			url = configuration.filesUrl;
 		} else {
-			// Check for a resource on the classpath (production):
-			url = MainHandler.class.getClassLoader().getResource(
-					filesResourceName);
+			// Check for a resource on the classpath (when deployed):
+			url = MainHandler.class.getClassLoader().getResource(filesResourceName);
 		}
 
 		// Set up the result only if there's anything to be served:
@@ -58,16 +58,13 @@ public class FilesHandler extends ResourceHandler {
 	}
 
 	@Override
-	public void handle(String target, Request baseRequest,
-			HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		super.handle(target, baseRequest, request, response);
 		if (!baseRequest.isHandled()) {
 			response.setContentType("text/html");
 			response.setCharacterEncoding("UTF8");
 			response.setStatus(HttpStatus.NOT_FOUND_404);
-			response.getWriter().print(
-					"404 Not found: " + baseRequest.getRequestURI());
+			response.getWriter().print("404 Not found: " + baseRequest.getRequestURI());
 		}
 	}
 }
