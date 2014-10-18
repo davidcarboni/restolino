@@ -1,15 +1,11 @@
 package com.github.davidcarboni.restolino;
 
-import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
-import org.eclipse.jetty.security.HashLoginService;
 import org.eclipse.jetty.security.SecurityHandler;
-import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.util.security.Constraint;
-import org.eclipse.jetty.util.security.Credential;
 
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
+import com.github.davidcarboni.restolino.jetty.BasicAuth;
 import com.github.davidcarboni.restolino.jetty.FilesHandler;
 import com.github.davidcarboni.restolino.jetty.MainHandler;
 import com.github.davidcarboni.restolino.reload.ClassMonitor;
@@ -42,7 +38,7 @@ public class Main {
 			// Select the handler to be used:
 			mainHandler = new MainHandler(configuration);
 			if (configuration.authenticationEnabled) {
-				securityHandler = newBasicAuth(configuration);
+				securityHandler = new BasicAuth(configuration);
 				securityHandler.setHandler(mainHandler);
 				server.setHandler(securityHandler);
 			} else {
@@ -58,51 +54,6 @@ public class Main {
 		} finally {
 			ClassMonitor.getInstance().close();
 		}
-	}
-
-	/**
-	 * Adapted from <a href=
-	 * "https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/java/HelloWorld.java"
-	 * >https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/
-	 * java/HelloWorld.java</a>
-	 * 
-	 * @param username
-	 *            The username you want to set.
-	 * @param password
-	 *            The password you want to set.
-	 * @param realm
-	 *            "It's basically something you make up. It doesn't have to match anything, it should just make sense for your application. –  stevedbrown"
-	 * @see <a href=
-	 *      "http://stackoverflow.com/questions/10892336/realm-name-in-tomcat-web-xml"
-	 *      >http://stackoverflow.com/questions/10892336/realm-name-in-
-
-	 *      tomcat-web-xml</a>
-	 * @return
-	 */
-	static SecurityHandler newBasicAuth(Configuration configuration) {
-
-		HashLoginService l = new HashLoginService();
-		l.putUser(configuration.username,
-				Credential.getCredential(configuration.password),
-				new String[] { "user" });
-		l.setName(configuration.realm);
-
-		Constraint constraint = new Constraint();
-		constraint.setName(Constraint.__BASIC_AUTH);
-		constraint.setRoles(new String[] { "user" });
-		constraint.setAuthenticate(true);
-
-		ConstraintMapping cm = new ConstraintMapping();
-		cm.setConstraint(constraint);
-		cm.setPathSpec("/*");
-
-		ConstraintSecurityHandler basicAuthHandler = new ConstraintSecurityHandler();
-		basicAuthHandler.setAuthenticator(new BasicAuthenticator());
-		basicAuthHandler.setRealmName("myrealm");
-		basicAuthHandler.addConstraintMapping(cm);
-		basicAuthHandler.setLoginService(l);
-
-		return basicAuthHandler;
 	}
 
 }
