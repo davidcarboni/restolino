@@ -22,8 +22,8 @@ Restolino has unreasonable opinions:
  * HTML/Javascript is youn API client: then you can add mobile apps, IoT devices, etc.
  * Templating is great: do it in Javascript, not server-side.
  * Efficient development: add classes, change interfaces, whatever, then refresh.
- * Immutable releases: single-jar artifact. To make a change to the deployed version, deploy a new build and delete the old one (blue-green and all that).
- * Stateless requests: when deployed, you'll probably have multiple nodes. Everything gets reinitialised after each development change. That makes stetefulness difficult, which is a good thing.
+ * Immutable releases: single-jar artifact. To make a change to the deployed version, deploy a new version and delete the old vesion (blue-green and all that).
+ * Stateless requests: when deployed, you'll probably have multiple nodes. Everything gets reinitialised after each change in development. That makes stetefulness difficult, which is a good thing.
  * Restolino will cause your design to hurt and adapt. You'll be better for it in the long run.
  * Constraints are your path to simplicity. Enjoy them.
 
@@ -32,11 +32,13 @@ Restolino has unreasonable opinions:
 The framework does less than you'd expect, and that's better:
 
  * Runs an embedded Jetty server with raw `Handler` classes. No Servlets, no Filters, no Context. No `web.xml`.
- * Requests that have a file extension are static files. They will be handled by a Jetty `ResourceHandler` subclass (`FilesHandler`).
- * Requests that do not have a file extension are API endpoints.
- * APIs consume and return JSON. You get direct access to `HttpServletRequest` and `HttpServletResponse`.
- * Unmapped requests go to your `NotFound` implementation, or generate a 404 by default.
- * Errored requests go to your `Boom` implementation, or generate a 500 by default.
+ * Requests that have a file extension are static files. They will be handled by a subclass of the Jetty `ResourceHandler` called `FilesHandler`.
+ * Requests that do not have a file extension go to your API.
+ * APIs consume and return JSON. Accept a parameter of any type, return a result of any type. Serialisation is done for you.
+ * You get direct access to `HttpServletRequest` and `HttpServletResponse`.
+ * If you need to return something other than Json, use `void` or return `null`.
+ * Unmapped requests go to your implementation of the `NotFound` interface, or generate a 404 by default.
+ * Errored requests go to your implementation of the `Boom` interface, or generate a 500 by default.
 
 #### Getting started
 
@@ -45,17 +47,31 @@ The framework does less than you'd expect, and that's better:
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complexity would need more of your time. Get over it.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
- * Method parameters must be `req, res[, request message]`. 
- * The return type of your method can be any type, or void. If you return null, that's OK.
- * Request and response messages are assumed to be JSON and processed by Gson. If you need to add custom type adapters for serialisation, you can access the GsonBuilder via `Serialiser.getBuilder()`.
- * There's no context path. Why would you run more than one webapp in the same container? The container is the webapp.
- * You only need one 404 handler. Implement the `NotFound` interface, which provides a single method: `handle(req, res)`.
+ * Method parameters must be `req, res[, request message]` (`HttpServletRequest`, `HttpServletResponse` and optionally any type you want Gson to attempt to deserialise from the request body). 
+ * The return type of your method can be any type you want Gson to attempt to serialise into the response. Returns of `void` and `null` are fine, Restolino won't change your response.
+ * Request and response messages are [de]serialised as JSON using Gson. If you need to add custom type adapters for serialisation, you can access the `GsonBuilder` via `Serialiser.getBuilder()`.
+ * There's no context path. Why would you run more than one app in the same server process? The Jetty process is one-to-one with your app.
+ * You only need one not-found handler. Implement the `NotFound` interface. It provides a single method: `handle(req, res)`. A 404 status will be pre-set for you. You can update it if you want.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
- * No clever (aka fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead: `Path`, `QueryString` and `Parameter`. See the `com.github.davidcarboni.restolino.helpers` package.
+ * No clever (read: fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead: `Path`, `QueryString` and `Parameter`. See the `com.github.davidcarboni.restolino.helpers` package.
  * `OPTIONS` will query the configuration and tell you which of `GET`, `PUT`, `POST` and `DELETE` are implemented for that endpoint. `OPTIONS` on `/` will return GET if you have implemented `Home` or subclassed `HomeRedirect`.
  * To see the whole framework - all the interfaces and annotations you can use - have a look in the `com.github.davidcarboni.restolino.framework` package. It's intentionally small.
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
- * There are non-private fields in the classes. I consider excess modifiers to be visual clutter for little benefit. Like semi-colons in Javascript.
+ * There are non-private fields in the classes. Like semi-colons in Javascript, the usual modifiers are visual clutter that provide too little benefit. That's my opinion. I'm not asking you to agree if you don' want to.
+
+#### Looking under the hood
+
+Restolino aims to be simple enough for you to understand the code. This is not intended as an academic achievement of subtle software engineering prowess. It's meant to be basic, pragmatic, helpful and uncomplicated. Sort of like the girl/boy next door you realise is a far deeper friend than cool kids you've been trying to impress.
+
+Here is the list of packages and what they mean. There are no more than a pizza's worth of classes in each:
+
+ * `com.github.davidcarboni.restolino.`**framework** - The stuff you need to define your API - annotations and interfaces. 
+ * `com.github.davidcarboni.restolino.`**helpers** - Convenience classes you may (or may not) want to use to make your life easier.
+  * `com.github.davidcarboni.restolino.`**json** - Json serialisation
+ * `com.github.davidcarboni.restolino.`**api** - The classes that set up your API.
+ * `com.github.davidcarboni.restolino.`**reload** - The classes that detect file changes and trigger reloading.
+ * `com.github.davidcarboni.restolino.`**jetty** - The Jetty handlers that make up Restolino. `MainHandler` receives requests, decides whether a request is for an API or a file and delegates to `ApiHandler` or `FilesHandler`. There's also a handler for HTTP Basic authentication.
+ * `com.github.davidcarboni.restolino` - The `Main` and `Configuration` classes used to start the server.
 
 
 ### Dependencies:
@@ -66,7 +82,7 @@ The framework does less than you'd expect, and that's better:
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.0.9</version>
+            <version>0.0.18</version>
         </dependency>
             
     </dependencies>
@@ -77,7 +93,7 @@ The framework does less than you'd expect, and that's better:
 
 The configuration below provides both a -jar-with-dependencies (for deployment) and a folder of dependencies for reloading in development (`${project.build.directory}/dependency`). NB this should work if you want to deploy to Heroku.
 
-This also configures your project for Java 1.7. NB you could do this more neatly with profiles if you want to:
+This also configures your project for Java 1.7. You could do this with profiles if you want to:
 
 ```xml
 	<build>
@@ -146,7 +162,7 @@ This also configures your project for Java 1.7. NB you could do this more neatly
 
 ### Run
 
-This is what you want, right? Minimum time-to-working. This runs your api on port 8080 with remote debug on 8000.
+This is what you want, right? Minimum time-to-working. This runs your API on port 8080 with remote debug on 8000.
 
     #!/bin/bash
     
@@ -161,6 +177,13 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
     # Optional package prefix:
     # export RESTOLINO_PACKAGEPREFIX=com.mycompany.myapp
     
+    # Basic authentication
+    #export USERNAME=java
+    #export PASSWORD=fortheweb
+    # Optional: Practically speaking, any value you like that describes your app.
+    #           see also: http://stackoverflow.com/questions/9311353/java-ee-security-realms
+    #export REALM=niceapp
+    
     mvn clean package && \
 
     # Development: reloadable
@@ -170,25 +193,25 @@ This is what you want, right? Minimum time-to-working. This runs your api on por
     #java $JAVA_OPTS -jar target/*-jar-with-dependencies.jar
 
 
-Why not reload when deployed? Simple: you want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in, deploy a new build using your flavour of continuous delivery.
+Why not reload when deployed? You want to be using containers, but as a minimum you should be designing for stateless, immutable nodes. If something needs to change in your deployment, update a the build using your flavour of continuous delivery. Changing running servers manually is a brew of risk that ends in pain.
 
 
 ### FAQ (Frequently Anticipated Questions)
 
-#### Why not use interfaces for request handlers?
+#### Why not use interfaces to define request handlers?
 
-I've tried, but it adds complexity, doesn't add value and makes things harder. Why? Because there may or may not be a request message type and you can return any (or no) response message type. That means an interface would need to define generic types for a vararges parameter (ever tried that?) and return type, or make them Object, which is altogether rather too generic.
+I've tried, but it adds complexity, doesn't add value and makes life harder. Why? Because the interface has to take into account that there may or may not be a request message type (so generic varargs would be needed - ever tried that?) and you can return any (or no) response message type (so the retun type is variable). That means either an altogether too generic interface (everything is has to be Object, even if you'd prefer void) or individual interfaces for every permutation. 
 
-Searching for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution then send me a pull request.
+Using reflection to search for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution, send me a pull request.
 
 
 #### Is it really that cool?
 
-I was able to create a project from scratch and get to a running api in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the opaque confusion of debugging config.
+I was able to create a project from scratch and get to a running API in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the opaque confusion of debugging config.
 
-Honestly, I originally build this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework.
+Honestly, I originally build this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework. Class reloading took longer and I ditched Servlets for embedded Jetty with raw Handlers along the way. 
 
-Class reloading took longer and I ditched Servlets for embedded Jetty and raw Handlers along the way. There's something delicious about being able to add new methods, or change annotations, refrest the browser and see your changes straight away.
+I'm still aced that I can edit code, adding new fields, methods, annotations and even classes, and it's up and running when I refresh the browser. After years of productivity-sapping build-redeploy cycles, there's something utterly delicious and deeply freeing about it.
 
-The code isn't pretty, but it should just (about) work. Let me know if you like it.
+The code isn't perfect, but it should just work - and let you work. Let me know if you like it.
 
