@@ -21,16 +21,14 @@ public class Scanner {
 	static Configuration configuration;
 	static WatchService watcher;
 
-	public static void start(Path root, Configuration configuration,
-			WatchService watcher) throws IOException {
+	public static void start(Path root, Configuration configuration, WatchService watcher) throws IOException {
 		Scanner.watcher = watcher;
-		System.out.println("Starting to monitor from " + root);
 		Scanner.root = root;
+		System.out.println("Monitoring changes under " + root);
 		scan(configuration, watcher);
 	}
 
-	static void scan(Configuration configuration, WatchService watcher)
-			throws IOException {
+	static void scan(Configuration configuration, WatchService watcher) throws IOException {
 		Scanner.configuration = configuration;
 		System.out.println("Scanning root " + root);
 		Files.walkFileTree(root, new Visitor());
@@ -39,10 +37,10 @@ public class Scanner {
 	static class Visitor extends SimpleFileVisitor<Path> {
 
 		@Override
-		public FileVisitResult preVisitDirectory(Path path,
-				BasicFileAttributes attributes) {
-			// System.out.println(path + " = " + configuration.filesUrl);
+		public FileVisitResult preVisitDirectory(Path path, BasicFileAttributes attributes) {
 			if (!monitors.containsKey(path)) {
+				// Not too worried about race conditions here,
+				// so long as one ends up in the Map.
 				System.out.println("Adding monitor for path " + path);
 				monitors.put(path, new Monitor(path, configuration, watcher));
 			}

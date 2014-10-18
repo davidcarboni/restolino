@@ -29,12 +29,8 @@ public class MainHandler extends AbstractHandler {
 		setupFilesHandler();
 		setupApiHandler();
 
-		try {
-			if (configuration.classesReloadable) {
-				ClassMonitor.start(System.getProperty("restolino.classes"), configuration);
-			}
-		} catch (IOException e) {
-			throw new RuntimeException(e);
+		if (configuration.classesReloadable) {
+			ClassMonitor.start(System.getProperty("restolino.classes"), configuration);
 		}
 	}
 
