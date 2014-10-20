@@ -27,7 +27,7 @@ import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
 import com.github.davidcarboni.restolino.framework.Boom;
-import com.github.davidcarboni.restolino.framework.Endpoint;
+import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.helpers.HomeRedirect;
@@ -40,7 +40,7 @@ import com.github.davidcarboni.restolino.json.Serialiser;
  * @author David Carboni
  * 
  */
-public class Api {
+public class ApiConfiguration {
 
 	public Home home;
 	public Boom boom;
@@ -78,7 +78,7 @@ public class Api {
 		return null;
 	}
 
-	public Api(ClassLoader classLoader, String packagePrefix) {
+	public ApiConfiguration(ClassLoader classLoader, String packagePrefix) {
 
 		// Build a reflections instance to find classes:
 		Reflections reflections = createReflections(classLoader, packagePrefix);
@@ -108,7 +108,7 @@ public class Api {
 
 		System.out.println("Scanning for endpoints..");
 		Set<Class<?>> endpoints = reflections
-				.getTypesAnnotatedWith(Endpoint.class);
+				.getTypesAnnotatedWith(Api.class);
 		// System.out.println(reflections.getConfiguration().getUrls());
 
 		System.out.println("Found " + endpoints.size() + " endpoints.");

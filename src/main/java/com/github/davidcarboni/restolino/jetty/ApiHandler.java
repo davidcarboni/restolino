@@ -13,14 +13,14 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.github.davidcarboni.restolino.Main;
-import com.github.davidcarboni.restolino.api.Api;
+import com.github.davidcarboni.restolino.api.ApiConfiguration;
 
 public class ApiHandler extends AbstractHandler {
 
 	static final String KEY_CLASSES = "restolino.classes";
 
 	private static ClassLoader classLoader;
-	public static volatile Api api;
+	public static volatile ApiConfiguration api;
 
 	public ApiHandler() {
 		classLoader = ApiHandler.class.getClassLoader();
@@ -33,9 +33,9 @@ public class ApiHandler extends AbstractHandler {
 	public static void setupApi() {
 		if (Main.configuration.classesReloadable) {
 			ClassLoader reloadableClassLoader = new URLClassLoader(new URL[] { Main.configuration.classesUrl }, classLoader);
-			api = new Api(reloadableClassLoader, Main.configuration.packagePrefix);
+			api = new ApiConfiguration(reloadableClassLoader, Main.configuration.packagePrefix);
 		} else {
-			api = new Api(classLoader, null);
+			api = new ApiConfiguration(classLoader, null);
 		}
 	}
 
