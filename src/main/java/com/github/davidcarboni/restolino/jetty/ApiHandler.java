@@ -21,22 +21,20 @@ public class ApiHandler extends AbstractHandler {
 
 	private static Configuration configuration;
 	private static ClassLoader classLoader;
-	static volatile Api api;
+	public static volatile Api api;
 
 	public ApiHandler(Configuration configuration) {
 		ApiHandler.configuration = configuration;
 		classLoader = ApiHandler.class.getClassLoader();
-		if (configuration.classesInClasspath != null)
-			System.out
-					.println("Classes are included in the classpath. No reloading will be configured ("
-							+ configuration.classesInClasspath + ")");
+		if (configuration.classesInClasspath != null) {
+			System.out.println("Classes are included in the classpath. No reloading will be configured (" + configuration.classesInClasspath + ")");
+		}
 		setupApi();
 	}
 
 	public static void setupApi() {
 		if (configuration.classesReloadable) {
-			ClassLoader reloadableClassLoader = new URLClassLoader(
-					new URL[] { configuration.classesUrl }, classLoader);
+			ClassLoader reloadableClassLoader = new URLClassLoader(new URL[] { configuration.classesUrl }, classLoader);
 			api = new Api(reloadableClassLoader, configuration.packagePrefix);
 		} else {
 			api = new Api(classLoader, null);
@@ -44,21 +42,20 @@ public class ApiHandler extends AbstractHandler {
 	}
 
 	@Override
-	public void handle(String target, Request baseRequest,
-			HttpServletRequest request, HttpServletResponse response)
-			throws IOException, ServletException {
+	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 		String method = request.getMethod();
-		if (StringUtils.equals("GET", method))
+		if (StringUtils.equals("GET", method)) {
 			api.get(request, response);
-		else if (StringUtils.equals("PUT", method))
+		} else if (StringUtils.equals("PUT", method)) {
 			api.put(request, response);
-		else if (StringUtils.equals("POST", method))
+		} else if (StringUtils.equals("POST", method)) {
 			api.post(request, response);
-		else if (StringUtils.equals("DELETE", method))
+		} else if (StringUtils.equals("DELETE", method)) {
 			api.delete(request, response);
-		else if (StringUtils.equals("OPTIONS", method))
+		} else if (StringUtils.equals("OPTIONS", method)) {
 			api.options(request, response);
-		else
+		} else {
 			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+		}
 	}
 }
