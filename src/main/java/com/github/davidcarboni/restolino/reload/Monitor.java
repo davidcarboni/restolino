@@ -101,7 +101,7 @@ public class Monitor implements Runnable {
 					// ENTRY_MODIFY so this avoids reloading twice:
 					if (reload) {
 						System.out.println("Reloading...");
-						ClassMonitor.requestReload();
+						ClassReloader.requestReload();
 					}
 
 					if (!key.reset()) {

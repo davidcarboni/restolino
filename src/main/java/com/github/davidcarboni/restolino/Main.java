@@ -8,7 +8,7 @@ import com.github.davidcarboni.restolino.jetty.ApiHandler;
 import com.github.davidcarboni.restolino.jetty.BasicAuth;
 import com.github.davidcarboni.restolino.jetty.FilesHandler;
 import com.github.davidcarboni.restolino.jetty.MainHandler;
-import com.github.davidcarboni.restolino.reload.ClassMonitor;
+import com.github.davidcarboni.restolino.reload.ClassReloader;
 
 /**
  * 
@@ -53,7 +53,7 @@ public class Main {
 			server.join();
 
 		} finally {
-			ClassMonitor.shutdown();
+			ClassReloader.shutdown();
 		}
 	}
 

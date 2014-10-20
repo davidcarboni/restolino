@@ -7,9 +7,9 @@ import java.nio.file.WatchService;
 
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
 
-public class ClassMonitor implements Runnable {
+public class ClassReloader implements Runnable {
 
-	static ClassMonitor classMonitor;
+	static ClassReloader classMonitor;
 	static WatchService watcher;
 	String path;
 	volatile boolean reloadRequested;
@@ -21,8 +21,8 @@ public class ClassMonitor implements Runnable {
 	 *            The path to be monitored (including subfolders).
 	 */
 	public static void start(String path) {
-		classMonitor = new ClassMonitor(path);
-		Thread thread = new Thread(classMonitor, ClassMonitor.class.getSimpleName());
+		classMonitor = new ClassReloader(path);
+		Thread thread = new Thread(classMonitor, ClassReloader.class.getSimpleName());
 		thread.setDaemon(true);
 		thread.start();
 	}
@@ -31,7 +31,7 @@ public class ClassMonitor implements Runnable {
 	 * @param path
 	 *            The path to be monitored (including subfolders).
 	 */
-	ClassMonitor(String path) {
+	ClassReloader(String path) {
 		this.path = path;
 	}
 
@@ -67,7 +67,7 @@ public class ClassMonitor implements Runnable {
 		} catch (IOException | InterruptedException e) {
 			try {
 				shutdown();
-				throw new RuntimeException("Error in " + ClassMonitor.class.getSimpleName() + ", exiting.", e);
+				throw new RuntimeException("Error in " + ClassReloader.class.getSimpleName() + ", exiting.", e);
 			} catch (IOException e1) {
 				e.printStackTrace();
 			}

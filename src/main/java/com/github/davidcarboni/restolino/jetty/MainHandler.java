@@ -13,7 +13,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
 import com.github.davidcarboni.restolino.Main;
-import com.github.davidcarboni.restolino.reload.ClassMonitor;
+import com.github.davidcarboni.restolino.reload.ClassReloader;
 
 public class MainHandler extends AbstractHandler {
 
@@ -26,7 +26,7 @@ public class MainHandler extends AbstractHandler {
 		setupApiHandler();
 
 		if (Main.configuration.classesReloadable) {
-			ClassMonitor.start(System.getProperty("restolino.classes"));
+			ClassReloader.start(System.getProperty("restolino.classes"));
 		}
 	}
 
