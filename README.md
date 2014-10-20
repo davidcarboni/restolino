@@ -10,7 +10,7 @@ It's not comprehensive, won't give you the flexibility you want and doesn't real
 
 What it does do is let you work and stays out of your way, because configuring frameworks is a distraction. Java is a great language with loads of support, but it's never been efficient for Web development. This changes that.
 
-If you're a purist, this is not the framework you are looking for. 
+If you're a Java purist, this is not the framework you are looking for. 
 
 And that's it.
 
