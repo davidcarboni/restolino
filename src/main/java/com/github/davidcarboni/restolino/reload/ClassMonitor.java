@@ -5,14 +5,12 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.WatchService;
 
-import com.github.davidcarboni.restolino.Configuration;
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
 
 public class ClassMonitor implements Runnable {
 
 	static ClassMonitor classMonitor;
 	static WatchService watcher;
-	Configuration configuration;
 	String path;
 	volatile boolean reloadRequested;
 
@@ -21,11 +19,9 @@ public class ClassMonitor implements Runnable {
 	 * 
 	 * @param path
 	 *            The path to be monitored (including subfolders).
-	 * @param configuration
-	 *            The {@link Configuration}.
 	 */
-	public static void start(String path, Configuration configuration) {
-		classMonitor = new ClassMonitor(configuration, path);
+	public static void start(String path) {
+		classMonitor = new ClassMonitor(path);
 		Thread thread = new Thread(classMonitor, ClassMonitor.class.getSimpleName());
 		thread.setDaemon(true);
 		thread.start();
@@ -34,11 +30,8 @@ public class ClassMonitor implements Runnable {
 	/**
 	 * @param path
 	 *            The path to be monitored (including subfolders).
-	 * @param configuration
-	 *            The {@link Configuration}.
 	 */
-	ClassMonitor(Configuration configuration, String path) {
-		this.configuration = configuration;
+	ClassMonitor(String path) {
 		this.path = path;
 	}
 
@@ -54,7 +47,7 @@ public class ClassMonitor implements Runnable {
 			// Set up
 			Path path = FileSystems.getDefault().getPath(this.path);
 			watcher = FileSystems.getDefault().newWatchService();
-			Scanner.start(path, configuration, watcher);
+			Scanner.start(path, watcher);
 
 			while (true) {
 

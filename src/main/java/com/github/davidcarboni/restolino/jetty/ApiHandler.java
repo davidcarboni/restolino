@@ -12,30 +12,28 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.github.davidcarboni.restolino.Configuration;
+import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.api.Api;
 
 public class ApiHandler extends AbstractHandler {
 
 	static final String KEY_CLASSES = "restolino.classes";
 
-	private static Configuration configuration;
 	private static ClassLoader classLoader;
 	public static volatile Api api;
 
-	public ApiHandler(Configuration configuration) {
-		ApiHandler.configuration = configuration;
+	public ApiHandler() {
 		classLoader = ApiHandler.class.getClassLoader();
-		if (configuration.classesInClasspath != null) {
-			System.out.println("Classes are included in the classpath. No reloading will be configured (" + configuration.classesInClasspath + ")");
+		if (Main.configuration.classesInClasspath != null) {
+			System.out.println("Classes are included in the classpath. No reloading will be configured (" + Main.configuration.classesInClasspath + ")");
 		}
 		setupApi();
 	}
 
 	public static void setupApi() {
-		if (configuration.classesReloadable) {
-			ClassLoader reloadableClassLoader = new URLClassLoader(new URL[] { configuration.classesUrl }, classLoader);
-			api = new Api(reloadableClassLoader, configuration.packagePrefix);
+		if (Main.configuration.classesReloadable) {
+			ClassLoader reloadableClassLoader = new URLClassLoader(new URL[] { Main.configuration.classesUrl }, classLoader);
+			api = new Api(reloadableClassLoader, Main.configuration.packagePrefix);
 		} else {
 			api = new Api(classLoader, null);
 		}

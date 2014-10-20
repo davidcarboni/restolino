@@ -12,8 +12,6 @@ import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
-import com.github.davidcarboni.restolino.Configuration;
-
 /**
  * Monitors a {@link Path} for changes, including subfolders.
  * 
@@ -36,12 +34,10 @@ import com.github.davidcarboni.restolino.Configuration;
 public class Monitor implements Runnable {
 
 	private Path path;
-	private Configuration configuration;
 	private WatchService watcher;
 
-	public Monitor(Path path, Configuration configuration, WatchService watcher) {
+	public Monitor(Path path, WatchService watcher) {
 
-		this.configuration = configuration;
 		this.watcher = watcher;
 		// Sanity check:
 		if (!Files.isDirectory(path)) {

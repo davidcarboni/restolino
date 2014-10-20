@@ -13,13 +13,10 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import com.github.davidcarboni.restolino.Configuration;
-
 public class Scanner implements Runnable {
 
 	static Path root;
 	static Map<Path, Monitor> monitors = new ConcurrentHashMap<>();
-	static Configuration configuration;
 	static WatchService watcher;
 
 	/**
@@ -27,15 +24,12 @@ public class Scanner implements Runnable {
 	 * 
 	 * @param root
 	 *            The directory under which to scan.
-	 * @param configuration
-	 *            The {@link Configuration}
 	 * @param watcher
 	 *            The {@link WatchService}
 	 */
-	public static void start(Path root, Configuration configuration, WatchService watcher) {
+	public static void start(Path root, WatchService watcher) {
 		Scanner.watcher = watcher;
 		Scanner.root = root;
-		Scanner.configuration = configuration;
 
 		System.out.println("Monitoring changes under " + root);
 		Thread t = new Thread(new Scanner(), "Directory scanner");
@@ -88,7 +82,7 @@ public class Scanner implements Runnable {
 				// Not too worried about race conditions here,
 				// so long as one ends up in the Map.
 				System.out.println("Adding monitor for path " + path);
-				monitors.put(path, new Monitor(path, configuration, watcher));
+				monitors.put(path, new Monitor(path, watcher));
 			}
 			return CONTINUE;
 		}

@@ -19,6 +19,7 @@ import com.github.davidcarboni.restolino.reload.ClassMonitor;
  */
 public class Main {
 
+	public static Configuration configuration;
 	public static Server server;
 	public static MainHandler mainHandler;
 	public static ApiHandler apiHandler;
@@ -29,16 +30,16 @@ public class Main {
 
 		try {
 			// Set up the configuration:
-			Configuration configuration = new Configuration();
+			configuration = new Configuration();
 
 			// Create the Jetty server:
 			server = new Server(configuration.port);
 			securityHandler = new ConstraintSecurityHandler();
 
 			// Select the handler to be used:
-			mainHandler = new MainHandler(configuration);
+			mainHandler = new MainHandler();
 			if (configuration.authenticationEnabled) {
-				securityHandler = new BasicAuth(configuration);
+				securityHandler = new BasicAuth();
 				securityHandler.setHandler(mainHandler);
 				server.setHandler(securityHandler);
 			} else {

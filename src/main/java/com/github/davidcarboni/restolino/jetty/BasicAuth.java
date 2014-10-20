@@ -7,7 +7,7 @@ import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
 
-import com.github.davidcarboni.restolino.Configuration;
+import com.github.davidcarboni.restolino.Main;
 
 /**
  * Provides HTTP Basic authentication. This is useful if you're deploying a
@@ -23,11 +23,11 @@ import com.github.davidcarboni.restolino.Configuration;
  */
 public class BasicAuth extends ConstraintSecurityHandler {
 
-	public BasicAuth(Configuration configuration) {
+	public BasicAuth() {
 
-		HashLoginService l = new HashLoginService();
-		l.putUser(configuration.username, Credential.getCredential(configuration.password), new String[] { "user" });
-		l.setName(configuration.realm);
+		HashLoginService loginService = new HashLoginService();
+		loginService.putUser(Main.configuration.username, Credential.getCredential(Main.configuration.password), new String[] { "user" });
+		loginService.setName(Main.configuration.realm);
 
 		Constraint constraint = new Constraint();
 		constraint.setName(Constraint.__BASIC_AUTH);
@@ -42,6 +42,6 @@ public class BasicAuth extends ConstraintSecurityHandler {
 		setAuthenticator(new BasicAuthenticator());
 		setRealmName("myrealm");
 		addConstraintMapping(cm);
-		setLoginService(l);
+		setLoginService(loginService);
 	}
 }

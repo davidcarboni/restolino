@@ -12,35 +12,33 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 
-import com.github.davidcarboni.restolino.Configuration;
+import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.reload.ClassMonitor;
 
 public class MainHandler extends AbstractHandler {
 
 	public static FilesHandler fileHandler;
 	public static ApiHandler apiHandler;
-	public static Configuration configuration;
 
-	public MainHandler(Configuration configuration) {
+	public MainHandler() {
 
-		MainHandler.configuration = configuration;
 		setupFilesHandler();
 		setupApiHandler();
 
-		if (configuration.classesReloadable) {
-			ClassMonitor.start(System.getProperty("restolino.classes"), configuration);
+		if (Main.configuration.classesReloadable) {
+			ClassMonitor.start(System.getProperty("restolino.classes"));
 		}
 	}
 
 	private void setupFilesHandler() {
-		fileHandler = FilesHandler.newInstance(configuration);
+		fileHandler = FilesHandler.newInstance();
 		if (fileHandler == null) {
 			System.out.println("No file handler configured. " + "No resource found on the classpath " + "and reloading is not configured.");
 		}
 	}
 
 	private void setupApiHandler() {
-		apiHandler = new ApiHandler(configuration);
+		apiHandler = new ApiHandler();
 	}
 
 	@Override
