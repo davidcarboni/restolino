@@ -26,7 +26,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import com.github.davidcarboni.restolino.framework.Boom;
+import com.github.davidcarboni.restolino.framework.ServerError;
 import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
@@ -43,7 +43,7 @@ import com.github.davidcarboni.restolino.json.Serialiser;
 public class ApiConfiguration {
 
 	public Home home;
-	public Boom boom;
+	public ServerError boom;
 	public NotFound notFound;
 
 	public Map<String, RequestHandler> get = new HashMap<>();
@@ -245,12 +245,12 @@ public class ApiConfiguration {
 	 * 
 	 * @param reflections
 	 *            The instance to use to find classes.
-	 * @return {@link Boom}
+	 * @return {@link ServerError}
 	 */
 	void configureBoom(Reflections reflections) {
 
 		System.out.println("Checking for an error endpoint..");
-		Boom boom = getEndpoint(Boom.class, "error", reflections);
+		ServerError boom = getEndpoint(ServerError.class, "error", reflections);
 		printEndpoint(boom, "error");
 		this.boom = boom;
 	}

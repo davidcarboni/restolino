@@ -13,7 +13,7 @@ import com.github.davidcarboni.restolino.api.RequestHandler;
  * @author david
  *
  */
-public interface Boom {
+public interface ServerError {
 
 	/**
 	 * 
