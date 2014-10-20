@@ -43,7 +43,7 @@ import com.github.davidcarboni.restolino.json.Serialiser;
 public class ApiConfiguration {
 
 	public Home home;
-	public ServerError boom;
+	public ServerError serverError;
 	public NotFound notFound;
 
 	public Map<String, RequestHandler> get = new HashMap<>();
@@ -89,7 +89,7 @@ public class ApiConfiguration {
 		// Configure standard handlers:
 		configureHome(reflections);
 		configureNotFound(reflections);
-		configureBoom(reflections);
+		configureServerError(reflections);
 	}
 
 	/**
@@ -247,12 +247,12 @@ public class ApiConfiguration {
 	 *            The instance to use to find classes.
 	 * @return {@link ServerError}
 	 */
-	void configureBoom(Reflections reflections) {
+	void configureServerError(Reflections reflections) {
 
 		System.out.println("Checking for an error endpoint..");
-		ServerError boom = getEndpoint(ServerError.class, "error", reflections);
-		printEndpoint(boom, "error");
-		this.boom = boom;
+		ServerError serverError = getEndpoint(ServerError.class, "error", reflections);
+		printEndpoint(serverError, "error");
+		this.serverError = serverError;
 	}
 
 	private void printEndpoint(Object endpoint, String name) {
@@ -470,9 +470,9 @@ public class ApiConfiguration {
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
 		try {
-			if (boom != null) {
+			if (serverError != null) {
 				// Attempt to handle the error gracefully:
-				Object errorResponse = boom.handle(request, response,
+				Object errorResponse = serverError.handle(request, response,
 						requestHandler, t);
 				if (errorResponse != null)
 					Serialiser.serialise(response, errorResponse);

@@ -38,7 +38,7 @@ The framework does less than you'd expect, and that's better:
  * You get direct access to `HttpServletRequest` and `HttpServletResponse`.
  * If you need to return something other than Json, use `void` or return `null`.
  * Unmapped requests go to your implementation of the `NotFound` interface, or generate a 404 by default.
- * Errored requests go to your implementation of the `Boom` interface, or generate a 500 by default.
+ * Errored requests go to your implementation of the `ServerError` interface, or generate a 500 by default.
 
 #### Getting started
 
@@ -52,7 +52,7 @@ The framework does less than you'd expect, and that's better:
  * Request and response messages are [de]serialised as JSON using Gson. If you need to add custom type adapters for serialisation, you can access the `GsonBuilder` via `Serialiser.getBuilder()`.
  * There's no context path. Why would you run more than one app in the same server process? The Jetty process is one-to-one with your app.
  * You only need one not-found handler. Implement the `NotFound` interface. It provides a single method: `handle(req, res)`. A 404 status will be pre-set for you. You can update it if you want.
- * You only need one error handler, but you do need to know where the error occurred. Implement the `Boom` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
+ * You only need one error handler, but you do need to know where the error occurred. Implement the `ServerError` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
  * No clever (read: fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead: `Path`, `QueryString` and `Parameter`. See the `com.github.davidcarboni.restolino.helpers` package.
  * `OPTIONS` will query the configuration and tell you which of `GET`, `PUT`, `POST` and `DELETE` are implemented for that endpoint. `OPTIONS` on `/` will return GET if you have implemented `Home` or subclassed `HomeRedirect`.
  * To see the whole framework - all the interfaces and annotations you can use - have a look in the `com.github.davidcarboni.restolino.framework` package. It's intentionally small.
