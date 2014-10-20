@@ -6,10 +6,7 @@ Chunked response: InputStream.
 Multipart uploads: InputStream/Multipart?
 Asynchronous
 
-make index.html default if no / defined
 Handle form/urlencoded to be a little bit friendly
 Java compiler API to reduce reflection calls?
-
 Java compiler API for Jersify?
-No need to pass Configuration around.
 
