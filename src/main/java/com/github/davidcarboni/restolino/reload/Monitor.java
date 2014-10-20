@@ -115,15 +115,10 @@ public class Monitor implements Runnable {
 					}
 
 				} catch (InterruptedException e) {
-					System.out.println("Error taking for " + path + ". Exiting this monitor.");
+					System.out.println("Error taking a WatchKey for " + path + ". Exiting this monitor.");
 					Scanner.remove(path);
 					break;
 				}
-
-				// Rescan:
-				// This covers errors and exiting when a folder is deleted,
-				// and generally any kind of exit from the loop:
-				Scanner.scan(configuration, watcher);
 
 			} while (true);
 
@@ -133,5 +128,10 @@ public class Monitor implements Runnable {
 		}
 
 		System.out.println("Quit: " + path);
+
+		// Rescan:
+		// This covers errors and exiting when a folder is deleted,
+		// and generally any kind of exit from the loop:
+		Scanner.class.notify();
 	}
 }
