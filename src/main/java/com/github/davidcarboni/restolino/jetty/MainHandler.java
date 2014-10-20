@@ -9,23 +9,21 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.MimeTypes;
-import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
-import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import com.github.davidcarboni.restolino.Configuration;
 import com.github.davidcarboni.restolino.reload.ClassMonitor;
 
 public class MainHandler extends AbstractHandler {
 
-	ResourceHandler fileHandler;
-	Handler apiHandler;
-	Configuration configuration;
+	public static FilesHandler fileHandler;
+	public static ApiHandler apiHandler;
+	public static Configuration configuration;
 
 	public MainHandler(Configuration configuration) {
 
-		this.configuration = configuration;
+		MainHandler.configuration = configuration;
 		setupFilesHandler();
 		setupApiHandler();
 
@@ -48,7 +46,10 @@ public class MainHandler extends AbstractHandler {
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-		if (isApiRequest(target)) {
+		// Should we try redirecting to index.html?
+		if (isRootRequest(request) && ApiHandler.api.home == null) {
+			response.sendRedirect("/index.html");
+		} else if (isApiRequest(target)) {
 			apiHandler.handle(target, baseRequest, request, response);
 		} else if (fileHandler != null) {
 			fileHandler.handle(target, baseRequest, request, response);
@@ -57,6 +58,24 @@ public class MainHandler extends AbstractHandler {
 		}
 
 		baseRequest.setHandled(true);
+	}
+
+	/**
+	 * Determines if the given request is for the root resource (ie /).
+	 * 
+	 * @param request
+	 *            The {@link HttpServletRequest}
+	 * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
+	 *         or "/", then true.
+	 */
+	boolean isRootRequest(HttpServletRequest request) {
+		String path = request.getPathInfo();
+		if (StringUtils.isBlank(path)) {
+			return true;
+		} else if (StringUtils.equals("/", path)) {
+			return true;
+		}
+		return false;
 	}
 
 	static boolean isApiRequest(String target) {

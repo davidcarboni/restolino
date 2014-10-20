@@ -33,7 +33,7 @@ public class FilesHandler extends ResourceHandler {
 
 	}
 
-	public static ResourceHandler newInstance(Configuration configuration) {
+	public static FilesHandler newInstance(Configuration configuration) {
 		FilesHandler.configuration = configuration;
 		URL url = null;
 
