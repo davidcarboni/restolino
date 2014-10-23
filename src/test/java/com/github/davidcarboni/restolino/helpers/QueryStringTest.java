@@ -29,8 +29,7 @@ public class QueryStringTest {
 	public void shouldParseUri() {
 
 		// Given
-		URI uri = URI
-				.create("http://newport.com/DuchyJerkShack?food=awesome&location=invisible");
+		URI uri = URI.create("http://newport.com/DuchyJerkShack?food=awesome&location=invisible");
 
 		// When
 		QueryString queryString = new QueryString(uri);
@@ -48,9 +47,8 @@ public class QueryStringTest {
 		// Given
 		String dodgyCharacters = " !@#$^*(){}[]/\\?|-_;:";
 		String extraDodgy = "+&=";
-		String key = "Strange parameter name : " + dodgyCharacters + extraDodgy;
-		String value = "Crazy parameter value : " + dodgyCharacters
-				+ extraDodgy;
+		String key = "Strange parameter name : " + dodgyCharacters;
+		String value = "Crazy parameter value : " + dodgyCharacters + extraDodgy;
 
 		// When
 		QueryString queryString = new QueryString();
@@ -58,14 +56,12 @@ public class QueryStringTest {
 		String rendered = queryString.toQueryString();
 
 		// Then
-		assertFalse(StringUtils.containsAny(rendered, dodgyCharacters));
 		String[] split = StringUtils.split(rendered, "=");
+		assertFalse(StringUtils.containsAny(split[1], dodgyCharacters));
 		assertEquals(2, split.length);
-		String decodedKey = UrlEncoded.decodeString(split[0], 0,
-				split[0].length(), Charset.forName("UTF8"));
+		String decodedKey = split[0];
 		assertEquals(decodedKey, key);
-		String decodedValue = UrlEncoded.decodeString(split[1], 0,
-				split[1].length(), Charset.forName("UTF8"));
+		String decodedValue = UrlEncoded.decodeString(split[1], 0, split[1].length(), Charset.forName("UTF8"));
 		assertEquals(decodedValue, value);
 	}
 
@@ -75,25 +71,20 @@ public class QueryStringTest {
 		// Given
 		String dodgyCharacters = " !@#$^*(){}[]/\\?|-_;:";
 		String extraDodgy = "+&=";
-		String key = "Strange parameter name : " + dodgyCharacters + extraDodgy;
-		String value = "Crazy parameter value : " + dodgyCharacters
-				+ extraDodgy;
-		URI uri = URI.create("http://newport.com/Lilo?"
-				+ UrlEncoded.encodeString(key) + "="
-				+ UrlEncoded.encodeString(value));
+		String key = "Strange parameter name : " + dodgyCharacters;
+		String value = "Crazy parameter value : " + dodgyCharacters + extraDodgy;
+		URI uri = URI.create("http://newport.com/Lilo?" + UrlEncoded.encodeString(key) + "=" + UrlEncoded.encodeString(value));
 
 		// When
 		QueryString queryString = new QueryString(uri);
 		String rendered = queryString.toQueryString();
 
 		// Then
-		assertFalse(StringUtils.containsAny(rendered, dodgyCharacters));
 		String[] split = StringUtils.split(rendered, "=");
-		String decodedKey = UrlEncoded.decodeString(split[0], 0,
-				split[0].length(), Charset.forName("UTF8"));
+		assertFalse(StringUtils.containsAny(split[1], dodgyCharacters));
+		String decodedKey = split[0];
 		assertEquals(decodedKey, key);
-		String decodedValue = UrlEncoded.decodeString(split[1], 0,
-				split[1].length(), Charset.forName("UTF8"));
+		String decodedValue = UrlEncoded.decodeString(split[1], 0, split[1].length(), Charset.forName("UTF8"));
 		assertEquals(decodedValue, value);
 	}
 
