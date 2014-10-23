@@ -40,13 +40,10 @@ public class QueryString extends HashMap<String, String> {
 				if (pair != null && pair.length == 2) {
 					String key = pair[0];
 					String value = pair[1];
-					if (StringUtils.isNotBlank(key)
-							&& StringUtils.isNotBlank(value)) {
+					if (StringUtils.isNotBlank(key) && StringUtils.isNotBlank(value)) {
 
-						String decodedKey = UrlEncoded.decodeString(key, 0,
-								key.length(), Charset.forName("UTF8"));
-						String decodedValue = UrlEncoded.decodeString(value, 0,
-								value.length(), Charset.forName("UTF8"));
+						String decodedKey = UrlEncoded.decodeString(key, 0, key.length(), Charset.forName("UTF8"));
+						String decodedValue = UrlEncoded.decodeString(value, 0, value.length(), Charset.forName("UTF8"));
 
 						put(decodedKey, decodedValue);
 					}
@@ -67,12 +64,16 @@ public class QueryString extends HashMap<String, String> {
 
 		List<String> parameters = new ArrayList<>();
 		for (Entry<String, String> entry : entrySet()) {
-			String key = UrlEncoded.encodeString(entry.getKey());
+			// We don't encode the key because it could legitimately contain
+			// things like underscores, e.g. "_escaped_fragment_" would become:
+			// "%255Fescaped%255Ffragment%255F"
+			String key = entry.getKey();
 			String value = UrlEncoded.encodeString(entry.getValue());
 			parameters.add(key + "=" + value);
 		}
-		if (parameters.size() > 0)
+		if (parameters.size() > 0) {
 			result = StringUtils.join(parameters, '&');
+		}
 
 		return result;
 	}
@@ -87,8 +88,9 @@ public class QueryString extends HashMap<String, String> {
 	@Override
 	public String toString() {
 		String result = toQueryString();
-		if (result == null)
+		if (result == null) {
 			result = StringUtils.EMPTY;
+		}
 		return result;
 	}
 }
