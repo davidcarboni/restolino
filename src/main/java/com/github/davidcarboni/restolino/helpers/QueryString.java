@@ -66,7 +66,7 @@ public class QueryString extends HashMap<String, String> {
 		for (Entry<String, String> entry : entrySet()) {
 			// We don't encode the key because it could legitimately contain
 			// things like underscores, e.g. "_escaped_fragment_" would become:
-			// "%255Fescaped%255Ffragment%255F"
+			// "%5Fescaped%5Ffragment%5F"
 			String key = entry.getKey();
 			String value = UrlEncoded.encodeString(entry.getValue());
 			parameters.add(key + "=" + value);
