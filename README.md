@@ -103,7 +103,7 @@ This also configures your project for Java 1.7. You could do this with profiles 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.1</version>
+				<version>3.2</version>
 				<configuration>
 					<source>1.7</source>
 					<target>1.7</target>
@@ -142,7 +142,7 @@ This also configures your project for Java 1.7. You could do this with profiles 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.8</version>
+				<version>2.9</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
