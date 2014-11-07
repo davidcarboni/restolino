@@ -10,4 +10,4 @@ Handle form/urlencoded to be a little bit friendly
 Java compiler API to reduce reflection calls?
 Java compiler API for Jersify?
 
-Update readme command-line for username/password/realm
+Last-Modified / ETag handling
