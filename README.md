@@ -212,6 +212,11 @@ I don't know. What I do know is that both the server and the framework are doing
 Restolino takes more away (Servlets, Filters, Context, etc.) than it adds. If you trust Jetty and want to make simple things freely, Restolino will probably work for you. (see also [http://stackoverflow.com/questions/16063576/lightweight-servlet-container-for-production-use](http://stackoverflow.com/questions/16063576/lightweight-servlet-container-for-production-use))
 
 
+#### Is it good enough for commercial projects?
+
+I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was creating a working prototype, speed of iteration was very important. The best thing about Restolino on this project was that nobody talked about Restolino - it stayed out of the way and never became the conversation.
+
+
 #### Can I switch to Jersey for production?
 
 Yes. Restolino intentionally doesn't stray too far from JAX-RS. If you add `@Path(<classname>)` to your classes and `@Context` to your `HttpServletRequest` and `HttpServletResponse` method parameters, your code should slot straight in to a Jersey application.
