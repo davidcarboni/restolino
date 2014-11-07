@@ -198,11 +198,9 @@ Why not reload when deployed? You want to be using containers, but as a minimum 
 
 ### FAQ (Frequently Anticipated Questions)
 
-#### Why not use interfaces to define request handlers?
+#### Is it good enough for commercial projects?
 
-I've tried, but it adds complexity, doesn't add value and makes life harder. Why? Because the interface has to take into account that there may or may not be a request message type (so generic varargs would be needed - ever tried that?) and you can return any (or no) response message type (so the retun type is variable). That means either an altogether too generic interface (everything is has to be Object, even if you'd prefer void) or individual interfaces for every permutation. 
-
-Using reflection to search for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution, send me a pull request.
+I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was creating a working prototype, speed of iteration was very important. The best thing about Restolino on this project was that nobody talked about Restolino - it stayed out of the way and never became the conversation.
 
 
 #### Is it fast/secure/productionised?
@@ -212,17 +210,19 @@ I don't know. What I do know is that both the server and the framework are doing
 Restolino takes more away (Servlets, Filters, Context, etc.) than it adds. If you trust Jetty and want to make simple things freely, Restolino will probably work for you. (see also [http://stackoverflow.com/questions/16063576/lightweight-servlet-container-for-production-use](http://stackoverflow.com/questions/16063576/lightweight-servlet-container-for-production-use))
 
 
-#### Is it good enough for commercial projects?
-
-I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was creating a working prototype, speed of iteration was very important. The best thing about Restolino on this project was that nobody talked about Restolino - it stayed out of the way and never became the conversation.
-
-
 #### Can I switch to Jersey for production?
 
 Yes. Restolino intentionally doesn't stray too far from JAX-RS. If you add `@Path(<classname>)` to your classes and `@Context` to your `HttpServletRequest` and `HttpServletResponse` method parameters, your code should slot straight in to a Jersey application.
 
 
-#### Is it really that cool?
+#### Why not use interfaces to define request handlers?
+
+I've tried, but it adds complexity, doesn't add value and makes life harder. Why? Because the interface has to take into account that there may or may not be a request message type (so generic varargs would be needed - ever tried that?) and you can return any (or no) response message type (so the retun type is variable). That means either an altogether too generic interface (everything is has to be Object, even if you'd prefer void) or individual interfaces for every permutation. 
+
+Using reflection to search for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution, send me a pull request.
+
+
+#### Is it really this cool?
 
 I was able to create a project from scratch and get to a running API in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the time I've spent debugging config.
 
