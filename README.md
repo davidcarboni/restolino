@@ -200,7 +200,7 @@ Why not reload when deployed? You want to be using containers, but as a minimum 
 
 #### Is it good enough for commercial projects?
 
-I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was creating a working prototype so speed of iteration was very important. It worked. The best thing about Restolino on this project was that nobody talked about Restolino - it stayed out of the way and never became the conversation.
+I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was on creating a working prototype so speed of iteration was very important. It worked. The best thing about using Restolino was nobody talked about Restolino - it stayed out of the way and never became the conversation.
 
 
 #### Is it fast/secure/productionised?
