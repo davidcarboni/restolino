@@ -200,7 +200,7 @@ Why not reload when deployed? You want to be using containers, but as a minimum 
 
 #### Is it good enough for commercial projects?
 
-I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was on creating a working prototype so speed of iteration was very important. It worked. The best thing about using Restolino was nobody talked about Restolino - it stayed out of the way and never became the conversation.
+I used Restolino to implement a significant [Alpha](https://www.gov.uk/service-manual/phases/alpha.html) project for the UK government. The focus was on creating a working prototype, so speed of iteration was very important. It worked. The best thing about using Restolino was nobody talked about Restolino - it stayed out of the way and never became the conversation.
 
 
 #### Is it fast/secure/productionised?
@@ -224,11 +224,11 @@ Using reflection to search for methods with either two or three parameters, wher
 
 #### Is it really this cool?
 
+I'm still aced that I can edit code, adding new fields, methods, annotations - even classes - and it's there when I refresh the browser. After years of productivity-sapping build-redeploy cycles, there's something utterly delicious and deeply freeing about it.
+
 I was able to create a project from scratch and get to a running API in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the time I've spent debugging config.
 
 Honestly, I originally build this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework. Class reloading took longer and I ditched Servlets for embedded Jetty with raw Handlers along the way. 
-
-I'm still aced that I can edit code, adding new fields, methods, annotations and even classes, and it's up and running when I refresh the browser. After years of productivity-sapping build-redeploy cycles, there's something utterly delicious and deeply freeing about it.
 
 The code isn't perfect, but it should just work - and let you work. Let me know if you like it.
 
