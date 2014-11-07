@@ -51,6 +51,9 @@ public class FilesHandler extends ResourceHandler {
 		if (url != null) {
 			System.out.println("Set up file handler for URL: " + url);
 			result = new FilesHandler(url);
+			// Use basic ETag handling from the Jetty Resource class to
+			// facilitate caching
+			result.setEtags(true);
 		} else {
 			System.out.println("No static file serving configured.");
 		}
