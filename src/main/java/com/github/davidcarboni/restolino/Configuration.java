@@ -22,7 +22,7 @@ public class Configuration {
 	public static final String CLASSES = "restolino.classes";
 	public static final String PACKAGE_PREFIX = "restolino.packageprefix";
 	public static final String FILES = "restolino.files";
-	public static final String FILES_RESOURCE = "files";
+	public static final String FILES_RESOURCE = "web";
 	public static final String AUTH_USERNAME = "restolino.username";
 	public static final String AUTH_PASSWORD = "restolino.password";
 	public static final String AUTH_REALM = "restolino.realm";
@@ -251,7 +251,7 @@ public class Configuration {
 	/**
 	 * Configures static file serving from the classpath. This will not be
 	 * reloadable, so is most useful for deployment (rather than development).
-	 * This typically serves files from the <code>files/...</code> directory at
+	 * This typically serves files from the <code>web/...</code> directory at
 	 * the root of a <code>*-jar-with-dependencies.jar</code> artifact.
 	 * <p>
 	 * NB Part of the intent here is to support a compact and simple deployment
