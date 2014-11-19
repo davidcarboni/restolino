@@ -55,7 +55,7 @@ public class Scanner implements Runnable {
 			}
 
 			// Block until notified that a new scan is needed:
-			synchronized (this) {
+			synchronized (Scanner.class) {
 				try {
 					Scanner.class.wait();
 				} catch (InterruptedException e) {
