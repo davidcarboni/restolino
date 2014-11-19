@@ -24,7 +24,7 @@ import com.github.davidcarboni.restolino.Main;
  */
 public class FilesHandler extends ResourceHandler {
 
-	static String filesResourceName = "files";
+	static String filesResourceName = "web";
 
 	FilesHandler(URL url) {
 		Resource base = Resource.newResource(url);
