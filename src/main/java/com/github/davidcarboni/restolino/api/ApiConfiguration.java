@@ -101,7 +101,7 @@ public class ApiConfiguration {
 				initClass.newInstance().init();
 			} catch (Throwable t) {
 				System.out.println("Error instantiating " + initClass.getName());
-				System.out.println(ExceptionUtils.getStackTrace(e));
+				System.out.println(ExceptionUtils.getStackTrace(t));
 			}
 		}
 	}
