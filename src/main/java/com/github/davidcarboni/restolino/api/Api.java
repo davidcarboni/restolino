@@ -101,7 +101,7 @@ public class Api {
 				initClass.newInstance().init();
 			} catch (Throwable t) {
 				System.out.println("Error instantiating " + initClass.getName());
-				System.out.println(ExceptionUtils.getStackTrace(e));
+				System.out.println(ExceptionUtils.getStackTrace(t));
 			}
 		}
 	}
@@ -121,8 +121,7 @@ public class Api {
 		delete = new HashMap<>();
 
 		System.out.println("Scanning for endpoints..");
-		Set<Class<?>> endpoints = reflections
-				.getTypesAnnotatedWith(Endpoint.class);
+		Set<Class<?>> endpoints = reflections.getTypesAnnotatedWith(Endpoint.class);
 		// System.out.println(reflections.getConfiguration().getUrls());
 
 		System.out.println("Found " + endpoints.size() + " endpoints.");
@@ -467,9 +466,8 @@ public class Api {
 		try {
 			if (boom != null) {
 				// Attempt to handle the error gracefully:
-				Object errorResponse = boom.handle(request, response,
-						requestHandler, t);
-				if (errorResponse != null)
+				Object errorResponse = boom.handle(request, response, requestHandler, t);
+				if (errorResponse != null) {
 					Serialiser.serialise(response, errorResponse);
 				}
 			} else {
