@@ -26,10 +26,11 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
-import com.github.davidcarboni.restolino.framework.ServerError;
 import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
+import com.github.davidcarboni.restolino.framework.Init;
 import com.github.davidcarboni.restolino.framework.NotFound;
+import com.github.davidcarboni.restolino.framework.ServerError;
 import com.github.davidcarboni.restolino.helpers.HomeRedirect;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
@@ -56,25 +57,23 @@ public class ApiConfiguration {
 	{
 		defaultRequestHandler.endpointClass = DefaultRequestHandler.class;
 		try {
-			defaultRequestHandler.method = DefaultRequestHandler.class
-					.getMethod("notImplemented", HttpServletRequest.class,
-							HttpServletResponse.class);
+			defaultRequestHandler.method = DefaultRequestHandler.class.getMethod("notImplemented", HttpServletRequest.class, HttpServletResponse.class);
 		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException(
-					"Code issue - default request handler not found", e);
+			throw new RuntimeException("Code issue - default request handler not found", e);
 		}
 	}
 
 	public Map<String, RequestHandler> getMap(Annotation annotation) {
 		Class<? extends Annotation> type = annotation.getClass();
-		if (GET.class.isAssignableFrom(type))
+		if (GET.class.isAssignableFrom(type)) {
 			return get;
-		else if (PUT.class.isAssignableFrom(type))
+		} else if (PUT.class.isAssignableFrom(type)) {
 			return put;
-		else if (POST.class.isAssignableFrom(type))
+		} else if (POST.class.isAssignableFrom(type)) {
 			return post;
-		else if (DELETE.class.isAssignableFrom(type))
+		} else if (DELETE.class.isAssignableFrom(type)) {
 			return delete;
+		}
 		return null;
 	}
 
@@ -90,6 +89,21 @@ public class ApiConfiguration {
 		configureHome(reflections);
 		configureNotFound(reflections);
 		configureServerError(reflections);
+
+		// Run any initialisation tasks:
+		itit(reflections);
+	}
+
+	private void itit(Reflections reflections) {
+		Set<Class<? extends Init>> initClasses = reflections.getSubTypesOf(Init.class);
+		for (Class<? extends Init> initClass : initClasses) {
+			try {
+				initClass.newInstance().init();
+			} catch (Throwable t) {
+				System.out.println("Error instantiating " + initClass.getName());
+				System.out.println(ExceptionUtils.getStackTrace(e));
+			}
+		}
 	}
 
 	/**
@@ -107,8 +121,7 @@ public class ApiConfiguration {
 		delete = new HashMap<>();
 
 		System.out.println("Scanning for endpoints..");
-		Set<Class<?>> endpoints = reflections
-				.getTypesAnnotatedWith(Api.class);
+		Set<Class<?>> endpoints = reflections.getTypesAnnotatedWith(Api.class);
 		// System.out.println(reflections.getConfiguration().getUrls());
 
 		System.out.println("Found " + endpoints.size() + " endpoints.");
@@ -116,55 +129,41 @@ public class ApiConfiguration {
 
 		// Configure the classes:
 		for (Class<?> endpointClass : endpoints) {
-			String endpointName = StringUtils.lowerCase(endpointClass
-					.getSimpleName());
-			System.out.println(" - /" + endpointName + " ("
-					+ endpointClass.getName() + ")");
+			String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
+			System.out.println(" - /" + endpointName + " (" + endpointClass.getName() + ")");
 
 			for (Method method : endpointClass.getMethods()) {
 
 				// Skip Object methods
-				if (method.getDeclaringClass() == Object.class)
+				if (method.getDeclaringClass() == Object.class) {
 					continue;
+				}
 
 				// We're looking for public methods that take reqest, responso
 				// and optionally a message type:
 				Class<?>[] parameterTypes = method.getParameterTypes();
-				if (Modifier.isPublic(method.getModifiers())
-						&& parameterTypes.length >= 2
-						&& HttpServletRequest.class
-								.isAssignableFrom(parameterTypes[0])
-						&& HttpServletResponse.class
-								.isAssignableFrom(parameterTypes[1])) {
+				if (Modifier.isPublic(method.getModifiers()) && parameterTypes.length >= 2 && HttpServletRequest.class.isAssignableFrom(parameterTypes[0])
+						&& HttpServletResponse.class.isAssignableFrom(parameterTypes[1])) {
 
 					// Which HTTP method(s) will this method respond to?
-					List<Annotation> annotations = Arrays.asList(method
-							.getAnnotations());
+					List<Annotation> annotations = Arrays.asList(method.getAnnotations());
 					for (Annotation annotation : annotations) {
 
 						Map<String, RequestHandler> map = getMap(annotation);
 						if (map != null) {
-							clashCheck(endpointName, annotation, endpointClass,
-									method);
-							System.out.print("   - "
-									+ annotation.getClass().getInterfaces()[0]
-											.getSimpleName());
+							clashCheck(endpointName, annotation, endpointClass, method);
+							System.out.print("   - " + annotation.getClass().getInterfaces()[0].getSimpleName());
 							RequestHandler requestHandler = new RequestHandler();
 							requestHandler.endpointClass = endpointClass;
 							requestHandler.method = method;
 							System.out.print(" " + method.getName());
 							if (parameterTypes.length > 2) {
 								requestHandler.requestMessageType = parameterTypes[2];
-								System.out.print(" request:"
-										+ requestHandler.requestMessageType
-												.getSimpleName());
+								System.out.print(" request:" + requestHandler.requestMessageType.getSimpleName());
 							}
 							if (method.getReturnType() != void.class) {
-								requestHandler.responseMessageType = method
-										.getReturnType();
-								System.out.print(" response:"
-										+ requestHandler.responseMessageType
-												.getSimpleName());
+								requestHandler.responseMessageType = method.getReturnType();
+								System.out.print(" response:" + requestHandler.responseMessageType.getSimpleName());
 							}
 							map.put(endpointName, requestHandler);
 							System.out.println();
@@ -176,31 +175,31 @@ public class ApiConfiguration {
 			// Set default handlers where needed:
 			// TODO: could these be set as defaults up above? I guess the class
 			// check would need to change.
-			if (!get.containsKey(endpointName))
+			if (!get.containsKey(endpointName)) {
 				get.put(endpointName, defaultRequestHandler);
-			if (!put.containsKey(endpointName))
+			}
+			if (!put.containsKey(endpointName)) {
 				put.put(endpointName, defaultRequestHandler);
-			if (!post.containsKey(endpointName))
+			}
+			if (!post.containsKey(endpointName)) {
 				post.put(endpointName, defaultRequestHandler);
-			if (!delete.containsKey(endpointName))
+			}
+			if (!delete.containsKey(endpointName)) {
 				delete.put(endpointName, defaultRequestHandler);
+			}
 		}
 
 	}
 
-	private void clashCheck(String name, Annotation annotation,
-			Class<?> endpointClass, Method method) {
+	private void clashCheck(String name, Annotation annotation, Class<?> endpointClass, Method method) {
 		Map<String, RequestHandler> map = getMap(annotation);
 		if (map != null) {
-			if (map.containsKey(name))
-				System.out.println("   ! method " + method.getName() + " in "
-						+ endpointClass.getName() + " overwrites "
-						+ map.get(name).method.getName() + " in "
-						+ map.get(name).endpointClass.getName() + " for "
-						+ annotation.getClass().getSimpleName());
+			if (map.containsKey(name)) {
+				System.out.println("   ! method " + method.getName() + " in " + endpointClass.getName() + " overwrites " + map.get(name).method.getName() + " in "
+						+ map.get(name).endpointClass.getName() + " for " + annotation.getClass().getSimpleName());
+			}
 		} else {
-			System.out.println("WAT? Expected GET/PUT/POST/DELETE but got "
-					+ annotation.getClass().getName());
+			System.out.println("WAT? Expected GET/PUT/POST/DELETE but got " + annotation.getClass().getName());
 		}
 	}
 
@@ -218,8 +217,9 @@ public class ApiConfiguration {
 		// We have to manually check HomeRedirect. I believe this is probably
 		// because HomeRedirect is excluded from analysis if a package prefix is
 		// defined:
-		if (home == null)
+		if (home == null) {
 			home = getEndpoint(HomeRedirect.class, "/", reflections);
+		}
 		printEndpoint(home, "/");
 		this.home = home;
 	}
@@ -234,8 +234,7 @@ public class ApiConfiguration {
 	void configureNotFound(Reflections reflections) {
 
 		System.out.println("Checking for a not-found endpoint..");
-		NotFound notFound = getEndpoint(NotFound.class, "not-found",
-				reflections);
+		NotFound notFound = getEndpoint(NotFound.class, "not-found", reflections);
 		printEndpoint(notFound, "not-found");
 		this.notFound = notFound;
 	}
@@ -256,11 +255,11 @@ public class ApiConfiguration {
 	}
 
 	private void printEndpoint(Object endpoint, String name) {
-		if (endpoint != null)
-			System.out.println("Class " + endpoint.getClass().getSimpleName()
-					+ " configured as " + name + " endpoint");
-		else
+		if (endpoint != null) {
+			System.out.println("Class " + endpoint.getClass().getSimpleName() + " configured as " + name + " endpoint");
+		} else {
 			System.out.println("No " + name + " enpoint configured.");
+		}
 	}
 
 	public void get(HttpServletRequest request, HttpServletResponse response) {
@@ -296,14 +295,18 @@ public class ApiConfiguration {
 		} else {
 
 			// Determine which methods are configured:
-			if (mapRequestPath(get, request) != null)
+			if (mapRequestPath(get, request) != null) {
 				result.add("GET");
-			if (mapRequestPath(put, request) != null)
+			}
+			if (mapRequestPath(put, request) != null) {
 				result.add("PUT");
-			if (mapRequestPath(post, request) != null)
+			}
+			if (mapRequestPath(post, request) != null) {
 				result.add("POST");
-			if (mapRequestPath(delete, request) != null)
+			}
+			if (mapRequestPath(delete, request) != null) {
 				result.add("DELETE");
+			}
 		}
 
 		response.setHeader("Allow", StringUtils.join(result, ','));
@@ -319,10 +322,11 @@ public class ApiConfiguration {
 	 */
 	static boolean isRootRequest(HttpServletRequest request) {
 		String path = request.getPathInfo();
-		if (StringUtils.isBlank(path))
+		if (StringUtils.isBlank(path)) {
 			return true;
-		else if (StringUtils.equals("/", path))
+		} else if (StringUtils.equals("/", path)) {
 			return true;
+		}
 		return false;
 	}
 
@@ -338,33 +342,30 @@ public class ApiConfiguration {
 	 *            endpoint.
 	 * @return The endpoint.
 	 */
-	private static <E> E getEndpoint(Class<E> type, String name,
-			Reflections reflections) {
+	private static <E> E getEndpoint(Class<E> type, String name, Reflections reflections) {
 		E result = null;
 
 		// Get concrete subclasses:
 		Set<Class<? extends E>> foundClasses = reflections.getSubTypesOf(type);
 		Set<Class<? extends E>> endpointClasses = new HashSet<>();
 		for (Class<? extends E> clazz : foundClasses) {
-			if (!Modifier.isAbstract(clazz.getModifiers()))
+			if (!Modifier.isAbstract(clazz.getModifiers())) {
 				endpointClasses.add(clazz);
+			}
 		}
 
 		if (endpointClasses.size() != 0) {
 
 			// Dump multiple endpoints:
 			if (endpointClasses.size() > 1) {
-				System.out.println("Warning: found multiple candidates for "
-						+ name + " endpoint: " + endpointClasses);
+				System.out.println("Warning: found multiple candidates for " + name + " endpoint: " + endpointClasses);
 			}
 
 			// Instantiate the endpoint:
 			try {
 				result = endpointClasses.iterator().next().newInstance();
 			} catch (Exception e) {
-				System.out.println("Error: cannot instantiate " + name
-						+ " endpoint class "
-						+ endpointClasses.iterator().next());
+				System.out.println("Error: cannot instantiate " + name + " endpoint class " + endpointClasses.iterator().next());
 				e.printStackTrace();
 			}
 		}
@@ -377,8 +378,9 @@ public class ApiConfiguration {
 		try {
 			// Handle a / request:
 			Object responseMessage = home.get(request, response);
-			if (responseMessage != null)
+			if (responseMessage != null) {
 				Serialiser.serialise(response, responseMessage);
+			}
 
 		} catch (Throwable t) {
 
@@ -396,8 +398,7 @@ public class ApiConfiguration {
 	 * @param requestHandlers
 	 *            One of the handler maps.
 	 */
-	void doMethod(HttpServletRequest request, HttpServletResponse response,
-			Map<String, RequestHandler> requestHandlers) {
+	void doMethod(HttpServletRequest request, HttpServletResponse response, Map<String, RequestHandler> requestHandlers) {
 
 		// Locate a request handler:
 		RequestHandler requestHandler = mapRequestPath(requestHandlers, request);
@@ -415,23 +416,20 @@ public class ApiConfiguration {
 			// Chances are the exception we've actually caught is the reflection
 			// one from Method.invoke(...)
 			Throwable caught = t;
-			if (InvocationTargetException.class.isAssignableFrom(t.getClass()))
+			if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
 				caught = t.getCause();
+			}
 			handleError(request, response, requestHandler, caught);
 		}
 
 	}
 
-	private void handleRequest(HttpServletRequest request,
-			HttpServletResponse response, RequestHandler requestHandler)
-			throws Exception {
+	private void handleRequest(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler) throws Exception {
 
 		// An API endpoint is defined for this request:
 		Object handler = instantiate(requestHandler.endpointClass);
-		Object responseMessage = invoke(request, response, handler,
-				requestHandler.method, requestHandler.requestMessageType);
-		if (requestHandler.responseMessageType != null
-				&& responseMessage != null) {
+		Object responseMessage = invoke(request, response, handler, requestHandler.method, requestHandler.requestMessageType);
+		if (requestHandler.responseMessageType != null && responseMessage != null) {
 			Serialiser.serialise(response, responseMessage);
 		}
 	}
@@ -446,8 +444,7 @@ public class ApiConfiguration {
 	 * @throws IOException
 	 *             If an error occurs in sending the response.
 	 */
-	private void handleNotFound(HttpServletRequest request,
-			HttpServletResponse response) throws IOException {
+	private void handleNotFound(HttpServletRequest request, HttpServletResponse response) throws IOException {
 
 		// Set a default response code:
 		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
@@ -457,14 +454,11 @@ public class ApiConfiguration {
 			notFound.handle(request, response);
 		} else {
 			// Default not-found behaviour:
-			Serialiser.serialise(response, "No API endpoint is defined for "
-					+ request.getPathInfo());
+			Serialiser.serialise(response, "No API endpoint is defined for " + request.getPathInfo());
 		}
 	}
 
-	private void handleError(HttpServletRequest request,
-			HttpServletResponse response, RequestHandler requestHandler,
-			Throwable t) {
+	private void handleError(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler, Throwable t) {
 
 		// Set a default response code:
 		response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
@@ -472,10 +466,10 @@ public class ApiConfiguration {
 		try {
 			if (serverError != null) {
 				// Attempt to handle the error gracefully:
-				Object errorResponse = serverError.handle(request, response,
-						requestHandler, t);
-				if (errorResponse != null)
+				Object errorResponse = serverError.handle(request, response, requestHandler, t);
+				if (errorResponse != null) {
 					Serialiser.serialise(response, errorResponse);
+				}
 			} else {
 				String stackTrace = ExceptionUtils.getStackTrace(t);
 				System.out.println(stackTrace);
@@ -497,9 +491,7 @@ public class ApiConfiguration {
 	 *            The request.
 	 * @return A matching handler, if one exists.
 	 */
-	public RequestHandler mapRequestPath(
-			Map<String, RequestHandler> requestHandlers,
-			HttpServletRequest request) {
+	public RequestHandler mapRequestPath(Map<String, RequestHandler> requestHandlers, HttpServletRequest request) {
 
 		String endpointName = Path.newInstance(request).firstSegment();
 		endpointName = StringUtils.lowerCase(endpointName);
@@ -514,11 +506,9 @@ public class ApiConfiguration {
 		try {
 			result = endpointClass.newInstance();
 		} catch (InstantiationException e) {
-			throw new RuntimeException("Unable to instantiate "
-					+ endpointClass.getSimpleName(), e);
+			throw new RuntimeException("Unable to instantiate " + endpointClass.getSimpleName(), e);
 		} catch (IllegalAccessException e) {
-			throw new RuntimeException("Unable to access "
-					+ endpointClass.getSimpleName(), e);
+			throw new RuntimeException("Unable to access " + endpointClass.getSimpleName(), e);
 		} catch (NullPointerException e) {
 			throw new RuntimeException("No class to instantiate", e);
 		}
@@ -526,13 +516,10 @@ public class ApiConfiguration {
 
 	}
 
-	private static Object invoke(HttpServletRequest request,
-			HttpServletResponse response, Object handler, Method method,
-			Class<?> requestMessage) throws Exception {
+	private static Object invoke(HttpServletRequest request, HttpServletResponse response, Object handler, Method method, Class<?> requestMessage) throws Exception {
 		Object result = null;
 
-		System.out.println("Invoking method " + method.getName() + " on "
-				+ handler.getClass().getSimpleName());
+		System.out.println("Invoking method " + method.getName() + " on " + handler.getClass().getSimpleName());
 		// + " for request message "
 		// + requestMessage);
 		if (requestMessage != null) {
@@ -565,23 +552,19 @@ public class ApiConfiguration {
 	 *            The class loader to scan and load from.
 	 * @return A new {@link Reflections} instance.
 	 */
-	private static Reflections createReflections(ClassLoader classLoader,
-			String packagePrefix) {
+	private static Reflections createReflections(ClassLoader classLoader, String packagePrefix) {
 
 		// We set up reflections to use the classLoader for loading classes
 		// and also to use the classLoader to determine the list of URLs:
-		ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
-				.addClassLoader(classLoader);
-		if (StringUtils.isNotBlank(packagePrefix))
-			configurationBuilder.addUrls(ClasspathHelper.forPackage(
-					packagePrefix, classLoader));
-		else
-			configurationBuilder.addUrls(ClasspathHelper
-					.forClassLoader(classLoader));
+		ConfigurationBuilder configurationBuilder = new ConfigurationBuilder().addClassLoader(classLoader);
+		if (StringUtils.isNotBlank(packagePrefix)) {
+			configurationBuilder.addUrls(ClasspathHelper.forPackage(packagePrefix, classLoader));
+		} else {
+			configurationBuilder.addUrls(ClasspathHelper.forClassLoader(classLoader));
+		}
 		Reflections reflections = new Reflections(configurationBuilder);
 
-		System.out.println("Reflections URLs: "
-				+ reflections.getConfiguration().getUrls());
+		System.out.println("Reflections URLs: " + reflections.getConfiguration().getUrls());
 		return reflections;
 	}
 }
