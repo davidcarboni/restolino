@@ -53,15 +53,16 @@ public class ApiConfiguration {
 	public Map<String, RequestHandler> delete = new HashMap<>();
 
 	// The default request handler:
-	public RequestHandler defaultRequestHandler = new RequestHandler();
-	{
-		defaultRequestHandler.endpointClass = DefaultRequestHandler.class;
-		try {
-			defaultRequestHandler.method = DefaultRequestHandler.class.getMethod("notImplemented", HttpServletRequest.class, HttpServletResponse.class);
-		} catch (NoSuchMethodException | SecurityException e) {
-			throw new RuntimeException("Code issue - default request handler not found", e);
+	public RequestHandler defaultRequestHandler = new RequestHandler() {
+		{
+			endpointClass = DefaultRequestHandler.class;
+			try {
+				method = DefaultRequestHandler.class.getMethod("notImplemented", HttpServletRequest.class, HttpServletResponse.class);
+			} catch (NoSuchMethodException | SecurityException e) {
+				throw new RuntimeException("Code issue - default request handler not found", e);
+			}
 		}
-	}
+	};
 
 	public Map<String, RequestHandler> getMap(Annotation annotation) {
 		Class<? extends Annotation> type = annotation.getClass();
