@@ -222,6 +222,11 @@ I've tried, but it adds complexity, doesn't add value and makes life harder. Why
 Using reflection to search for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution, send me a pull request.
 
 
+#### Why aren't my classes reloading / nothing gets configured?
+
+First port of call is to look at the information printed to the console on startup. If you see `Reflections URLs: []` you might need to check your `restolino.packageprefix` setting - I've made this mistake a couple of times. If nothing is happening when you update a class, check the values of classesReloadable and classesInClasspath. It's not possible to reload classes that are on the JVM classpath at startup.
+
+
 #### Is it really this cool?
 
 I'm still aced that I can edit code, adding new fields, methods, annotations - even classes - and it's there when I refresh the browser. After years of productivity-sapping build-redeploy cycles, there's something utterly delicious and deeply freeing about it.
