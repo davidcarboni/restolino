@@ -26,6 +26,7 @@ import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
 
+import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.Init;
@@ -566,6 +567,9 @@ public class ApiConfiguration {
 		Reflections reflections = new Reflections(configurationBuilder);
 
 		System.out.println("Reflections URLs: " + reflections.getConfiguration().getUrls());
+		if (Main.configuration.classesReloadable && reflections.getConfiguration().getUrls().size() == 0 && StringUtils.isNotEmpty(Main.configuration.packagePrefix)) {
+			System.out.println("It looks like no reloadable classes were found. Is '" + Main.configuration.packagePrefix + "' the correct package prefix for your app?");
+		}
 		return reflections;
 	}
 }
