@@ -12,6 +12,7 @@ import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Configuration;
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
+import com.github.davidcarboni.restolino.jetty.MainHandler;
 
 public class ClassMonitor implements Closeable {
 
@@ -46,6 +47,8 @@ public class ClassMonitor implements Closeable {
 	public void reload() {
 		Reflections reflections = ClassFinder.newReflections();
 		ApiHandler.setupApi(reflections);
+		MainHandler.setupFilters(reflections);
+		MainHandler.runStartups(reflections);
 	}
 
 	@Override
