@@ -29,7 +29,7 @@ import org.reflections.util.ConfigurationBuilder;
 import com.github.davidcarboni.restolino.framework.Boom;
 import com.github.davidcarboni.restolino.framework.Endpoint;
 import com.github.davidcarboni.restolino.framework.Home;
-import com.github.davidcarboni.restolino.framework.Init;
+import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.helpers.HomeRedirect;
 import com.github.davidcarboni.restolino.helpers.Path;
@@ -95,8 +95,8 @@ public class Api {
 	}
 
 	private void itit(Reflections reflections) {
-		Set<Class<? extends Init>> initClasses = reflections.getSubTypesOf(Init.class);
-		for (Class<? extends Init> initClass : initClasses) {
+		Set<Class<? extends Startup>> initClasses = reflections.getSubTypesOf(Startup.class);
+		for (Class<? extends Startup> initClass : initClasses) {
 			try {
 				initClass.newInstance().init();
 			} catch (Throwable t) {
