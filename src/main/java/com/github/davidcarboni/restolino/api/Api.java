@@ -29,7 +29,6 @@ import org.reflections.util.ConfigurationBuilder;
 import com.github.davidcarboni.restolino.framework.Boom;
 import com.github.davidcarboni.restolino.framework.Endpoint;
 import com.github.davidcarboni.restolino.framework.Home;
-import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.helpers.HomeRedirect;
 import com.github.davidcarboni.restolino.helpers.Path;
@@ -77,10 +76,7 @@ public class Api {
 		return null;
 	}
 
-	public Api(ClassLoader classLoader, String packagePrefix) {
-
-		// Build a reflections instance to find classes:
-		Reflections reflections = createReflections(classLoader, packagePrefix);
+	public Api(Reflections reflections) {
 
 		// Set up the API endpoints:
 		configureEndpoints(reflections);
@@ -89,21 +85,6 @@ public class Api {
 		configureHome(reflections);
 		configureNotFound(reflections);
 		configureBoom(reflections);
-
-		// Run any initialisation tasks:
-		itit(reflections);
-	}
-
-	private void itit(Reflections reflections) {
-		Set<Class<? extends Startup>> initClasses = reflections.getSubTypesOf(Startup.class);
-		for (Class<? extends Startup> initClass : initClasses) {
-			try {
-				initClass.newInstance().init();
-			} catch (Throwable t) {
-				System.out.println("Error instantiating " + initClass.getName());
-				System.out.println(ExceptionUtils.getStackTrace(t));
-			}
-		}
 	}
 
 	/**

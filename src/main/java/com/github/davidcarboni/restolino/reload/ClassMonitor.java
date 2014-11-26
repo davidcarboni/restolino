@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.WatchService;
 
 import org.apache.commons.lang3.StringUtils;
+import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Configuration;
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
@@ -29,22 +30,22 @@ public class ClassMonitor implements Closeable {
 
 	}
 
-	public void start(String path, ClassLoader parent,
-			Configuration configuration) throws IOException {
+	public void start(String path, ClassLoader parent, Configuration configuration) throws IOException {
 
 		if (StringUtils.isNotBlank(path)) {
 			ClassMonitor.path = FileSystems.getDefault().getPath(path);
 			ClassMonitor.url = ClassMonitor.path.toUri().toURL();
 			ClassMonitor.urls = new URL[] { url };
 			watcher = FileSystems.getDefault().newWatchService();
-			Scanner.start(ClassMonitor.path, configuration, watcher);
+			Scanner.start(ClassMonitor.path, watcher);
 		}
 
 		reload();
 	}
 
 	public void reload() {
-		ApiHandler.setupApi();
+		Reflections reflections = ClassFinder.newReflections();
+		ApiHandler.setupApi(reflections);
 	}
 
 	@Override

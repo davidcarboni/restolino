@@ -12,7 +12,7 @@ import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 
-import com.github.davidcarboni.restolino.Configuration;
+import com.github.davidcarboni.restolino.Main;
 
 /**
  * A {@link ResourceHandler} implementation that serves resources from the given
@@ -25,7 +25,6 @@ import com.github.davidcarboni.restolino.Configuration;
 public class FilesHandler extends ResourceHandler {
 
 	static String filesResourceName = "files";
-	static Configuration configuration;
 
 	FilesHandler(URL url) {
 		Resource base = Resource.newResource(url);
@@ -33,14 +32,13 @@ public class FilesHandler extends ResourceHandler {
 
 	}
 
-	public static ResourceHandler newInstance(Configuration configuration) {
-		FilesHandler.configuration = configuration;
+	public static FilesHandler newInstance() {
 		URL url = null;
 
 		// If the property is set, reload from a local directory (in
 		// development):
-		if (configuration.filesReloadable) {
-			url = configuration.filesUrl;
+		if (Main.configuration.filesReloadable) {
+			url = Main.configuration.filesUrl;
 		} else {
 			// Check for a resource on the classpath (when deployed):
 			url = MainHandler.class.getClassLoader().getResource(filesResourceName);

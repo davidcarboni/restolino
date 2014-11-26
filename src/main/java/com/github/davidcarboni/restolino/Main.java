@@ -24,12 +24,13 @@ public class Main {
 	public static ApiHandler apiHandler;
 	public static FilesHandler filesHandler;
 	public static SecurityHandler securityHandler;
+	public static Configuration configuration;
 
 	public static void main(String[] args) throws Exception {
 
 		try {
 			// Set up the configuration:
-			Configuration configuration = new Configuration();
+			configuration = new Configuration();
 
 			// Create the Jetty server:
 			server = new Server(configuration.port);
