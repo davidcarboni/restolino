@@ -18,7 +18,7 @@ import javax.servlet.http.HttpServletResponse;
  * discourage design leakage away from {@link Api} classes (thereby removing a
  * barrier to increased complexity). The aim is to encourage having zero, or, at
  * most one implementation to do things that absolutely can't be done by an
- * {@link Api} - such as seeing non-api requests and setting headers.
+ * {@link Api} - such as setting headers on non-api requests.
  * 
  * @author david
  *
