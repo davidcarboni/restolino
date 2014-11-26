@@ -23,6 +23,6 @@ package com.github.davidcarboni.restolino.framework;
  * @author david
  *
  */
-public interface Init {
+public interface Startup {
 	void init();
 }
