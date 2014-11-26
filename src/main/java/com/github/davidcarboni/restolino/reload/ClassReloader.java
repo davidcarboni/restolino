@@ -5,7 +5,10 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.WatchService;
 
+import org.reflections.Reflections;
+
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
+import com.github.davidcarboni.restolino.jetty.MainHandler;
 
 public class ClassReloader implements Runnable {
 
@@ -59,7 +62,10 @@ public class ClassReloader implements Runnable {
 				// Keep reloading until all changes have notified:
 				while (reloadRequested) {
 					reloadRequested = false;
-					ApiHandler.setupApi();
+					Reflections reflections = ClassFinder.newReflections();
+					ApiHandler.setupApi(reflections);
+					MainHandler.setupFilters(reflections);
+					MainHandler.runStartups(reflections);
 				}
 
 			}

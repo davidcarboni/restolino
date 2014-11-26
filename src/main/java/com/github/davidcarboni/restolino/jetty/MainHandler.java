@@ -1,6 +1,9 @@
 package com.github.davidcarboni.restolino.jetty;
 
 import java.io.IOException;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -11,19 +14,28 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Main;
+import com.github.davidcarboni.restolino.framework.Filter;
+import com.github.davidcarboni.restolino.framework.Startup;
+import com.github.davidcarboni.restolino.reload.ClassFinder;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
 
 public class MainHandler extends AbstractHandler {
 
 	public static FilesHandler fileHandler;
 	public static ApiHandler apiHandler;
+	public static Collection<Filter> filters;
+	public static Collection<Startup> startups;
 
 	public MainHandler() {
 
+		Reflections reflections = ClassFinder.newReflections();
 		setupFilesHandler();
-		setupApiHandler();
+		setupApiHandler(reflections);
+		setupFilters(reflections);
+		runStartups(reflections);
 
 		if (Main.configuration.classesReloadable) {
 			ClassReloader.start(System.getProperty("restolino.classes"));
@@ -37,22 +49,27 @@ public class MainHandler extends AbstractHandler {
 		}
 	}
 
-	private void setupApiHandler() {
+	private void setupApiHandler(Reflections reflections) {
 		apiHandler = new ApiHandler();
+		ApiHandler.setupApi(reflections);
 	}
 
 	@Override
 	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
 		// Should we try redirecting to index.html?
-		if (isRootRequest(request) && ApiHandler.api.home == null) {
-			response.sendRedirect("/index.html");
-		} else if (isApiRequest(target)) {
-			apiHandler.handle(target, baseRequest, request, response);
-		} else if (fileHandler != null) {
-			fileHandler.handle(target, baseRequest, request, response);
-		} else {
-			notFound(target, response);
+		boolean isRootRequest = isRootRequest(request);
+		boolean isApiRequest = isApiRequest(target);
+		if (filter(request, response)) {
+			if (isRootRequest && ApiHandler.api.home == null) {
+				response.sendRedirect("/index.html");
+			} else if (isApiRequest) {
+				apiHandler.handle(target, baseRequest, request, response);
+			} else if (fileHandler != null) {
+				fileHandler.handle(target, baseRequest, request, response);
+			} else {
+				notFound(target, response);
+			}
 		}
 
 		baseRequest.setHandled(true);
@@ -81,9 +98,50 @@ public class MainHandler extends AbstractHandler {
 		return StringUtils.isBlank(extension);
 	}
 
+	boolean filter(HttpServletRequest req, HttpServletResponse res) {
+		boolean result = true;
+		for (Filter filter : filters) {
+			result &= filter.filter(req, res);
+		}
+		return result;
+	}
+
 	static void notFound(String target, HttpServletResponse response) throws IOException {
 		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 		response.setContentType(MimeTypes.Type.TEXT_PLAIN_UTF_8.asString());
 		response.getWriter().println("Not found: " + target);
+	}
+
+	public static void setupFilters(Reflections reflections) {
+
+		Set<Filter> result = new HashSet<>();
+		Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
+		for (Class<? extends Filter> filterClass : filterClasses) {
+			try {
+				result.add(filterClass.newInstance());
+			} catch (InstantiationException | IllegalAccessException e) {
+				System.out.println("Error instantiating filter class " + filterClass.getName());
+				e.printStackTrace();
+			}
+		}
+		filters = result;
+	}
+
+	public static void runStartups(Reflections reflections) {
+
+		Set<Startup> startups = new HashSet<>();
+		Set<Class<? extends Startup>> startupClasses = reflections.getSubTypesOf(Startup.class);
+		for (Class<? extends Startup> startupClass : startupClasses) {
+			try {
+				startups.add(startupClass.newInstance());
+			} catch (InstantiationException | IllegalAccessException e) {
+				System.out.println("Error instantiating startup class " + startupClass.getName());
+				e.printStackTrace();
+			}
+		}
+		for (Startup startup : startups) {
+			startup.init();
+		}
+		MainHandler.startups = startups;
 	}
 }

@@ -1,8 +1,6 @@
 package com.github.davidcarboni.restolino.jetty;
 
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -11,6 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.api.ApiConfiguration;
@@ -19,24 +18,16 @@ public class ApiHandler extends AbstractHandler {
 
 	static final String KEY_CLASSES = "restolino.classes";
 
-	private static ClassLoader classLoader;
 	public static volatile ApiConfiguration api;
 
 	public ApiHandler() {
-		classLoader = ApiHandler.class.getClassLoader();
 		if (Main.configuration.classesInClasspath != null) {
 			System.out.println("Classes are included in the classpath. No reloading will be configured (" + Main.configuration.classesInClasspath + ")");
 		}
-		setupApi();
 	}
 
-	public static void setupApi() {
-		if (Main.configuration.classesReloadable) {
-			ClassLoader reloadableClassLoader = new URLClassLoader(new URL[] { Main.configuration.classesUrl }, classLoader);
-			api = new ApiConfiguration(reloadableClassLoader, Main.configuration.packagePrefix);
-		} else {
-			api = new ApiConfiguration(classLoader, null);
-		}
+	public static void setupApi(Reflections reflections) {
+		api = new ApiConfiguration(reflections);
 	}
 
 	@Override
