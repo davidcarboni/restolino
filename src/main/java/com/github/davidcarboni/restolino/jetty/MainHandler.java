@@ -46,6 +46,13 @@ public class MainHandler extends AbstractHandler {
 		}
 	}
 
+	public void reload() {
+		Reflections reflections = ClassFinder.newReflections();
+		ApiHandler.setupApi(reflections);
+		setupFilters(reflections);
+		runStartups(reflections);
+	}
+
 	private void setupFilesHandler() {
 		fileHandler = FilesHandler.newInstance();
 		if (fileHandler == null) {

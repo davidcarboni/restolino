@@ -13,6 +13,7 @@ import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
 import com.github.davidcarboni.restolino.Configuration;
+import com.github.davidcarboni.restolino.Main;
 
 /**
  * Monitors a {@link Path} for changes, including subfolders.
@@ -44,8 +45,9 @@ public class Monitor implements Runnable {
 		this.configuration = configuration;
 		this.watcher = watcher;
 		// Sanity check:
-		if (!Files.isDirectory(path))
+		if (!Files.isDirectory(path)) {
 			throw new IllegalArgumentException(path + " is not a directory.");
+		}
 		this.path = path;
 
 		Thread t = new Thread(this, path.toString());
@@ -79,8 +81,7 @@ public class Monitor implements Runnable {
 						// explicitly registered, if events are lost or
 						// discarded:
 						if (kind == OVERFLOW) {
-							System.out.println("Reload triggered by "
-									+ OVERFLOW + " on " + path);
+							System.out.println("Reload triggered by " + OVERFLOW + " on " + path);
 							reload = true;
 							continue;
 						}
@@ -92,14 +93,12 @@ public class Monitor implements Runnable {
 
 						// Reload classes:
 						if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-							System.out.println("Reload triggered by " + kind
-									+ " on " + filename);
+							System.out.println("Reload triggered by " + kind + " on " + filename);
 							System.out.println(kind.name());
 							System.out.println(kind.type().getName());
 							reload = true;
 						} else {
-							System.out.println("Not triggering reload for "
-									+ kind + ": " + filename);
+							System.out.println("Not triggering reload for " + kind + ": " + filename);
 						}
 					}
 
@@ -107,19 +106,17 @@ public class Monitor implements Runnable {
 					// ENTRY_MODIFY so this avoids reloading twice:
 					if (reload) {
 						System.out.println("Reloading...");
-						ClassMonitor.getInstance().reload();
+						Main.mainHandler.reload();
 					}
 
 					if (!key.reset()) {
-						System.out.println("No longer able to access " + path
-								+ ". Exiting monitor");
+						System.out.println("No longer able to access " + path + ". Exiting monitor");
 						Scanner.remove(path);
 						break;
 					}
 
 				} catch (InterruptedException e) {
-					System.out.println("Error taking for " + path
-							+ ". Exiting this monitor.");
+					System.out.println("Error taking for " + path + ". Exiting this monitor.");
 					Scanner.remove(path);
 					break;
 				}
