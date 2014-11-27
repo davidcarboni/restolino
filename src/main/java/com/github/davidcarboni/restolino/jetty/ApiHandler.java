@@ -26,12 +26,7 @@ public class ApiHandler extends AbstractHandler {
 		if (configuration.classesInClasspath != null) {
 			System.out.println("Classes are included in the classpath. No reloading will be configured (" + configuration.classesInClasspath + ")");
 		}
-	}
-
-	public ApiHandler() {
-		if (configuration.classesInClasspath != null) {
-			System.out.println("Classes are included in the classpath. No reloading will be configured (" + configuration.classesInClasspath + ")");
-		}
+		setupApi(reflections);
 	}
 
 	public static void setupApi(Reflections reflections) {
