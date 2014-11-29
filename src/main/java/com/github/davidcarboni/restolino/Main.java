@@ -2,10 +2,10 @@ package com.github.davidcarboni.restolino;
 
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ResourceHandler;
 
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
 import com.github.davidcarboni.restolino.jetty.BasicAuth;
-import com.github.davidcarboni.restolino.jetty.FilesHandler;
 import com.github.davidcarboni.restolino.jetty.MainHandler;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
 
@@ -22,7 +22,7 @@ public class Main {
 	public static Server server;
 	public static MainHandler mainHandler;
 	public static ApiHandler apiHandler;
-	public static FilesHandler filesHandler;
+	public static ResourceHandler filesHandler;
 	public static SecurityHandler securityHandler;
 
 	public static void main(String[] args) throws Exception {
