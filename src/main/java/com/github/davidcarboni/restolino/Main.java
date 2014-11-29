@@ -20,9 +20,11 @@ public class Main {
 
 	public static Configuration configuration;
 	public static Server server;
-	public static MainHandler mainHandler;
+
+	// Handlers
 	public static ApiHandler apiHandler;
 	public static ResourceHandler filesHandler;
+	public static MainHandler mainHandler;
 	public static SecurityHandler securityHandler;
 
 	public static void main(String[] args) throws Exception {
