@@ -1,6 +1,7 @@
 package com.github.davidcarboni.restolino.jetty;
 
 import java.io.IOException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -12,8 +13,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.MimeTypes;
+import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
-import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.HandlerCollection;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.resource.Resource;
 import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Main;
@@ -22,36 +28,87 @@ import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.reload.ClassFinder;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
 
-public class MainHandler extends AbstractHandler {
+public class MainHandler extends HandlerCollection {
 
-	public static FilesHandler fileHandler;
-	public static ApiHandler apiHandler;
-	public static Collection<Filter> filters;
-	public static Collection<Startup> startups;
+	HandlerWrapper filesHandler;
+	ApiHandler apiHandler;
+	Collection<Filter> filters;
+	Collection<Startup> startups;
 
-	public MainHandler() {
+	public MainHandler() throws IOException {
 
 		Reflections reflections = ClassFinder.newReflections();
-		setupFilesHandler();
+
+		// Handlers
+		setupFilesHandler(reflections);
 		setupApiHandler(reflections);
+		setHandlers(new Handler[] { filesHandler, apiHandler });
+
+		// "meta-handling"
 		setupFilters(reflections);
 		runStartups(reflections);
 
+		// Class reloading
 		if (Main.configuration.classesReloadable) {
 			ClassReloader.start(System.getProperty("restolino.classes"));
 		}
 	}
 
-	private void setupFilesHandler() {
-		fileHandler = FilesHandler.newInstance();
-		if (fileHandler == null) {
-			System.out.println("No file handler configured. " + "No resource found on the classpath " + "and reloading is not configured.");
+	private void setupFilesHandler(Reflections reflections) throws IOException {
+
+		// Set up the handler if there's anything to be served:
+		URL url = getFilesUrl(reflections);
+		if (url != null) {
+
+			// Set up the resource handler:
+			ResourceHandler resourceHandler = new ResourceHandler();
+			Resource resource = Resource.newResource(url);
+			resourceHandler.setBaseResource(resource);
+
+			// Set up the gzip handler:
+			HandlerWrapper gzipHandler = new GzipHandler();
+			gzipHandler.setHandler(resourceHandler);
+
+			filesHandler = gzipHandler;
+
+			System.out.println("Set up static file handler for URL: " + url);
+		} else {
+			System.out.println("No static file handler configured.");
 		}
+	}
+
+	private URL getFilesUrl(Reflections reflections) {
+		URL result = null;
+
+		if (Main.configuration.filesReloadable) {
+			// If the reloadable property is set, reload from a local directory
+			// (in development):
+			result = Main.configuration.filesUrl;
+		} else {
+			// Otherwise, check for a resource on the classpath (when deployed):
+			for (ClassLoader classLoader : reflections.getConfiguration().getClassLoaders()) {
+				URL candidate = classLoader.getResource("/web");
+				if (candidate != null) {
+					result = candidate;
+				}
+			}
+		}
+
+		return result;
 	}
 
 	private void setupApiHandler(Reflections reflections) {
 		apiHandler = new ApiHandler();
 		ApiHandler.setupApi(reflections);
+	}
+
+	public void reload() throws IOException {
+
+		Reflections reflections = ClassFinder.newReflections();
+
+		ApiHandler.setupApi(reflections);
+		setupFilters(reflections);
+		runStartups(reflections);
 	}
 
 	@Override
@@ -65,8 +122,8 @@ public class MainHandler extends AbstractHandler {
 				response.sendRedirect("/index.html");
 			} else if (isApiRequest) {
 				apiHandler.handle(target, baseRequest, request, response);
-			} else if (fileHandler != null) {
-				fileHandler.handle(target, baseRequest, request, response);
+			} else if (filesHandler != null) {
+				filesHandler.handle(target, baseRequest, request, response);
 			} else {
 				notFound(target, response);
 			}
@@ -112,7 +169,7 @@ public class MainHandler extends AbstractHandler {
 		response.getWriter().println("Not found: " + target);
 	}
 
-	public static void setupFilters(Reflections reflections) {
+	public void setupFilters(Reflections reflections) {
 
 		Set<Filter> result = new HashSet<>();
 		Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
@@ -127,7 +184,7 @@ public class MainHandler extends AbstractHandler {
 		filters = result;
 	}
 
-	public static void runStartups(Reflections reflections) {
+	public void runStartups(Reflections reflections) {
 
 		Set<Startup> startups = new HashSet<>();
 		Set<Class<? extends Startup>> startupClasses = reflections.getSubTypesOf(Startup.class);
@@ -142,6 +199,6 @@ public class MainHandler extends AbstractHandler {
 		for (Startup startup : startups) {
 			startup.init();
 		}
-		MainHandler.startups = startups;
+		this.startups = startups;
 	}
 }

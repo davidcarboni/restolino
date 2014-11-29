@@ -7,8 +7,8 @@ import java.nio.file.WatchService;
 
 import org.reflections.Reflections;
 
+import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
-import com.github.davidcarboni.restolino.jetty.MainHandler;
 
 public class ClassReloader implements Runnable {
 
@@ -64,8 +64,8 @@ public class ClassReloader implements Runnable {
 					reloadRequested = false;
 					Reflections reflections = ClassFinder.newReflections();
 					ApiHandler.setupApi(reflections);
-					MainHandler.setupFilters(reflections);
-					MainHandler.runStartups(reflections);
+					Main.mainHandler.setupFilters(reflections);
+					Main.mainHandler.runStartups(reflections);
 				}
 
 			}
