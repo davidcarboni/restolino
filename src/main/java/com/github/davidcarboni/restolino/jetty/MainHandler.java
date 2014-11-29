@@ -14,6 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
+import org.eclipse.jetty.server.handler.HandlerWrapper;
+import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Configuration;
@@ -25,7 +28,7 @@ import com.github.davidcarboni.restolino.reload.ClassMonitor;
 public class MainHandler extends AbstractHandler {
 
 	Configuration configuration;
-	public static FilesHandler fileHandler;
+	public static HandlerWrapper fileHandler;
 	public static ApiHandler apiHandler;
 	public static Collection<Filter> filters;
 	public static Collection<Startup> startups;
@@ -54,14 +57,32 @@ public class MainHandler extends AbstractHandler {
 	}
 
 	private void setupFilesHandler() {
-		fileHandler = FilesHandler.newInstance();
+		ResourceHandler fileHandler = FilesHandler.newInstance();
 		if (fileHandler == null) {
 			System.out.println("No file handler configured. " + "No resource found on the classpath " + "and reloading is not configured.");
+		} else {
+			GzipHandler gzipHandler = new GzipHandler();
+			gzipHandler.setHandler(fileHandler);
+			MainHandler.fileHandler = gzipHandler;
 		}
 	}
 
 	private void setupApiHandler(Reflections reflections) {
 		apiHandler = new ApiHandler(configuration, reflections);
+	}
+
+	@Override
+	protected void doStart() throws Exception {
+		super.doStart();
+		fileHandler.start();
+		apiHandler.start();
+	}
+
+	@Override
+	protected void doStop() throws Exception {
+		super.doStop();
+		fileHandler.stop();
+		apiHandler.stop();
 	}
 
 	@Override
