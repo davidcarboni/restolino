@@ -1,6 +1,5 @@
 package com.github.davidcarboni.restolino;
 
-import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Server;
 
@@ -34,7 +33,6 @@ public class Main {
 
 			// Create the Jetty server:
 			server = new Server(configuration.port);
-			securityHandler = new ConstraintSecurityHandler();
 
 			// Select the handler to be used:
 			mainHandler = new MainHandler();
