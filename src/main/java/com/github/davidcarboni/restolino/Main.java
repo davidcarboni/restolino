@@ -41,9 +41,10 @@ public class Main {
 			// Create the handlers
 			mainHandler = new MainHandler(configuration);
 			gzipHandler = new GzipHandler();
+			gzipHandler.setHandler(mainHandler);
 
 			if (configuration.authenticationEnabled) {
-				securityHandler = new BasicAuth(configuration);
+				securityHandler = new BasicAuth();
 				securityHandler.setHandler(gzipHandler);
 				server.setHandler(securityHandler);
 			} else {
