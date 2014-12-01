@@ -2,7 +2,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.github.davidcarboni</groupId>
 	<artifactId>restolino</artifactId>
-	<version>0.0.26-SNAPSHOT</version>
+	<version>0.0.26</version>
 	<packaging>jar</packaging>
 	<name>Restolino</name>
 	<description>
@@ -28,7 +28,7 @@
 		<url>https://github.com/davidcarboni/restolino</url>
 		<connection>scm:git:git://github.com/davidcarboni/restolino.git</connection>
 		<developerConnection>scm:git:git@github.com:davidcarboni/restolino.git</developerConnection>
-		<tag>restolino-0.0.24</tag>
+		<tag>restolino-0.0.26</tag>
 	</scm>
 
 	<properties>
