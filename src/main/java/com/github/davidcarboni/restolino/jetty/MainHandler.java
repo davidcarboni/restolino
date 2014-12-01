@@ -16,9 +16,7 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.HandlerCollection;
-import org.eclipse.jetty.server.handler.HandlerWrapper;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.reflections.Reflections;
 
@@ -30,7 +28,7 @@ import com.github.davidcarboni.restolino.reload.ClassReloader;
 
 public class MainHandler extends HandlerCollection {
 
-	HandlerWrapper filesHandler;
+	ResourceHandler filesHandler;
 	ApiHandler apiHandler;
 	Collection<Filter> filters;
 	Collection<Startup> startups;
@@ -61,15 +59,11 @@ public class MainHandler extends HandlerCollection {
 		if (url != null) {
 
 			// Set up the resource handler:
-			ResourceHandler resourceHandler = new ResourceHandler();
+			ResourceHandler filesHandler = new ResourceHandler();
 			Resource resource = Resource.newResource(url);
-			resourceHandler.setBaseResource(resource);
+			filesHandler.setBaseResource(resource);
 
-			// Set up the gzip handler:
-			HandlerWrapper gzipHandler = new GzipHandler();
-			gzipHandler.setHandler(resourceHandler);
-
-			filesHandler = gzipHandler;
+			this.filesHandler = filesHandler;
 
 			System.out.println("Set up static file handler for URL: " + url);
 		} else {

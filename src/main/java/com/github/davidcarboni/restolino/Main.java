@@ -3,6 +3,7 @@ package com.github.davidcarboni.restolino;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.ResourceHandler;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
 import com.github.davidcarboni.restolino.jetty.BasicAuth;
@@ -25,6 +26,7 @@ public class Main {
 	public static ApiHandler apiHandler;
 	public static ResourceHandler filesHandler;
 	public static MainHandler mainHandler;
+	public static GzipHandler gzipHandler;
 	public static SecurityHandler securityHandler;
 
 	public static void main(String[] args) throws Exception {
@@ -36,14 +38,17 @@ public class Main {
 			// Create the Jetty server:
 			server = new Server(configuration.port);
 
-			// Select the handler to be used:
+			// Create the handlers
 			mainHandler = new MainHandler();
+			gzipHandler = new GzipHandler();
+
+			// Select the handler to be used:
 			if (configuration.authenticationEnabled) {
 				securityHandler = new BasicAuth();
-				securityHandler.setHandler(mainHandler);
+				securityHandler.setHandler(gzipHandler);
 				server.setHandler(securityHandler);
 			} else {
-				server.setHandler(mainHandler);
+				server.setHandler(gzipHandler);
 			}
 
 			// And we're done.
