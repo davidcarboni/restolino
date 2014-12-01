@@ -28,6 +28,9 @@ import com.github.davidcarboni.restolino.reload.ClassReloader;
 
 public class MainHandler extends HandlerCollection {
 
+	/** Just in case you need to change it. */
+	public static String filesResourceName = "/web";
+
 	ResourceHandler filesHandler;
 	ApiHandler apiHandler;
 	Collection<Filter> filters;
@@ -81,7 +84,7 @@ public class MainHandler extends HandlerCollection {
 		} else {
 			// Otherwise, check for a resource on the classpath (when deployed):
 			for (ClassLoader classLoader : reflections.getConfiguration().getClassLoaders()) {
-				URL candidate = classLoader.getResource("/web");
+				URL candidate = classLoader.getResource(filesResourceName);
 				if (candidate != null) {
 					result = candidate;
 				}
