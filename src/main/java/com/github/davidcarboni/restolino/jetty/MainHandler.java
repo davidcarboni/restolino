@@ -1,7 +1,6 @@
 package com.github.davidcarboni.restolino.jetty;
 
 import java.io.IOException;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -16,7 +15,6 @@ import org.eclipse.jetty.http.MimeTypes;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.util.resource.Resource;
 import org.reflections.Reflections;
 
 import com.github.davidcarboni.restolino.Configuration;
@@ -26,6 +24,9 @@ import com.github.davidcarboni.restolino.reload.ClassFinder;
 import com.github.davidcarboni.restolino.reload.ClassMonitor;
 
 public class MainHandler extends AbstractHandler {
+
+	/** Just in case you need to change it. */
+	public static String filesResourceName = "/files";
 
 	Configuration configuration;
 	public static ResourceHandler fileHandler;
@@ -54,25 +55,6 @@ public class MainHandler extends AbstractHandler {
 		ApiHandler.setupApi(reflections);
 		setupFilters(reflections);
 		runStartups(reflections);
-	}
-
-	private void setupFilesHandler(Reflections reflections) throws IOException {
-
-		// Set up the handler if there's anything to be served:
-		URL url = getFilesUrl(reflections);
-		if (url != null) {
-
-			// Set up the resource handler:
-			ResourceHandler filesHandler = new ResourceHandler();
-			Resource resource = Resource.newResource(url);
-			filesHandler.setBaseResource(resource);
-
-			this.fileHandler = filesHandler;
-
-			System.out.println("Set up static file handler for URL: " + url);
-		} else {
-			System.out.println("No static file handler configured.");
-		}
 	}
 
 	private void setupFilesHandler() {
