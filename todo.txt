@@ -10,4 +10,6 @@ Handle form/urlencoded to be a little bit friendly
 Java compiler API to reduce reflection calls?
 Java compiler API for Jersify?
 
-Last-Modified / ETag handling
+De-static
+Clean up monitoring
+Clean up api setup
