@@ -1,6 +1,5 @@
 package com.github.davidcarboni.restolino.helpers;
 
-import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -25,8 +24,7 @@ public class Path {
 	private List<String> segments = new ArrayList<String>();
 
 	Path(HttpServletRequest request) {
-		URI uri = URI.create(request.getPathInfo());
-		String path = uri.getPath();
+		String path = request.getPathInfo();
 		String[] segments = StringUtils.split(path, '/');
 		this.segments = Arrays.asList(segments);
 	}
@@ -36,8 +34,9 @@ public class Path {
 	 */
 	public String firstSegment() {
 		String result = null;
-		if (segments.size() > 0)
+		if (segments.size() > 0) {
 			result = segments.get(0);
+		}
 		return result;
 	}
 
@@ -51,8 +50,9 @@ public class Path {
 	 */
 	public String lastSegment() {
 		String result = null;
-		if (segments.size() > 0)
+		if (segments.size() > 0) {
 			result = segments.get(segments.size() - 1);
+		}
 		return result;
 	}
 
