@@ -22,7 +22,7 @@ Restolino has unreasonable opinions:
  * HTML/Javascript is youn API client: then you can add mobile apps, IoT devices, etc.
  * Templating is great: do it in Javascript, not server-side.
  * Efficient development: add classes, change interfaces, whatever, then refresh.
- * Immutable releases: single-jar artifact. To make a change to the deployed version, deploy a new version and delete the old vesion (blue-green and all that).
+ * Immutable releases: single-jar artifact. To make a change to the deployed version, deploy a new version and delete the old vesion ([blue-green](http://martinfowler.com/bliki/BlueGreenDeployment.html) and all that).
  * Stateless requests: when deployed, you'll probably have multiple nodes. Everything gets reinitialised after each change in development. That makes stetefulness difficult, which is a good thing.
  * Restolino will cause your design to hurt and adapt. You'll be better for it in the long run.
  * Constraints are your path to simplicity. Enjoy them.
@@ -233,7 +233,7 @@ I'm still aced that I can edit code, adding new fields, methods, annotations - e
 
 I was able to create a project from scratch and get to a running API in 10 minutes by cutting and pasting the above snippets. For me that's a lot faster than configuring Spring or even Jersey, not to mention the time I've spent debugging config.
 
-Honestly, I originally build this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework. Class reloading took longer and I ditched Servlets for embedded Jetty with raw Handlers along the way. 
+Honestly, I originally built this in a day so don't expect a miracles. I hope it gives you a boost with getting stuff done rather than learning to love a fancy framework. Class reloading took longer and I ditched Servlets for embedded Jetty with raw Handlers along the way. 
 
 The code isn't perfect, but it should just work - and let you work. Let me know if you like it.
 
