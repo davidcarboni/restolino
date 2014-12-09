@@ -34,7 +34,7 @@ The framework does less than you'd expect, and that's better:
  * Runs an embedded Jetty server with raw `Handler` classes. No Servlets, no Filters, no Context. No `web.xml`.
  * Requests that have a file extension are static files. They will be handled by a Jetty `ResourceHandler`.
  * Requests that do not have a file extension go to your API.
- * APIs consume and return JSON. Accept a parameter of any type, return a result of any type. Serialisation is done for you.
+ * APIs consume and return JSON. Accept a parameter of any type, return a result of any type. Serialisation is done for you using Gson.
  * You get direct access to `HttpServletRequest` and `HttpServletResponse`.
  * If you need to return something other than Json, use `void` or return `null`.
  * Unmapped requests go to your implementation of the `NotFound` interface, or generate a 404 by default.
@@ -45,8 +45,8 @@ The framework does less than you'd expect, and that's better:
 
  * You can only `GET` `/`. Why would you `PUT`, `POST` or `DELETE` the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)` (or subclass `HomeRedirect`). By default `/` will attempt to redirect to `/index.html`.
  * Put all your static files under `web` - i.e. `src/main/resources/web/...` (or  `src/main/web/...` and add a `resources` section to your pom).
- * Annotate your endpoint classes as `@Endpoint`.
- * Endpoint names are lowercased class names. More complexity would need more of your time. Get over it.
+ * Annotate your API classes as `@Api`.
+ * API names are lowercased class names. More complexity would need more of your time. Get over it.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
  * Method parameters must be `req, res[, request message]` (`HttpServletRequest`, `HttpServletResponse` and optionally any type you want Gson to attempt to deserialise from the request body). 
  * The return type of your method can be any type you want Gson to attempt to serialise into the response. Returns of `void` and `null` are fine, Restolino won't change your response.
@@ -55,7 +55,7 @@ The framework does less than you'd expect, and that's better:
  * You only need one not-found handler. Implement the `NotFound` interface. It provides a single method: `handle(req, res)`. A 404 status will be pre-set for you. You can update it if you want.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `ServerError` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
  * No clever (read: fiddly and time consuming) path/parameter parsing. Simple helper classes are provided instead: `Path`, `QueryString` and `Parameter`. See the `com.github.davidcarboni.restolino.helpers` package.
- * `OPTIONS` will query the configuration and tell you which of `GET`, `PUT`, `POST` and `DELETE` are implemented for that endpoint. `OPTIONS` on `/` will return GET if you have implemented `Home` or subclassed `HomeRedirect`.
+ * `OPTIONS` will query the configuration and tell you which of `GET`, `PUT`, `POST` and `DELETE` are implemented for that API. `OPTIONS` on `/` will return GET if you have implemented `Home` or subclassed `HomeRedirect`.
  * To see the whole framework - all the interfaces and annotations you can use - have a look in the `com.github.davidcarboni.restolino.framework` package. It's intentionally small.
  * Java 1.7. If you're using anything older, try using Bing to look up SOAP. I know, that's not fair. If you're smart enough to be able to use Google, fork and build from source.
  * There are non-private fields in the classes. Like semi-colons in Javascript, the usual modifiers are visual clutter that provide too little benefit. That's my opinion. I'm not asking you to agree if you don' want to.
