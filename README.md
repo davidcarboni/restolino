@@ -32,18 +32,19 @@ Restolino has unreasonable opinions:
 The framework does less than you'd expect, and that's better:
 
  * Runs an embedded Jetty server with raw `Handler` classes. No Servlets, no Filters, no Context. No `web.xml`.
- * Requests that have a file extension are static files. They will be handled by a subclass of the Jetty `ResourceHandler` called `FilesHandler`.
+ * Requests that have a file extension are static files. They will be handled by a Jetty `ResourceHandler`.
  * Requests that do not have a file extension go to your API.
  * APIs consume and return JSON. Accept a parameter of any type, return a result of any type. Serialisation is done for you.
  * You get direct access to `HttpServletRequest` and `HttpServletResponse`.
  * If you need to return something other than Json, use `void` or return `null`.
  * Unmapped requests go to your implementation of the `NotFound` interface, or generate a 404 by default.
  * Errored requests go to your implementation of the `ServerError` interface, or generate a 500 by default.
+ * Responses are compressed automatically by a Jetty `GzipHandler` if the client supports gzip encoding.
 
 #### Getting started
 
- * You can only `GET` `/`. Why would you `PUT`, `POST` or `DELETE` the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)` (or subclass `HomeRedirect`).
- * Put all your static files under `files` - i.e. `src/main/resources/files/...`.
+ * You can only `GET` `/`. Why would you `PUT`, `POST` or `DELETE` the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)` (or subclass `HomeRedirect`). By default `/` will attempt to redirect to `/index.html`.
+ * Put all your static files under `web` - i.e. `src/main/resources/web/...` (or  `src/main/web/...` and add a `resources` section to your pom).
  * Annotate your endpoint classes as `@Endpoint`.
  * Endpoint names are lowercased class names. More complexity would need more of your time. Get over it.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
