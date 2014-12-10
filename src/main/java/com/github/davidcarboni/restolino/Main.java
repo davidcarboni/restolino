@@ -41,6 +41,7 @@ public class Main {
 			// Create the handlers
 			mainHandler = new MainHandler();
 			gzipHandler = new GzipHandler();
+			gzipHandler.setHandler(mainHandler);
 
 			// Select the handler to be used:
 			if (configuration.authenticationEnabled) {
