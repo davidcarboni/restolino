@@ -2,6 +2,7 @@ package com.github.davidcarboni.restolino.jetty;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
@@ -43,7 +44,16 @@ public class MainHandler extends HandlerCollection {
 		// Handlers
 		setupFilesHandler(reflections);
 		setupApiHandler(reflections);
-		setHandlers(new Handler[] { filesHandler, apiHandler });
+
+		// Handlers can be null, so check before adding them to the collection:
+		ArrayList<Handler> handlers = new ArrayList<Handler>();
+		if (filesHandler != null) {
+			handlers.add(filesHandler);
+		}
+		if (apiHandler != null) {
+			handlers.add(apiHandler);
+		}
+		setHandlers(handlers.toArray(new Handler[0]));
 
 		// "meta-handling"
 		setupFilters(reflections);
