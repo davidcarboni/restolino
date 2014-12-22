@@ -83,7 +83,7 @@ Here is the list of packages and what they mean. There are no more than a pizza'
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.1.0</version>
+            <version>0.1.6</version>
         </dependency>
             
     </dependencies>
@@ -171,7 +171,7 @@ This is what you want, right? Minimum time-to-working. This runs your API on por
     export JAVA_OPTS="-Xdebug -Xrunjdwp:transport=dt_socket,address=8000,server=y,suspend=n"
     
     # File reloading:
-    export RESTOLINO_STATIC="src/main/resources/files"
+    export RESTOLINO_STATIC="src/main/web"
     
     # Class reloading
     export RESTOLINO_CLASSES="target/classes"
