@@ -1,14 +1,11 @@
 package com.github.davidcarboni.restolino;
 
-import org.eclipse.jetty.security.SecurityHandler;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.handler.ResourceHandler;
-import org.eclipse.jetty.server.handler.gzip.GzipHandler;
-
-import com.github.davidcarboni.restolino.jetty.ApiHandler;
 import com.github.davidcarboni.restolino.jetty.BasicAuth;
 import com.github.davidcarboni.restolino.jetty.MainHandler;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
+import org.eclipse.jetty.security.SecurityHandler;
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.gzip.GzipHandler;
 
 /**
  * 
@@ -23,8 +20,6 @@ public class Main {
 	public static Server server;
 
 	// Handlers
-	public static ApiHandler apiHandler;
-	public static ResourceHandler filesHandler;
 	public static MainHandler mainHandler;
 	public static GzipHandler gzipHandler;
 	public static SecurityHandler securityHandler;
