@@ -6,24 +6,22 @@ import javax.servlet.http.HttpServletResponse;
 /**
  * This request handler gets set as the default for each HTTP method on each
  * endpoint.
- * 
- * @author david
  *
+ * @author david
  */
 public class DefaultRequestHandler {
 
-	static String notImplemented = " is not available for ";
+    static String notImplemented = " is not available for ";
 
-	/**
-	 * Sets a status of {@link HttpServletResponse#SC_METHOD_NOT_ALLOWED}.
-	 * 
-	 * @param req
-	 *            {@link HttpServletRequest}
-	 * @param res
-	 *            {@link HttpServletResponse}
-	 */
-	public String notImplemented(HttpServletRequest req, HttpServletResponse res) {
-		res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-		return req.getMethod() + notImplemented + req.getPathInfo();
-	}
+    /**
+     * Sets a status of {@link HttpServletResponse#SC_METHOD_NOT_ALLOWED}.
+     *
+     * @param req {@link HttpServletRequest}
+     * @param res {@link HttpServletResponse}
+     * @return A String message stating the HTTP method is not implemented for the requested path.
+     */
+    public String notImplemented(HttpServletRequest req, HttpServletResponse res) {
+        res.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        return req.getMethod() + notImplemented + req.getPathInfo();
+    }
 }
