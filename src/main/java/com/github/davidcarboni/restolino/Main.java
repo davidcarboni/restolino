@@ -25,6 +25,9 @@ public class Main {
     public static SecurityHandler securityHandler;
     /**
      * The statistics handler provides graceful shutdown.
+     *
+     * @see <a href="https://bugs.eclipse.org/bugs/show_bug.cgi?id=420142"
+     * >https://bugs.eclipse.org/bugs/show_bug.cgi?id=420142</a>
      */
     public static StatisticsHandler statisticsHandler;
 
