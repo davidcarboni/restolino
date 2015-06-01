@@ -1,16 +1,10 @@
 package com.github.davidcarboni.restolino.jetty;
 
-import java.io.IOException;
-import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.github.davidcarboni.restolino.Main;
+import com.github.davidcarboni.restolino.framework.Filter;
+import com.github.davidcarboni.restolino.framework.Startup;
+import com.github.davidcarboni.restolino.reload.ClassFinder;
+import com.github.davidcarboni.restolino.reload.ClassReloader;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.http.MimeTypes;
@@ -21,11 +15,15 @@ import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.reflections.Reflections;
 
-import com.github.davidcarboni.restolino.Main;
-import com.github.davidcarboni.restolino.framework.Filter;
-import com.github.davidcarboni.restolino.framework.Startup;
-import com.github.davidcarboni.restolino.reload.ClassFinder;
-import com.github.davidcarboni.restolino.reload.ClassReloader;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
 
 public class MainHandler extends HandlerCollection {
 
