@@ -5,9 +5,8 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Marks a class as an endpoint.
- * 
- * @author david
  *
+ * @author david
  */
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Api {

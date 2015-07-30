@@ -1,50 +1,48 @@
 package com.github.davidcarboni.restolino.jetty;
 
-import java.io.IOException;
-
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
+import com.github.davidcarboni.restolino.Main;
+import com.github.davidcarboni.restolino.api.ApiConfiguration;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.reflections.Reflections;
 
-import com.github.davidcarboni.restolino.Main;
-import com.github.davidcarboni.restolino.api.ApiConfiguration;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 public class ApiHandler extends AbstractHandler {
 
-	static final String KEY_CLASSES = "restolino.classes";
+    static final String KEY_CLASSES = "restolino.classes";
 
-	public static volatile ApiConfiguration api;
+    public static volatile ApiConfiguration api;
 
-	public ApiHandler() {
-		if (Main.configuration.classesInClasspath != null) {
-			System.out.println("Classes are included in the classpath. No reloading will be configured (" + Main.configuration.classesInClasspath + ")");
-		}
-	}
+    public ApiHandler() {
+        if (Main.configuration.classesInClasspath != null) {
+            System.out.println("Classes are included in the classpath. No reloading will be configured (" + Main.configuration.classesInClasspath + ")");
+        }
+    }
 
-	public static void setupApi(Reflections reflections) {
-		api = new ApiConfiguration(reflections);
-	}
+    public static void setupApi(Reflections reflections) {
+        api = new ApiConfiguration(reflections);
+    }
 
-	@Override
-	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-		String method = request.getMethod();
-		if (StringUtils.equals("GET", method)) {
-			api.get(request, response);
-		} else if (StringUtils.equals("PUT", method)) {
-			api.put(request, response);
-		} else if (StringUtils.equals("POST", method)) {
-			api.post(request, response);
-		} else if (StringUtils.equals("DELETE", method)) {
-			api.delete(request, response);
-		} else if (StringUtils.equals("OPTIONS", method)) {
-			api.options(request, response);
-		} else {
-			response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
-		}
-	}
+    @Override
+    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+        String method = request.getMethod();
+        if (StringUtils.equals("GET", method)) {
+            api.get(request, response);
+        } else if (StringUtils.equals("PUT", method)) {
+            api.put(request, response);
+        } else if (StringUtils.equals("POST", method)) {
+            api.post(request, response);
+        } else if (StringUtils.equals("DELETE", method)) {
+            api.delete(request, response);
+        } else if (StringUtils.equals("OPTIONS", method)) {
+            api.options(request, response);
+        } else {
+            response.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+        }
+    }
 }

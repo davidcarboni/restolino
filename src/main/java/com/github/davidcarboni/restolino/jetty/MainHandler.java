@@ -27,181 +27,182 @@ import java.util.Set;
 
 public class MainHandler extends HandlerCollection {
 
-	/** Just in case you need to change it. */
-	public static String filesResourceName = "/web";
+    /**
+     * Just in case you need to change it.
+     */
+    public static String filesResourceName = "/web";
 
-	ResourceHandler filesHandler;
-	ApiHandler apiHandler;
-	Collection<Filter> filters;
-	Collection<Startup> startups;
+    ResourceHandler filesHandler;
+    ApiHandler apiHandler;
+    Collection<Filter> filters;
+    Collection<Startup> startups;
 
-	public MainHandler() throws IOException {
+    public MainHandler() throws IOException {
 
-		Reflections reflections = ClassFinder.newReflections();
+        Reflections reflections = ClassFinder.newReflections();
 
-		// Handlers
-		setupFilesHandler(reflections);
-		setupApiHandler(reflections);
+        // Handlers
+        setupFilesHandler(reflections);
+        setupApiHandler(reflections);
 
-		// Handlers can be null, so check before adding them to the collection:
-		ArrayList<Handler> handlers = new ArrayList<Handler>();
-		if (filesHandler != null) {
-			handlers.add(filesHandler);
-		}
-		if (apiHandler != null) {
-			handlers.add(apiHandler);
-		}
-		setHandlers(handlers.toArray(new Handler[0]));
+        // Handlers can be null, so check before adding them to the collection:
+        ArrayList<Handler> handlers = new ArrayList<Handler>();
+        if (filesHandler != null) {
+            handlers.add(filesHandler);
+        }
+        if (apiHandler != null) {
+            handlers.add(apiHandler);
+        }
+        setHandlers(handlers.toArray(new Handler[0]));
 
-		// "meta-handling"
-		setupFilters(reflections);
-		runStartups(reflections);
+        // "meta-handling"
+        setupFilters(reflections);
+        runStartups(reflections);
 
-		// Class reloading
-		if (Main.configuration.classesReloadable) {
-			ClassReloader.start(System.getProperty("restolino.classes"));
-		}
-	}
+        // Class reloading
+        if (Main.configuration.classesReloadable) {
+            ClassReloader.start(System.getProperty("restolino.classes"));
+        }
+    }
 
-	private void setupFilesHandler(Reflections reflections) throws IOException {
+    private void setupFilesHandler(Reflections reflections) throws IOException {
 
-		// Set up the handler if there's anything to be served:
-		URL url = getFilesUrl(reflections);
-		if (url != null) {
+        // Set up the handler if there's anything to be served:
+        URL url = getFilesUrl(reflections);
+        if (url != null) {
 
-			// Set up the resource handler:
-			ResourceHandler filesHandler = new ResourceHandler();
-			Resource resource = Resource.newResource(url);
-			filesHandler.setBaseResource(resource);
+            // Set up the resource handler:
+            ResourceHandler filesHandler = new ResourceHandler();
+            Resource resource = Resource.newResource(url);
+            filesHandler.setBaseResource(resource);
 
-			this.filesHandler = filesHandler;
+            this.filesHandler = filesHandler;
 
-			System.out.println("Set up static file handler for URL: " + url);
-		} else {
-			System.out.println("No static file handler configured.");
-		}
-	}
+            System.out.println("Set up static file handler for URL: " + url);
+        } else {
+            System.out.println("No static file handler configured.");
+        }
+    }
 
-	private URL getFilesUrl(Reflections reflections) {
-		URL result = null;
+    private URL getFilesUrl(Reflections reflections) {
+        URL result = null;
 
-		if (Main.configuration.filesReloadable) {
-			// If the reloadable property is set, reload from a local directory
-			// (in development):
-			result = Main.configuration.filesUrl;
-		} else {
-			// Otherwise, check for a resource on the classpath (when deployed):
-			for (ClassLoader classLoader : reflections.getConfiguration().getClassLoaders()) {
-				URL candidate = classLoader.getResource(filesResourceName);
-				if (candidate != null) {
-					result = candidate;
-				}
-			}
-		}
+        if (Main.configuration.filesReloadable) {
+            // If the reloadable property is set, reload from a local directory
+            // (in development):
+            result = Main.configuration.filesUrl;
+        } else {
+            // Otherwise, check for a resource on the classpath (when deployed):
+            for (ClassLoader classLoader : reflections.getConfiguration().getClassLoaders()) {
+                URL candidate = classLoader.getResource(filesResourceName);
+                if (candidate != null) {
+                    result = candidate;
+                }
+            }
+        }
 
-		return result;
-	}
+        return result;
+    }
 
-	private void setupApiHandler(Reflections reflections) {
-		apiHandler = new ApiHandler();
-		ApiHandler.setupApi(reflections);
-	}
+    private void setupApiHandler(Reflections reflections) {
+        apiHandler = new ApiHandler();
+        ApiHandler.setupApi(reflections);
+    }
 
-	public void reload() throws IOException {
+    public void reload() throws IOException {
 
-		Reflections reflections = ClassFinder.newReflections();
+        Reflections reflections = ClassFinder.newReflections();
 
-		ApiHandler.setupApi(reflections);
-		setupFilters(reflections);
-		runStartups(reflections);
-	}
+        ApiHandler.setupApi(reflections);
+        setupFilters(reflections);
+        runStartups(reflections);
+    }
 
-	@Override
-	public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+    @Override
+    public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-		// Should we try redirecting to index.html?
-		boolean isRootRequest = isRootRequest(request);
-		boolean isApiRequest = isApiRequest(target);
-		if (filter(request, response)) {
-			if (isApiRequest) {
-				apiHandler.handle(target, baseRequest, request, response);
-			} else if (filesHandler != null) {
-				filesHandler.handle(target, baseRequest, request, response);
-			} else {
-				notFound(target, response);
-			}
-		}
+        // Should we try redirecting to index.html?
+        boolean isRootRequest = isRootRequest(request);
+        boolean isApiRequest = isApiRequest(target);
+        if (filter(request, response)) {
+            if (isApiRequest) {
+                apiHandler.handle(target, baseRequest, request, response);
+            } else if (filesHandler != null) {
+                filesHandler.handle(target, baseRequest, request, response);
+            } else {
+                notFound(target, response);
+            }
+        }
 
-		baseRequest.setHandled(true);
-	}
+        baseRequest.setHandled(true);
+    }
 
-	/**
-	 * Determines if the given request is for the root resource (ie /).
-	 * 
-	 * @param request
-	 *            The {@link HttpServletRequest}
-	 * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
-	 *         or "/", then true.
-	 */
-	boolean isRootRequest(HttpServletRequest request) {
-		String path = request.getPathInfo();
-		if (StringUtils.isBlank(path)) {
-			return true;
-		} else if (StringUtils.equals("/", path)) {
-			return true;
-		}
-		return false;
-	}
+    /**
+     * Determines if the given request is for the root resource (ie /).
+     *
+     * @param request The {@link HttpServletRequest}
+     * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
+     * or "/", then true.
+     */
+    boolean isRootRequest(HttpServletRequest request) {
+        String path = request.getPathInfo();
+        if (StringUtils.isBlank(path)) {
+            return true;
+        } else if (StringUtils.equals("/", path)) {
+            return true;
+        }
+        return false;
+    }
 
-	static boolean isApiRequest(String target) {
-		String extension = FilenameUtils.getExtension(target);
-		return StringUtils.isBlank(extension);
-	}
+    static boolean isApiRequest(String target) {
+        String extension = FilenameUtils.getExtension(target);
+        return StringUtils.isBlank(extension);
+    }
 
-	boolean filter(HttpServletRequest req, HttpServletResponse res) {
-		boolean result = true;
-		for (Filter filter : filters) {
-			result &= filter.filter(req, res);
-		}
-		return result;
-	}
+    boolean filter(HttpServletRequest req, HttpServletResponse res) {
+        boolean result = true;
+        for (Filter filter : filters) {
+            result &= filter.filter(req, res);
+        }
+        return result;
+    }
 
-	static void notFound(String target, HttpServletResponse response) throws IOException {
-		response.setStatus(HttpServletResponse.SC_NOT_FOUND);
-		response.setContentType(MimeTypes.Type.TEXT_PLAIN_UTF_8.asString());
-		response.getWriter().println("Not found: " + target);
-	}
+    static void notFound(String target, HttpServletResponse response) throws IOException {
+        response.setStatus(HttpServletResponse.SC_NOT_FOUND);
+        response.setContentType(MimeTypes.Type.TEXT_PLAIN_UTF_8.asString());
+        response.getWriter().println("Not found: " + target);
+    }
 
-	public void setupFilters(Reflections reflections) {
+    public void setupFilters(Reflections reflections) {
 
-		Set<Filter> result = new HashSet<>();
-		Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
-		for (Class<? extends Filter> filterClass : filterClasses) {
-			try {
-				result.add(filterClass.newInstance());
-			} catch (InstantiationException | IllegalAccessException e) {
-				System.out.println("Error instantiating filter class " + filterClass.getName());
-				e.printStackTrace();
-			}
-		}
-		filters = result;
-	}
+        Set<Filter> result = new HashSet<>();
+        Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
+        for (Class<? extends Filter> filterClass : filterClasses) {
+            try {
+                result.add(filterClass.newInstance());
+            } catch (InstantiationException | IllegalAccessException e) {
+                System.out.println("Error instantiating filter class " + filterClass.getName());
+                e.printStackTrace();
+            }
+        }
+        filters = result;
+    }
 
-	public void runStartups(Reflections reflections) {
+    public void runStartups(Reflections reflections) {
 
-		Set<Startup> startups = new HashSet<>();
-		Set<Class<? extends Startup>> startupClasses = reflections.getSubTypesOf(Startup.class);
-		for (Class<? extends Startup> startupClass : startupClasses) {
-			try {
-				startups.add(startupClass.newInstance());
-			} catch (InstantiationException | IllegalAccessException e) {
-				System.out.println("Error instantiating startup class " + startupClass.getName());
-				e.printStackTrace();
-			}
-		}
-		for (Startup startup : startups) {
-			startup.init();
-		}
-		this.startups = startups;
-	}
+        Set<Startup> startups = new HashSet<>();
+        Set<Class<? extends Startup>> startupClasses = reflections.getSubTypesOf(Startup.class);
+        for (Class<? extends Startup> startupClass : startupClasses) {
+            try {
+                startups.add(startupClass.newInstance());
+            } catch (InstantiationException | IllegalAccessException e) {
+                System.out.println("Error instantiating startup class " + startupClass.getName());
+                e.printStackTrace();
+            }
+        }
+        for (Startup startup : startups) {
+            startup.init();
+        }
+        this.startups = startups;
+    }
 }

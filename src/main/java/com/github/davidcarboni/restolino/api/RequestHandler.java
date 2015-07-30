@@ -4,8 +4,8 @@ import java.lang.reflect.Method;
 
 public class RequestHandler {
 
-	public Class<?> endpointClass;
-	public Method method;
-	public Class<?> requestMessageType;
-	public Class<?> responseMessageType;
+    public Class<?> endpointClass;
+    public Method method;
+    public Class<?> requestMessageType;
+    public Class<?> responseMessageType;
 }
