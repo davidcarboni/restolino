@@ -1,29 +1,6 @@
 package com.github.davidcarboni.restolino.api;
 
-import java.io.IOException;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
-
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.reflections.Reflections;
-
+import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
@@ -31,12 +8,28 @@ import com.github.davidcarboni.restolino.framework.ServerError;
 import com.github.davidcarboni.restolino.helpers.HomeRedirect;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
+import org.reflections.Reflections;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.PUT;
+import java.io.IOException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.*;
 
 /**
  * This is the framework controller.
- * 
+ *
  * @author David Carboni
- * 
+ *
  */
 public class ApiConfiguration {
 
@@ -88,7 +81,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Searches for and configures all your lovely endpoints.
-	 * 
+	 *
 	 * @param reflections
 	 *            The instance to use to find classes.
 	 */
@@ -185,7 +178,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Searches for and configures the / endpoint.
-	 * 
+	 *
 	 * @param reflections
 	 *            The instance to use to find classes.
 	 * @return {@link Home}
@@ -206,7 +199,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Searches for and configures the not found endpoint.
-	 * 
+	 *
 	 * @param reflections
 	 *            The instance to use to find classes.
 	 * @return {@link NotFound}
@@ -221,7 +214,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Searches for and configures the not found endpoint.
-	 * 
+	 *
 	 * @param reflections
 	 *            The instance to use to find classes.
 	 * @return {@link ServerError}
@@ -294,7 +287,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Determines if the given request is for the root resource (ie /).
-	 * 
+	 *
 	 * @param request
 	 *            The {@link HttpServletRequest}
 	 * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
@@ -312,7 +305,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Locates a single endpoint class.
-	 * 
+	 *
 	 * @param type
 	 *            The type of the endpoint class.
 	 * @param name
@@ -357,7 +350,11 @@ public class ApiConfiguration {
 
 		try {
 			// Handle a / request:
-			Object responseMessage = home.get(request, response);
+			Object responseMessage;
+			if (home!=null)
+                responseMessage= home.get(request, response);
+			else
+			    responseMessage = Main.configuration;
 			if (responseMessage != null) {
 				Serialiser.serialise(response, responseMessage);
 			}
@@ -370,7 +367,7 @@ public class ApiConfiguration {
 
 	/**
 	 * GO!
-	 * 
+	 *
 	 * @param request
 	 *            The request.
 	 * @param response
@@ -418,9 +415,9 @@ public class ApiConfiguration {
 	 * Handles a request where no API endpoint is defined. If {@link #notFound}
 	 * is set, {@link NotFound#handle(HttpServletRequest, HttpServletResponse)}
 	 * will be called. Otherwise a simple 404 will be returned.
-	 * 
-	 * @param response
-	 * @param requestHandler
+	 *
+     * @param request
+     * @param response
 	 * @throws IOException
 	 *             If an error occurs in sending the response.
 	 */
@@ -464,7 +461,7 @@ public class ApiConfiguration {
 
 	/**
 	 * Locates a {@link RequestHandler} for the path of the given request.
-	 * 
+	 *
 	 * @param requestHandlers
 	 *            One of the handler maps.
 	 * @param request

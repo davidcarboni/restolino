@@ -123,9 +123,7 @@ public class MainHandler extends HandlerCollection {
 		boolean isRootRequest = isRootRequest(request);
 		boolean isApiRequest = isApiRequest(target);
 		if (filter(request, response)) {
-			if (isRootRequest && ApiHandler.api.home == null) {
-				response.sendRedirect("/index.html");
-			} else if (isApiRequest) {
+			if (isApiRequest) {
 				apiHandler.handle(target, baseRequest, request, response);
 			} else if (filesHandler != null) {
 				filesHandler.handle(target, baseRequest, request, response);
