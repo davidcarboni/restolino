@@ -218,7 +218,7 @@ Yes. Restolino intentionally doesn't stray too far from JAX-RS. If you add `@Pat
 
 #### Why not use interfaces to define request handlers?
 
-I've tried, but it adds complexity, doesn't add value and makes life harder. Why? Because the interface has to take into account that there may or may not be a request message type (so generic varargs would be needed - ever tried that?) and you can return any (or no) response message type (so the retun type is variable). That means either an altogether too generic interface (everything is has to be Object, even if you'd prefer void) or individual interfaces for every permutation. 
+I've tried, but it adds complexity, doesn't add value and makes life harder. Why? Because the interface has to take into account that there may or may not be a request message type (so generic varargs would be needed - ever tried that?) and you can return any (or no) response message type (so the retun type is variable). That means either an altogether too generic interface (everything has to be Object, even if you'd prefer void) or individual interfaces for every permutation. 
 
 Using reflection to search for methods with either two or three parameters, where the first two are `HttpServletRequest` and `HttpServletResponse` turns out to be simpler, cleaner and more easily understood. Like I said, if you're a purist this isn't the framework you're looking for. Try it if you like - if you can come up with an elegant, pragmatic and developer-friendly solution, send me a pull request.
 
