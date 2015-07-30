@@ -237,7 +237,7 @@ public class ApiConfiguration {
 
 	public void get(HttpServletRequest request, HttpServletResponse response) {
 
-		if (home != null && isRootRequest(request)) {
+		if (isRootRequest(request)) {
 			doRootRequest(request, response);
 		} else {
 			doMethod(request, response, get);
@@ -351,10 +351,11 @@ public class ApiConfiguration {
 		try {
 			// Handle a / request:
 			Object responseMessage;
-			if (home!=null)
-                responseMessage= home.get(request, response);
-			else
-			    responseMessage = Main.configuration;
+			if (home!=null) {
+				responseMessage = home.get(request, response);
+			} else {
+				responseMessage = Main.configuration;
+			}
 			if (responseMessage != null) {
 				Serialiser.serialise(response, responseMessage);
 			}
