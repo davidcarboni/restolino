@@ -1,13 +1,13 @@
 package com.github.davidcarboni.restolino;
 
+import org.apache.commons.lang3.StringUtils;
+import org.reflections.Reflections;
+
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
-
-import org.apache.commons.lang3.StringUtils;
-import org.reflections.Reflections;
 
 /**
  * Determines the correct configuration, based on environment variables, system
@@ -160,7 +160,7 @@ public class Configuration {
 	 * but failing gracefully if that doesn't work out.
 	 * 
 	 * @param port
-	 *            The value of the {@value Port} parameter.
+	 *            The value of the {@value #PORT} parameter.
 	 */
 	void configurePort(String port) {
 
