@@ -28,7 +28,6 @@
         <url>https://github.com/davidcarboni/restolino</url>
         <connection>scm:git:git://github.com/davidcarboni/restolino.git</connection>
         <developerConnection>scm:git:git@github.com:davidcarboni/restolino.git</developerConnection>
-        <tag>HEAD</tag>
     </scm>
 
     <properties>

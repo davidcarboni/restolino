@@ -7,6 +7,7 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.List;
 
 /**
@@ -61,7 +62,7 @@ public class QueryString extends HashMap<String, String> {
         String result = null;
 
         List<String> parameters = new ArrayList<>();
-        for (Entry<String, String> entry : entrySet()) {
+        for (Map.Entry<String, String> entry : entrySet()) {
             // We don't encode the key because it could legitimately contain
             // things like underscores, e.g. "_escaped_fragment_" would become:
             // "%5Fescaped%5Ffragment%5F"
