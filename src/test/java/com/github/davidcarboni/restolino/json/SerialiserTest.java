@@ -12,7 +12,7 @@ import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
- * Created by david on 08/09/2015.
+ * Tests for {@link Serialiser}.
  */
 public class SerialiserTest {
 
