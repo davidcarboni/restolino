@@ -11,10 +11,7 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicLong;
 
 public class Serialiser {
 
@@ -201,33 +198,4 @@ public class Serialiser {
         }
         return builder;
     }
-
-    public static class Bob {
-        String test = "content";
-    }
-
-    public static void main(String[] args) throws IOException {
-
-        AtomicInteger integer = new AtomicInteger();
-        final AtomicLong number = new AtomicLong(System.currentTimeMillis());
-
-        for (int i = 0; i < 1000; i++) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        Bob bob = new Bob();
-                        bob.test = "" + number.getAndIncrement();
-                        Serialiser.serialise(Paths.get("./test.txt"), bob);
-                        bob = Serialiser.deserialise(Paths.get("./test.txt"), Bob.class);
-                        System.out.println(Thread.currentThread().getName() + " - " + bob.test);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }, "s-" + integer.getAndIncrement()).start();
-        }
-
-    }
-
 }
