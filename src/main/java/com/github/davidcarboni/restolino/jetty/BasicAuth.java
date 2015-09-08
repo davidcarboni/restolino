@@ -11,7 +11,7 @@ import org.eclipse.jetty.util.security.Credential;
 /**
  * Provides HTTP Basic authentication. This is useful if you're deploying a
  * prototype on the web and need to keep it a bit more private.
- * <p/>
+ *
  * Adapted from <a href=
  * "https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/java/HelloWorld.java"
  * >https://github.com/jesperfj/jetty-secured-sample/blob/master/src/main/

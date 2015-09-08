@@ -12,7 +12,7 @@ import java.util.List;
 
 /**
  * This class enables you to work with a URL query string.
- * <p/>
+ *
  * Whilst technically a query string can contain multiple values for a single
  * parameter name, in practice this rarely happens so, for expedience, this
  * class is a Map.

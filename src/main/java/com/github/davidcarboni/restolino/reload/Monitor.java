@@ -7,7 +7,7 @@ import static java.nio.file.StandardWatchEventKinds.*;
 
 /**
  * Monitors a {@link Path} for changes, including subfolders.
- * <p/>
+ *
  * Thanks to the following resources:
  * <ul>
  * <li>
