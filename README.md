@@ -98,6 +98,19 @@ This also configures your project for Java 1.7. You could do this with profiles 
 
 ```xml
 	<build>
+	
+		<resources>
+			<!-- Standard resources -->
+			<resource>
+				<directory>src/main/resources</directory>
+			</resource>
+			<!-- Your static content - this will end up in target/web/ -->
+			<resource>
+				<directory>src/main/web</directory>
+				<targetPath>${project.build.directory}/web</targetPath>
+			</resource>
+		</resources>
+	
 		<plugins>
 			
 			<!-- Needs Java 1.7. You're not still using 1.6 - are you: -->
