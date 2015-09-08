@@ -1,6 +1,5 @@
 package com.github.davidcarboni.restolino.json;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -9,7 +8,11 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 /**
  * Tests for {@link Serialiser}.
@@ -27,8 +30,10 @@ public class SerialiserTest {
     public void testSerialise() throws IOException, InterruptedException, ExecutionException {
 
         // Given
-        // A list of tasks
+        // A list of tasks and scores
         List<Future<Exception>> tasks = new ArrayList<>();
+        final AtomicInteger same = new AtomicInteger();
+        final AtomicInteger different = new AtomicInteger();
 
         // When
         // We submit lots of tasks to a pool
@@ -46,12 +51,11 @@ public class SerialiserTest {
                         samIAm.id = id;
                         Serialiser.serialise(path, samIAm);
                         samIAm = Serialiser.deserialise(path, SamIAm.class);
-                        //System.out.println(Thread.currentThread().getName() + " - " + samIAm.test);
-                        //if (id != samIAm.id) {
-                        //    System.out.println("Yarp! " + id + " : " + samIAm.id);
-                        //} else {
-                        //    System.out.println("Narp.");
-                        //}
+                        if (samIAm.id == id) {
+                            same.incrementAndGet();
+                        } else {
+                            different.incrementAndGet();
+                        }
                     } catch (Exception e) {
                         result = e;
                     }
@@ -67,8 +71,14 @@ public class SerialiserTest {
         // Then
         // All tasks should complete without exceptions
         for (Future<Exception> task : tasks) {
-            Assert.assertNull(task.get());
+            assertNull(task.get());
         }
+        // Sometimes another thread will have serialised before deserialisation:
+        assertNotEquals(same.get(), different.get());
+        assertNotEquals(0, same.get());
+        assertNotEquals(0, different.get());
+        //System.out.println(same.get());
+        //System.out.println(different.get());
     }
 
 }
