@@ -1,7 +1,9 @@
-package com.github.davidcarboni.restolino.json;
+package com.github.davidcarboni.httpino;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.JsonIOException;
+import com.google.gson.JsonSyntaxException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -10,12 +12,12 @@ import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.nio.channels.OverlappingFileLockException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public class Serialiser {
-
-    final static String UTF8 = "UTF8";
 
     private static GsonBuilder builder;
 
@@ -54,11 +56,9 @@ public class Serialiser {
     public static void serialise(OutputStream output, Object responseMessage)
             throws IOException {
 
-        try (OutputStreamWriter writer = new OutputStreamWriter(output, UTF8)) {
-            Gson gson = getBuilder().create();
+        Gson gson = getBuilder().create();
+        try (OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
             gson.toJson(responseMessage, writer);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Unsupported encoding " + UTF8 + "?", e);
         }
     }
 
@@ -74,11 +74,9 @@ public class Serialiser {
     public static <O> O deserialise(InputStream input,
                                     Class<O> requestMessageType) throws IOException {
 
-        try (InputStreamReader streamReader = new InputStreamReader(input, UTF8)) {
-            Gson gson = getBuilder().create();
+        Gson gson = getBuilder().create();
+        try (InputStreamReader streamReader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
             return gson.fromJson(streamReader, requestMessageType);
-        } catch (UnsupportedEncodingException e) {
-            throw new RuntimeException("Unsupported encoding " + UTF8 + "?", e);
         }
     }
 
@@ -93,31 +91,24 @@ public class Serialiser {
      * @throws IOException If an error occurs in writing the output.
      */
     public static void serialise(Path output, Object json) throws IOException {
-        try (FileChannel channel = FileChannel.open(output, StandardOpenOption.WRITE, StandardOpenOption.CREATE);
-             OutputStreamWriter writer = new OutputStreamWriter(
-                     new BufferedOutputStream(
-                             Channels.newOutputStream(channel))
-                     , UTF8);
-             FileLock lock = writeLock(channel)) {
-            Gson gson = getBuilder().create();
+
+        // First serialise to a temp file:
+        Gson gson = getBuilder().create();
+        Path temp = Files.createTempFile(json.getClass().getSimpleName(), ".json");
+        try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
             gson.toJson(json, writer);
         }
-    }
 
-    private static FileLock writeLock(FileChannel channel) throws IOException {
-
-        // Be lenient in getting a lock:
-        FileLock lock = null;
-        do {
-            try {
-                // Get an exclusive lock for writing
-                lock = channel.lock();
-            } catch (OverlappingFileLockException e) {
-                Thread.yield();
-            }
-        } while (lock == null);
-
-        return lock;
+        // Now do an optimised Channel-to-Channel transfer to the output file:
+        long size = Files.size(temp);
+        try (FileChannel tempChannel = FileChannel.open(temp, StandardOpenOption.READ);
+             FileChannel outputChannel = FileChannel.open(output, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
+            // NB the lock will be released when the channel is closed:
+            writeLock(outputChannel);
+            outputChannel.truncate(0);
+            tempChannel.transferTo(0, size, outputChannel);
+            outputChannel.truncate(size);
+        }
     }
 
     /**
@@ -130,32 +121,44 @@ public class Serialiser {
      * @throws IOException If an error occurs in reading from the input stream.
      */
     public static <O> O deserialise(Path input, Class<O> jsonType) throws IOException {
-
-        try (FileChannel channel = FileChannel.open(input, StandardOpenOption.READ);
-             InputStreamReader reader = new InputStreamReader(
-                     new BufferedInputStream(
-                             Channels.newInputStream(channel))
-                     , UTF8);
-             FileLock lock = readLock(channel)) {
-            Gson gson = getBuilder().create();
-            return gson.fromJson(reader, jsonType);
-        }
+        return deserialise(input, jsonType, 0);
     }
 
-    private static FileLock readLock(FileChannel channel) throws IOException {
+    /**
+     * Deserialises the given {@link InputStream} to a JSON String.
+     *
+     * @param input    The stream to deserialise.
+     * @param jsonType The object type to deserialise into.
+     * @param attempt  The retry attempt. This has an arbitrary maximum of 5.
+     * @param <O>      The type to deserialise to.
+     * @return A new instance of the given type.
+     * @throws IOException If an error occurs in reading from the input stream.
+     */
+    public static <O> O deserialise(Path input, Class<O> jsonType, int attempt) throws IOException {
+        O result = null;
+        //if (attempt > 0)
+        //    System.out.println("Retrying deserialisation.. (" + attempt + ")");
 
-        // Be lenient in getting a lock:
-        FileLock lock = null;
-        do {
-            try {
-                // Get a shared lock for reading:
-                lock = channel.lock(0L, Long.MAX_VALUE, true);
-            } catch (OverlappingFileLockException e) {
-                Thread.yield();
+        Gson gson = getBuilder().create();
+        try (FileChannel inputChannel = FileChannel.open(input, StandardOpenOption.READ)) {
+            // NB the lock will be released when the channel is closed:
+            readLock(inputChannel);
+            try (Reader reader = new BufferedReader(Channels.newReader(inputChannel, StandardCharsets.UTF_8.name()))) {
+                result = gson.fromJson(reader, jsonType);
+            } catch (JsonSyntaxException | JsonIOException | NumberFormatException e) {
+                // Very occasionally, with 1000 threads, the content comes back invalid, so we'll retry.
+                if (attempt >= 5) {
+                    throw e;
+                }
             }
-        } while (lock == null);
+        }
 
-        return lock;
+        // Very occasionally, with 1000 threads, no content is read so we'll retry if the result is null.
+        if (result == null && attempt < 5) {
+            result = deserialise(input, jsonType, ++attempt);
+        }
+
+        return result;
     }
 
     /**
@@ -170,7 +173,7 @@ public class Serialiser {
                                  Object responseMessage) throws IOException {
 
         response.setContentType("application/json");
-        response.setCharacterEncoding(UTF8);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
         serialise(response.getOutputStream(), responseMessage);
     }
 
@@ -197,5 +200,45 @@ public class Serialiser {
             builder = new GsonBuilder();
         }
         return builder;
+    }
+
+    private static FileLock readLock(FileChannel channel) throws IOException {
+
+        // Be lenient in getting a lock:
+        FileLock lock = null;
+        do {
+            try {
+                // Get a shared lock for reading:
+                lock = channel.tryLock(0L, Long.MAX_VALUE, true);
+            } catch (OverlappingFileLockException e) {
+                pause();
+            }
+        } while (lock == null);
+
+        return lock;
+    }
+
+    private static FileLock writeLock(FileChannel channel) throws IOException {
+
+        // Be lenient in getting a lock:
+        FileLock lock = null;
+        do {
+            try {
+                // Get an exclusive lock for writing
+                lock = channel.tryLock();
+            } catch (OverlappingFileLockException e) {
+                pause();
+            }
+        } while (lock == null);
+
+        return lock;
+    }
+
+    private static void pause() {
+        try {
+            Thread.sleep(1);
+        } catch (InterruptedException e1) {
+            // Meh.
+        }
     }
 }
