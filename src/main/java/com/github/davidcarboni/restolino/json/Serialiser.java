@@ -1,4 +1,4 @@
-package com.github.davidcarboni.httpino;
+package com.github.davidcarboni.restolino.json;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
