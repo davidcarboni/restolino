@@ -4,8 +4,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.UrlEncoded;
 import org.junit.Test;
 
+import java.io.UnsupportedEncodingException;
 import java.net.URI;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 
 import static org.junit.Assert.*;
 
@@ -38,10 +42,10 @@ public class QueryStringTest {
     }
 
     @Test
-    public void shouldEscapeOnPut() {
+    public void shouldEscapeOnPut() throws UnsupportedEncodingException {
 
         // Given
-        String dodgyCharacters = " !@#$^*(){}[]/\\?|-_;:";
+        String dodgyCharacters = " !@#$^(){}[]/\\?|;:";
         String extraDodgy = "+&=";
         String key = "Strange parameter name : " + dodgyCharacters;
         String value = "Crazy parameter value : " + dodgyCharacters + extraDodgy;
@@ -57,19 +61,23 @@ public class QueryStringTest {
         assertEquals(2, split.length);
         String decodedKey = split[0];
         assertEquals(decodedKey, key);
-        String decodedValue = UrlEncoded.decodeString(split[1], 0, split[1].length(), Charset.forName("UTF8"));
+        String decodedValue = URLDecoder.decode(split[1], StandardCharsets.UTF_8.name());
+        // Jetty class *appears* to need Java 8
+        //String decodedValue = UrlEncoded.decodeString(split[1], 0, split[1].length(), Charset.forName("UTF8"));
         assertEquals(decodedValue, value);
     }
 
     @Test
-    public void shouldEscapeOnConstruct() {
+    public void shouldEscapeOnConstruct() throws UnsupportedEncodingException {
 
         // Given
-        String dodgyCharacters = " !@#$^*(){}[]/\\?|-_;:";
+        String dodgyCharacters = " !@#$^(){}[]/\\?|;:";
         String extraDodgy = "+&=";
         String key = "Strange parameter name : " + dodgyCharacters;
         String value = "Crazy parameter value : " + dodgyCharacters + extraDodgy;
-        URI uri = URI.create("http://newport.com/Lilo?" + UrlEncoded.encodeString(key) + "=" + UrlEncoded.encodeString(value));
+        URI uri = URI.create("http://newport.com/Lilo?" + URLEncoder.encode(key, StandardCharsets.UTF_8.name()) + "=" + URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
+        // Jetty class *appears* to need Java 8
+        //URI uri = URI.create("http://newport.com/Lilo?" + UrlEncoded.encodeString(key) + "=" + UrlEncoded.encodeString(value));
 
         // When
         QueryString queryString = new QueryString(uri);
@@ -80,7 +88,11 @@ public class QueryStringTest {
         assertFalse(StringUtils.containsAny(split[1], dodgyCharacters));
         String decodedKey = split[0];
         assertEquals(decodedKey, key);
-        String decodedValue = UrlEncoded.decodeString(split[1], 0, split[1].length(), Charset.forName("UTF8"));
+
+
+        String decodedValue = URLDecoder.decode(split[1], StandardCharsets.UTF_8.name());
+        // Jetty class *appears* to need Java 8
+        //String decodedValue = UrlEncoded.decodeString(split[1], 0, split[1].length(), Charset.forName("UTF8"));
         assertEquals(decodedValue, value);
     }
 
