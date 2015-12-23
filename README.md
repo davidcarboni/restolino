@@ -107,7 +107,7 @@ This also configures your project for Java 1.7. You could do this with profiles 
 			<!-- Your static content - this will end up in target/web/ -->
 			<resource>
 				<directory>src/main/web</directory>
-				<targetPath>${project.build.directory}/web</targetPath>
+				<targetPath>${project.build.outputDirectory}/web</targetPath>
 			</resource>
 		</resources>
 	
