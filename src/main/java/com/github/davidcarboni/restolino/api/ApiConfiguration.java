@@ -484,7 +484,7 @@ public class ApiConfiguration {
     private static Object invoke(HttpServletRequest request, HttpServletResponse response, Object handler, Method method, Class<?> requestMessage) throws Exception {
         Object result = null;
 
-        log.info("Invoking method " + method.getName() + " on " + handler.getClass().getSimpleName());
+        log.info("Invoking method {} on {}", method.getName(), handler.getClass().getSimpleName());
         // + " for request message "
         // + requestMessage);
         if (requestMessage != null) {
