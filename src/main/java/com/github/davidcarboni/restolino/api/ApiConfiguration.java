@@ -1,11 +1,10 @@
 package com.github.davidcarboni.restolino.api;
 
-import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.framework.ServerError;
-import com.github.davidcarboni.restolino.helpers.HomeRedirect;
+import com.github.davidcarboni.restolino.handlers.ApiDocumentation;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 import org.apache.commons.lang3.StringUtils;
@@ -184,11 +183,11 @@ public class ApiConfiguration {
 
         System.out.println("Checking for a / endpoint..");
         Home home = getEndpoint(Home.class, "/", reflections);
-        // We have to manually check HomeRedirect. I believe this is probably
-        // because HomeRedirect is excluded from analysis if a package prefix is
+        // We have to manually check ApiDocumentation. I believe this is probably
+        // because ApiDocumentation is excluded from analysis if a package prefix is
         // defined:
         if (home == null) {
-            home = getEndpoint(HomeRedirect.class, "/", reflections);
+            home = getEndpoint(ApiDocumentation.class, "/", reflections);
         }
         printEndpoint(home, "/");
         this.home = home;
@@ -255,7 +254,7 @@ public class ApiConfiguration {
 
         List<String> result = new ArrayList<>();
 
-        if (home != null && isRootRequest(request)) {
+        if (isRootRequest(request)) {
 
             // We only allow GET to the root resource:
             result.add("GET");
@@ -341,12 +340,7 @@ public class ApiConfiguration {
 
         try {
             // Handle a / request:
-            Object responseMessage;
-            if (home != null) {
-                responseMessage = home.get(request, response);
-            } else {
-                responseMessage = Main.configuration;
-            }
+            Object responseMessage = home.get(request, response);
             if (responseMessage != null) {
                 Serialiser.serialise(response, responseMessage);
             }
