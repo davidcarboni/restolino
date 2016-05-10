@@ -184,12 +184,7 @@ public class ApiConfiguration {
 
         System.out.println("Checking for a / endpoint..");
         Home home = getEndpoint(Home.class, "/", reflections);
-        // We have to manually check DefaultApiDocumentation. I believe this is probably
-        // because DefaultApiDocumentation is excluded from analysis if a package prefix is
-        // defined:
-        if (home == null) {
-            home = getEndpoint(DefaultApiDocumentation.class, "/", reflections);
-        }
+        if (home == null) home = new DefaultApiDocumentation();
         printEndpoint(home, "/");
         this.home = home;
     }
@@ -330,7 +325,7 @@ public class ApiConfiguration {
                 //System.out.println("Filtered in " + next.getName());
             //}
         }
-        System.out.println("Filtered.");
+        //System.out.println("Filtered.");
 
         if (endpointClasses.size() != 0) {
 
