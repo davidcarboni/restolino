@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.helpers;
+package com.github.davidcarboni.restolino.handlers;
 
 import com.github.davidcarboni.restolino.framework.Home;
 
