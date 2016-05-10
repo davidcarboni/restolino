@@ -5,6 +5,8 @@ import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.framework.ServerError;
 import com.github.davidcarboni.restolino.handlers.ApiDocumentation;
+import com.github.davidcarboni.restolino.handlers.NotFoundHandler;
+import com.github.davidcarboni.restolino.handlers.ServerErrorHandler;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 import org.apache.commons.lang3.StringUtils;
@@ -197,26 +199,26 @@ public class ApiConfiguration {
      * Searches for and configures the not found endpoint.
      *
      * @param reflections The instance to use to find classes.
-     * @return {@link NotFound}
      */
     void configureNotFound(Reflections reflections) {
 
         System.out.println("Checking for a not-found endpoint..");
         NotFound notFound = getEndpoint(NotFound.class, "not-found", reflections);
+        if (notFound == null) notFound = new NotFoundHandler();
         printEndpoint(notFound, "not-found");
         this.notFound = notFound;
     }
 
     /**
-     * Searches for and configures the not found endpoint.
+     * Searches for and configures the not error endpoint.
      *
      * @param reflections The instance to use to find classes.
-     * @return {@link ServerError}
      */
     void configureServerError(Reflections reflections) {
 
         System.out.println("Checking for an error endpoint..");
         ServerError serverError = getEndpoint(ServerError.class, "error", reflections);
+        if (serverError == null) serverError = new ServerErrorHandler();
         printEndpoint(serverError, "error");
         this.serverError = serverError;
     }
@@ -317,6 +319,20 @@ public class ApiConfiguration {
             }
         }
 
+        // Filter out any default handlers:
+        //System.out.println("Filtering " + type.getName());
+        Iterator<Class<? extends E>> iterator = endpointClasses.iterator();
+        while (iterator.hasNext()) {
+            Class<? extends E> next = iterator.next();
+            if (StringUtils.startsWithIgnoreCase(next.getName(), "com.github.davidcarboni.restolino.handlers.")) {
+                //System.out.println("Filtered out " + next.getName());
+                iterator.remove();
+            } //else {
+                //System.out.println("Filtered in " + next.getName());
+            //}
+        }
+        System.out.println("Filtered.");
+
         if (endpointClasses.size() != 0) {
 
             // Dump multiple endpoints:
@@ -324,7 +340,7 @@ public class ApiConfiguration {
                 System.out.println("Warning: found multiple candidates for " + name + " endpoint: " + endpointClasses);
             }
 
-            // Instantiate the endpoint:
+            // Instantiate the endpoint if possible:
             try {
                 result = endpointClasses.iterator().next().newInstance();
             } catch (Exception e) {
@@ -408,13 +424,8 @@ public class ApiConfiguration {
         // Set a default response code:
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 
-        if (notFound != null) {
-            // Attempt to handle the not-found gracefully:
-            notFound.handle(request, response);
-        } else {
-            // Default not-found behaviour:
-            Serialiser.serialise(response, "No API endpoint is defined for " + request.getPathInfo());
-        }
+        // Attempt to handle the not-found:
+        notFound.handle(request, response);
     }
 
     private void handleError(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler, Throwable t) {
@@ -423,21 +434,20 @@ public class ApiConfiguration {
         response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
 
         try {
-            if (serverError != null) {
-                // Attempt to handle the error gracefully:
-                Object errorResponse = serverError.handle(request, response, requestHandler, t);
-                if (errorResponse != null) {
-                    Serialiser.serialise(response, errorResponse);
-                }
-            } else {
-                String stackTrace = ExceptionUtils.getStackTrace(t);
-                System.out.println(stackTrace);
 
-                Serialiser.serialise(response, stackTrace);
+            // Attempt to handle the error gracefully:
+            Object errorResponse = serverError.handle(request, response, requestHandler, t);
+            if (errorResponse != null) {
+                Serialiser.serialise(response, errorResponse);
             }
 
         } catch (Throwable t2) {
+
+            // Fall back to printing
+            System.out.println("Error invoking error handler:");
             t2.printStackTrace();
+            System.out.println("Original error being handled:");
+            t.printStackTrace();
         }
     }
 
