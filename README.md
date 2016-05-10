@@ -116,7 +116,7 @@ This also configures your project for Java 1.8. You could do this with profiles 
 	
 		<plugins>
 			
-			<!-- Needs Java 1.8. You're not still using 1.6 - are you: -->
+			<!-- Java 1.8. You're not still using 1.6 - are you: -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
