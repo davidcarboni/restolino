@@ -15,19 +15,19 @@ import java.net.URL;
  *
  * @author david
  */
-public abstract class IndexRedirect implements Home {
+public abstract class DefaultIndexRedirect implements Home {
 
     private String path;
 
-    public IndexRedirect(URL url) {
+    public DefaultIndexRedirect(URL url) {
         this.path = url.toString();
     }
 
-    public IndexRedirect(String path) {
+    public DefaultIndexRedirect(String path) {
         this.path = path;
     }
 
-    public IndexRedirect(URI uri) {
+    public DefaultIndexRedirect(URI uri) {
         this.path = uri.toString();
     }
 

@@ -4,13 +4,12 @@ import com.github.davidcarboni.restolino.framework.Api;
 import com.github.davidcarboni.restolino.framework.Home;
 import com.github.davidcarboni.restolino.framework.NotFound;
 import com.github.davidcarboni.restolino.framework.ServerError;
-import com.github.davidcarboni.restolino.handlers.ApiDocumentation;
-import com.github.davidcarboni.restolino.handlers.NotFoundHandler;
-import com.github.davidcarboni.restolino.handlers.ServerErrorHandler;
+import com.github.davidcarboni.restolino.handlers.DefaultApiDocumentation;
+import com.github.davidcarboni.restolino.handlers.DefaultNotFoundHandler;
+import com.github.davidcarboni.restolino.handlers.DefaultServerErrorHandler;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.reflections.Reflections;
 
 import javax.servlet.http.HttpServletRequest;
@@ -185,11 +184,11 @@ public class ApiConfiguration {
 
         System.out.println("Checking for a / endpoint..");
         Home home = getEndpoint(Home.class, "/", reflections);
-        // We have to manually check ApiDocumentation. I believe this is probably
-        // because ApiDocumentation is excluded from analysis if a package prefix is
+        // We have to manually check DefaultApiDocumentation. I believe this is probably
+        // because DefaultApiDocumentation is excluded from analysis if a package prefix is
         // defined:
         if (home == null) {
-            home = getEndpoint(ApiDocumentation.class, "/", reflections);
+            home = getEndpoint(DefaultApiDocumentation.class, "/", reflections);
         }
         printEndpoint(home, "/");
         this.home = home;
@@ -204,7 +203,7 @@ public class ApiConfiguration {
 
         System.out.println("Checking for a not-found endpoint..");
         NotFound notFound = getEndpoint(NotFound.class, "not-found", reflections);
-        if (notFound == null) notFound = new NotFoundHandler();
+        if (notFound == null) notFound = new DefaultNotFoundHandler();
         printEndpoint(notFound, "not-found");
         this.notFound = notFound;
     }
@@ -218,7 +217,7 @@ public class ApiConfiguration {
 
         System.out.println("Checking for an error endpoint..");
         ServerError serverError = getEndpoint(ServerError.class, "error", reflections);
-        if (serverError == null) serverError = new ServerErrorHandler();
+        if (serverError == null) serverError = new DefaultServerErrorHandler();
         printEndpoint(serverError, "error");
         this.serverError = serverError;
     }

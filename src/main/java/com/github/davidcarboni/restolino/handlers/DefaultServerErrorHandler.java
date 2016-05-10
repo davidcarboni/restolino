@@ -14,7 +14,7 @@ import java.io.IOException;
  *
  * This prints the error stack trace to stdout and also serialises it as a Json string to the response.
  */
-public class ServerErrorHandler implements ServerError {
+public class DefaultServerErrorHandler implements ServerError {
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler, Throwable t) throws IOException {

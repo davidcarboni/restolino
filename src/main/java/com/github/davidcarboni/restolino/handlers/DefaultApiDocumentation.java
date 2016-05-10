@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Default {@link Home} handler.
  */
-public class ApiDocumentation implements Home {
+public class DefaultApiDocumentation implements Home {
     @Override
     public Configuration get(HttpServletRequest req, HttpServletResponse res) throws IOException {
         return Main.configuration;

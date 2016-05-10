@@ -9,7 +9,7 @@ import java.io.IOException;
 /**
  * Default {@link NotFound} handler.
  */
-public class NotFoundHandler implements NotFound {
+public class DefaultNotFoundHandler implements NotFound {
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
         return "No API endpoint is defined for " + request.getPathInfo();
