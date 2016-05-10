@@ -10,7 +10,9 @@ It's not comprehensive, won't give you the flexibility you want and doesn't real
 
 What it does do is let you work and stays out of your way, because configuring frameworks is a distraction. Java is a great language with loads of support, but it's never been efficient for Web development. This changes that.
 
-If you're a Java purist, this is not the framework you are looking for. 
+Life is hard enough. Complexity will quitetly come and steal your time. Bar the door. Don't go looking for it. If it sits down it won't want to leave.
+
+If you're a Java purist, this is not the framework you are looking for.
 
 And that's it.
 
@@ -68,7 +70,8 @@ Here is the list of packages and what they mean. There are no more than a pizza'
 
  * `com.github.davidcarboni.restolino.`**framework** - The stuff you need to define your API - annotations and interfaces. 
  * `com.github.davidcarboni.restolino.`**helpers** - Convenience classes you may (or may not) want to use to make your life easier.
-  * `com.github.davidcarboni.restolino.`**json** - Json serialisation
+ * `com.github.davidcarboni.restolino.`**handlers** - Default and example `Home`, `NotFound` and `ServerError` handlers.
+ * `com.github.davidcarboni.restolino.`**json** - Json serialisation
  * `com.github.davidcarboni.restolino.`**api** - The classes that set up your API.
  * `com.github.davidcarboni.restolino.`**reload** - The classes that detect file changes and trigger reloading.
  * `com.github.davidcarboni.restolino.`**jetty** - The Jetty handlers that make up Restolino. `MainHandler` receives requests, decides whether a request is for an API or a file and delegates to `ApiHandler` or `FilesHandler`. There's also a handler for HTTP Basic authentication.
@@ -83,7 +86,7 @@ Here is the list of packages and what they mean. There are no more than a pizza'
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.1.6</version>
+            <version>0.1.12</version>
         </dependency>
             
     </dependencies>
@@ -94,7 +97,7 @@ Here is the list of packages and what they mean. There are no more than a pizza'
 
 The configuration below provides both a -jar-with-dependencies (for deployment) and a folder of dependencies for reloading in development (`${project.build.directory}/dependency`). NB this should work if you want to deploy to Heroku.
 
-This also configures your project for Java 1.7. You could do this with profiles if you want to:
+This also configures your project for Java 1.8. You could do this with profiles if you want to:
 
 ```xml
 	<build>
@@ -113,14 +116,14 @@ This also configures your project for Java 1.7. You could do this with profiles 
 	
 		<plugins>
 			
-			<!-- Needs Java 1.7. You're not still using 1.6 - are you: -->
+			<!-- Needs Java 1.8. You're not still using 1.6 - are you: -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.2</version>
+				<version>3.5.1</version>
 				<configuration>
-					<source>1.7</source>
-					<target>1.7</target>
+					<source>1.8</source>
+					<target>1.8</target>
 					<encoding>UTF-8</encoding>
 				</configuration>
 			</plugin>
@@ -128,7 +131,7 @@ This also configures your project for Java 1.7. You could do this with profiles 
 			<!-- An assembly that includes all dependencies is produced for deployment: -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.4.1</version>
+				<version>2.6</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -156,7 +159,7 @@ This also configures your project for Java 1.7. You could do this with profiles 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.9</version>
+				<version>2.10</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
@@ -172,6 +175,9 @@ This also configures your project for Java 1.7. You could do this with profiles 
 		</plugins>
 	</build>
 ```
+
+NB you could use the `maven-shade-plugin` if you want finer control of the "uberjar", but `jar-with-dependencies`
+is pretty restrictive, which is almost always a good thing - and should help you keep a clean and simple design.
 
 
 ### Run
