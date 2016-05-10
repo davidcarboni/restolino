@@ -11,6 +11,7 @@ import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -25,12 +26,16 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.*;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 /**
  * This is the framework controller.
  *
  * @author David Carboni
  */
 public class ApiConfiguration {
+
+    private static final Logger log = getLogger(ApiConfiguration.class);
 
     public Home home;
     public ServerError serverError;
@@ -91,17 +96,17 @@ public class ApiConfiguration {
         post = new HashMap<>();
         delete = new HashMap<>();
 
-        System.out.println("Scanning for endpoints..");
+        log.info("Scanning for endpoints..");
         Set<Class<?>> endpoints = reflections.getTypesAnnotatedWith(Api.class);
-        // System.out.println(reflections.getConfiguration().getUrls());
+        // log.info(reflections.getConfiguration().getUrls());
 
-        System.out.println("Found " + endpoints.size() + " endpoints.");
-        System.out.println("Examining endpoint methods..");
+        log.info("Found " + endpoints.size() + " endpoints.");
+        log.info("Examining endpoint methods..");
 
         // Configure the classes:
         for (Class<?> endpointClass : endpoints) {
             String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
-            System.out.println(" - /" + endpointName + " (" + endpointClass.getName() + ")");
+            log.info(" - /" + endpointName + " (" + endpointClass.getName() + ")");
 
             for (Method method : endpointClass.getMethods()) {
 
@@ -123,21 +128,20 @@ public class ApiConfiguration {
                         Map<String, RequestHandler> map = getMap(annotation);
                         if (map != null) {
                             clashCheck(endpointName, annotation, endpointClass, method);
-                            System.out.print("   - " + annotation.getClass().getInterfaces()[0].getSimpleName());
+                            log.info("   - " + annotation.getClass().getInterfaces()[0].getSimpleName());
                             RequestHandler requestHandler = new RequestHandler();
                             requestHandler.endpointClass = endpointClass;
                             requestHandler.method = method;
-                            System.out.print(" " + method.getName());
+                            log.info(" " + method.getName());
                             if (parameterTypes.length > 2) {
                                 requestHandler.requestMessageType = parameterTypes[2];
-                                System.out.print(" request:" + requestHandler.requestMessageType.getSimpleName());
+                                log.info(" request:" + requestHandler.requestMessageType.getSimpleName());
                             }
                             if (method.getReturnType() != void.class) {
                                 requestHandler.responseMessageType = method.getReturnType();
-                                System.out.print(" response:" + requestHandler.responseMessageType.getSimpleName());
+                                log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
                             }
                             map.put(endpointName, requestHandler);
-                            System.out.println();
                         }
                     }
                 }
@@ -166,11 +170,11 @@ public class ApiConfiguration {
         Map<String, RequestHandler> map = getMap(annotation);
         if (map != null) {
             if (map.containsKey(name)) {
-                System.out.println("   ! method " + method.getName() + " in " + endpointClass.getName() + " overwrites " + map.get(name).method.getName() + " in "
+                log.info("   ! method " + method.getName() + " in " + endpointClass.getName() + " overwrites " + map.get(name).method.getName() + " in "
                         + map.get(name).endpointClass.getName() + " for " + annotation.getClass().getSimpleName());
             }
         } else {
-            System.out.println("WAT? Expected GET/PUT/POST/DELETE but got " + annotation.getClass().getName());
+            log.info("WAT? Expected GET/PUT/POST/DELETE but got " + annotation.getClass().getName());
         }
     }
 
@@ -182,7 +186,7 @@ public class ApiConfiguration {
      */
     void configureHome(Reflections reflections) {
 
-        System.out.println("Checking for a / endpoint..");
+        log.info("Checking for a / endpoint..");
         Home home = getEndpoint(Home.class, "/", reflections);
         if (home == null) home = new DefaultApiDocumentation();
         printEndpoint(home, "/");
@@ -196,7 +200,7 @@ public class ApiConfiguration {
      */
     void configureNotFound(Reflections reflections) {
 
-        System.out.println("Checking for a not-found endpoint..");
+        log.info("Checking for a not-found endpoint..");
         NotFound notFound = getEndpoint(NotFound.class, "not-found", reflections);
         if (notFound == null) notFound = new DefaultNotFoundHandler();
         printEndpoint(notFound, "not-found");
@@ -210,7 +214,7 @@ public class ApiConfiguration {
      */
     void configureServerError(Reflections reflections) {
 
-        System.out.println("Checking for an error endpoint..");
+        log.info("Checking for an error endpoint..");
         ServerError serverError = getEndpoint(ServerError.class, "error", reflections);
         if (serverError == null) serverError = new DefaultServerErrorHandler();
         printEndpoint(serverError, "error");
@@ -219,9 +223,9 @@ public class ApiConfiguration {
 
     private void printEndpoint(Object endpoint, String name) {
         if (endpoint != null) {
-            System.out.println("Class " + endpoint.getClass().getSimpleName() + " configured as " + name + " endpoint");
+            log.info("Class " + endpoint.getClass().getSimpleName() + " configured as " + name + " endpoint");
         } else {
-            System.out.println("No " + name + " enpoint configured.");
+            log.info("No " + name + " enpoint configured.");
         }
     }
 
@@ -314,31 +318,31 @@ public class ApiConfiguration {
         }
 
         // Filter out any default handlers:
-        //System.out.println("Filtering " + type.getName());
+        //log.info("Filtering " + type.getName());
         Iterator<Class<? extends E>> iterator = endpointClasses.iterator();
         while (iterator.hasNext()) {
             Class<? extends E> next = iterator.next();
             if (StringUtils.startsWithIgnoreCase(next.getName(), "com.github.davidcarboni.restolino.handlers.")) {
-                //System.out.println("Filtered out " + next.getName());
+                //log.info("Filtered out " + next.getName());
                 iterator.remove();
             } //else {
-                //System.out.println("Filtered in " + next.getName());
+                //log.info("Filtered in " + next.getName());
             //}
         }
-        //System.out.println("Filtered.");
+        //log.info("Filtered.");
 
         if (endpointClasses.size() != 0) {
 
             // Dump multiple endpoints:
             if (endpointClasses.size() > 1) {
-                System.out.println("Warning: found multiple candidates for " + name + " endpoint: " + endpointClasses);
+                log.info("Warning: found multiple candidates for " + name + " endpoint: " + endpointClasses);
             }
 
             // Instantiate the endpoint if possible:
             try {
                 result = endpointClasses.iterator().next().newInstance();
             } catch (Exception e) {
-                System.out.println("Error: cannot instantiate " + name + " endpoint class " + endpointClasses.iterator().next());
+                log.info("Error: cannot instantiate " + name + " endpoint class " + endpointClasses.iterator().next());
                 e.printStackTrace();
             }
         }
@@ -438,9 +442,9 @@ public class ApiConfiguration {
         } catch (Throwable t2) {
 
             // Fall back to printing
-            System.out.println("Error invoking error handler:");
+            log.info("Error invoking error handler:");
             t2.printStackTrace();
-            System.out.println("Original error being handled:");
+            log.info("Original error being handled:");
             t.printStackTrace();
         }
     }
@@ -456,7 +460,7 @@ public class ApiConfiguration {
 
         String endpointName = Path.newInstance(request).firstSegment();
         endpointName = StringUtils.lowerCase(endpointName);
-        // System.out.println("Mapping endpoint " + endpointName);
+        // log.info("Mapping endpoint " + endpointName);
         return requestHandlers.get(endpointName);
     }
 
@@ -480,7 +484,7 @@ public class ApiConfiguration {
     private static Object invoke(HttpServletRequest request, HttpServletResponse response, Object handler, Method method, Class<?> requestMessage) throws Exception {
         Object result = null;
 
-        System.out.println("Invoking method " + method.getName() + " on " + handler.getClass().getSimpleName());
+        log.info("Invoking method " + method.getName() + " on " + handler.getClass().getSimpleName());
         // + " for request message "
         // + requestMessage);
         if (requestMessage != null) {
@@ -488,7 +492,7 @@ public class ApiConfiguration {
             // request.getInputStream(), "UTF8")) {
             // int c;
             // while ((c = streamReader.read()) != -1) {
-            // System.out.print((char) c);
+            // log.info((char) c);
             // }
             // } catch (UnsupportedEncodingException e) {
             // throw new RuntimeException("Unsupported encoding " + "UTF8"
@@ -501,7 +505,7 @@ public class ApiConfiguration {
             result = method.invoke(handler, request, response);
         }
 
-        // System.out.println("Result is " + result);
+        // log.info("Result is " + result);
         return result;
     }
 }

@@ -1,9 +1,12 @@
 package com.github.davidcarboni.restolino.reload;
 
+import org.slf4j.Logger;
+
 import java.io.IOException;
 import java.nio.file.*;
 
 import static java.nio.file.StandardWatchEventKinds.*;
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Monitors a {@link Path} for changes, including subfolders.
@@ -24,6 +27,8 @@ import static java.nio.file.StandardWatchEventKinds.*;
  * @author david
  */
 public class Monitor implements Runnable {
+
+    private static final Logger log = getLogger(Monitor.class);
 
     private Path path;
     private WatchService watcher;
@@ -68,7 +73,7 @@ public class Monitor implements Runnable {
                         // explicitly registered, if events are lost or
                         // discarded:
                         if (kind == OVERFLOW) {
-                            System.out.println("Reload triggered by " + OVERFLOW + " on " + path);
+                            log.info("Reload triggered by " + OVERFLOW + " on " + path);
                             reload = true;
                             continue;
                         }
@@ -80,30 +85,30 @@ public class Monitor implements Runnable {
 
                         // Reload classes:
                         if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-                            System.out.println("Reload triggered by " + kind + " on " + filename);
-                            System.out.println(kind.name());
-                            System.out.println(kind.type().getName());
+                            log.info("Reload triggered by " + kind + " on " + filename);
+                            log.info(kind.name());
+                            log.info(kind.type().getName());
                             reload = true;
                         } else {
-                            System.out.println("Not triggering reload for " + kind + ": " + filename);
+                            log.info("Not triggering reload for " + kind + ": " + filename);
                         }
                     }
 
                     // Note that on creation you get both ENTRY_CREATE and
                     // ENTRY_MODIFY so this avoids reloading twice:
                     if (reload) {
-                        System.out.println("Reloading...");
+                        log.info("Reloading...");
                         ClassReloader.requestReload();
                     }
 
                     if (!key.reset()) {
-                        System.out.println("No longer able to access " + path + ". Exiting monitor");
+                        log.info("No longer able to access " + path + ". Exiting monitor");
                         Scanner.remove(path);
                         break;
                     }
 
                 } catch (InterruptedException e) {
-                    System.out.println("Error taking a WatchKey for " + path + ". Exiting this monitor.");
+                    log.info("Error taking a WatchKey for " + path + ". Exiting this monitor.");
                     Scanner.remove(path);
                     break;
                 }
@@ -111,11 +116,11 @@ public class Monitor implements Runnable {
             } while (true);
 
         } catch (IOException e) {
-            System.out.println("Error closing WatchService for " + path);
+            log.info("Error closing WatchService for " + path);
             e.printStackTrace();
         }
 
-        System.out.println("Quit: " + path);
+        log.info("Quit: " + path);
 
         // Rescan:
         // This covers errors and exiting when a folder is deleted,

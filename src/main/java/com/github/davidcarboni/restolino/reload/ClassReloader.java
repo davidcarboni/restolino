@@ -3,14 +3,18 @@ package com.github.davidcarboni.restolino.reload;
 import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.jetty.ApiHandler;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.WatchService;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class ClassReloader implements Runnable {
 
+    private static final Logger log = getLogger(ClassReloader.class);
     static ClassReloader classMonitor;
     static WatchService watcher;
     String path;
@@ -99,7 +103,7 @@ public class ClassReloader implements Runnable {
     public static void shutdown() throws IOException {
         if (watcher != null) {
             synchronized (watcher) {
-                System.out.println("Closing filesystem monitor.");
+                log.info("Closing filesystem monitor.");
                 watcher.close();
                 watcher = null;
             }

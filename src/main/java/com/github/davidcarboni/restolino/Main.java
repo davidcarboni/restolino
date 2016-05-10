@@ -8,6 +8,9 @@ import org.eclipse.jetty.server.Handler;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.slf4j.Logger;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * This class launches an embedded Jetty server. This is the entry point to your
@@ -15,6 +18,8 @@ import org.eclipse.jetty.server.handler.gzip.GzipHandler;
  * can set it as the <code>Main-Class</code> in your JAR manifest.
  */
 public class Main {
+
+    private static final Logger log = getLogger(Main.class);
 
     public static Configuration configuration;
     public static Server server;
@@ -63,12 +68,12 @@ public class Main {
                 @Override
                 public void run() {
                     try {
-                        System.out.println("Initiating graceful shutdown...");
+                        log.info("Initiating graceful shutdown...");
                         //server.getHandler().stop();
                         server.stop();
-                        System.out.println("Shutdown completed gracefully.");
+                        log.info("Shutdown completed gracefully.");
                     } catch (Exception e) {
-                        System.out.println("Shutdown error:");
+                        log.info("Shutdown error:");
                         e.printStackTrace();
                     }
                 }
@@ -77,7 +82,7 @@ public class Main {
             // And we're good to go
             server.start();
             System.out.println(configuration);
-            System.out.println("\nCompleted startup process.");
+            log.info("\nCompleted startup process.");
             server.join();
 
         } finally {

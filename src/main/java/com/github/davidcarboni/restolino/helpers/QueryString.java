@@ -1,23 +1,20 @@
 package com.github.davidcarboni.restolino.helpers;
 
-import com.google.common.net.UrlEscapers;
 import org.apache.commons.lang3.StringUtils;
-import org.eclipse.jetty.util.UrlEncoded;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URI;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Map;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class enables you to work with a URL query string.
- * <p/>
+ * <p>
  * Whilst technically a query string can contain multiple values for a single
  * parameter name, in practice this rarely happens so, for expedience, this
  * class is a Map.
@@ -49,8 +46,8 @@ public class QueryString extends HashMap<String, String> {
                         String decodedKey;
                         String decodedValue;
                         try {
-                             decodedKey = URLDecoder.decode(key, StandardCharsets.UTF_8.name());
-                             decodedValue = URLDecoder.decode(value, StandardCharsets.UTF_8.name());
+                            decodedKey = URLDecoder.decode(key, StandardCharsets.UTF_8.name());
+                            decodedValue = URLDecoder.decode(value, StandardCharsets.UTF_8.name());
                         } catch (UnsupportedEncodingException e) {
                             throw new IllegalArgumentException("URL does not appear to be UTF8 encoded", e);
                         }

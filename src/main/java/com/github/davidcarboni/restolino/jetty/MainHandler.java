@@ -14,6 +14,7 @@ import org.eclipse.jetty.server.handler.HandlerCollection;
 import org.eclipse.jetty.server.handler.ResourceHandler;
 import org.eclipse.jetty.util.resource.Resource;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
@@ -25,7 +26,11 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class MainHandler extends HandlerCollection {
+
+    private static final Logger log = getLogger(MainHandler.class);
 
     /**
      * Just in case you need to change it.
@@ -78,9 +83,9 @@ public class MainHandler extends HandlerCollection {
 
             this.filesHandler = filesHandler;
 
-            System.out.println("Set up static file handler for URL: " + url);
+            log.info("Set up static file handler for URL: " + url);
         } else {
-            System.out.println("No static file handler configured.");
+            log.info("No static file handler configured.");
         }
     }
 
@@ -181,7 +186,7 @@ public class MainHandler extends HandlerCollection {
             try {
                 result.add(filterClass.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
-                System.out.println("Error instantiating filter class " + filterClass.getName());
+                log.info("Error instantiating filter class " + filterClass.getName());
                 e.printStackTrace();
             }
         }
@@ -196,7 +201,7 @@ public class MainHandler extends HandlerCollection {
             try {
                 startups.add(startupClass.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
-                System.out.println("Error instantiating startup class " + startupClass.getName());
+                log.info("Error instantiating startup class " + startupClass.getName());
                 e.printStackTrace();
             }
         }

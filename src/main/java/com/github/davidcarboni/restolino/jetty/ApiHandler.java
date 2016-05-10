@@ -6,21 +6,25 @@ import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class ApiHandler extends AbstractHandler {
 
+    private static final Logger log = getLogger(ApiHandler.class);
     static final String KEY_CLASSES = "restolino.classes";
 
     public static volatile ApiConfiguration api;
 
     public ApiHandler() {
         if (Main.configuration.classesInClasspath != null) {
-            System.out.println("Classes are included in the classpath. No reloading will be configured (" + Main.configuration.classesInClasspath + ")");
+            log.info("Classes are included in the classpath. No reloading will be configured (" + Main.configuration.classesInClasspath + ")");
         }
     }
 
