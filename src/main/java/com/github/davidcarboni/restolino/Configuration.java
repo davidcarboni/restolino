@@ -2,12 +2,15 @@ package com.github.davidcarboni.restolino;
 
 import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
+import org.slf4j.Logger;
 
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+
+import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Determines the correct configuration, based on environment variables, system
@@ -17,6 +20,7 @@ import java.nio.file.Path;
  */
 public class Configuration {
 
+    private static final Logger log = getLogger(Configuration.class);
     public static final String PORT = "PORT";
     public static final String CLASSES = "restolino.classes";
     public static final String PACKAGE_PREFIX = "restolino.packageprefix";
@@ -168,9 +172,9 @@ public class Configuration {
         if (StringUtils.isNotBlank(port)) {
             try {
                 this.port = Integer.parseInt(port);
-                System.out.println(this.getClass().getSimpleName() + ": Using port " + this.port + " (specify a PORT environment variable to change it)");
+                log.info(this.getClass().getSimpleName() + ": Using port " + this.port + " (specify a PORT environment variable to change it)");
             } catch (NumberFormatException e) {
-                System.out.println(this.getClass().getSimpleName() + ": Unable to parse server PORT variable (" + port + ") using port " + port);
+                log.info(this.getClass().getSimpleName() + ": Unable to parse server PORT variable (" + port + ") using port " + port);
             }
         }
     }
@@ -359,7 +363,7 @@ public class Configuration {
         } else {
             message = "No static files will be served.";
         }
-        System.out.println(this.getClass().getSimpleName() + ": Files: " + message);
+        log.info(this.getClass().getSimpleName() + ": Files: " + message);
     }
 
     /**
@@ -369,7 +373,7 @@ public class Configuration {
 
         // Warning about a classes folder present in the classpath:
         if (classesInClasspath != null) {
-            System.out.println(this.getClass().getSimpleName() + ": WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
+            log.info(this.getClass().getSimpleName() + ": WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
                     + "lease launch without including your classes directory: " + classesInClasspath);
         }
 
@@ -384,7 +388,7 @@ public class Configuration {
         } else {
             message = "Classes will not be dynamically reloaded.";
         }
-        System.out.println(this.getClass().getSimpleName() + ": Classes: " + message);
+        log.info(this.getClass().getSimpleName() + ": Classes: " + message);
     }
 
     /**

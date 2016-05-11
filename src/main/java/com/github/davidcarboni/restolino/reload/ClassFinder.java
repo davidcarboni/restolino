@@ -5,12 +5,16 @@ import org.apache.commons.lang3.StringUtils;
 import org.reflections.Reflections;
 import org.reflections.util.ClasspathHelper;
 import org.reflections.util.ConfigurationBuilder;
+import org.slf4j.Logger;
 
 import java.net.URL;
 import java.net.URLClassLoader;
 
+import static org.slf4j.LoggerFactory.getLogger;
+
 public class ClassFinder {
 
+    private static final Logger log = getLogger(ClassFinder.class);
     private static ClassLoader classLoader;
 
     public static Reflections newReflections() {
@@ -44,9 +48,9 @@ public class ClassFinder {
         }
         Reflections reflections = new Reflections(configurationBuilder);
 
-        System.out.println("Reflections URLs: " + reflections.getConfiguration().getUrls());
+        log.info("Reflections URLs: " + reflections.getConfiguration().getUrls());
         if (Main.configuration.classesReloadable && reflections.getConfiguration().getUrls().size() == 0 && StringUtils.isNotEmpty(Main.configuration.packagePrefix)) {
-            System.out.println("It looks like no reloadable classes were found. Is '" + Main.configuration.packagePrefix + "' the correct package prefix for your app?");
+            log.info("It looks like no reloadable classes were found. Is '" + Main.configuration.packagePrefix + "' the correct package prefix for your app?");
         }
         return reflections;
     }

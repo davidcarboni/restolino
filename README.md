@@ -246,6 +246,9 @@ Using reflection to search for methods with either two or three parameters, wher
 
 First port of call is to look at the information printed to the console on startup. If you see `Reflections URLs: []` you might need to check your `restolino.packageprefix` setting - I've made this mistake a couple of times. If nothing is happening when you update a class, check the values of classesReloadable and classesInClasspath. It's not possible to reload classes that are on the JVM classpath at startup.
 
+#### How can I enable logging?
+
+Restolino uses the SLF4J interface for logging. Please refer to the [SLF4J documentation](http://www.slf4j.org/) for further information on enabling its output.
 
 #### Is it really this cool?
 
