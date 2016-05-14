@@ -1,5 +1,9 @@
 package com.github.davidcarboni.restolino.json;
 
+import com.github.davidcarboni.restolino.framework.*;
+import com.github.davidcarboni.restolino.serialisers.ClassSerialiser;
+import com.github.davidcarboni.restolino.serialisers.MethodSerialiser;
+import com.github.davidcarboni.restolino.serialisers.ObjectClassSerialser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
@@ -8,6 +12,7 @@ import com.google.gson.JsonSyntaxException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Method;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
@@ -20,6 +25,27 @@ import java.nio.file.StandardOpenOption;
 public class Serialiser {
 
     private static GsonBuilder builder;
+
+    // Pattern for Javascript dates that are serialised using .toUTCString:
+    public static final String toUTCStringDateFormat = "EEE, dd MMM yyyy HH:mm:ss z";
+
+    // Pattern for dates that are serialised using .toString:
+    public static final String toStringDateFormat = "EEE, dd MMM yyyy HH:mm:ss z";
+
+    static {
+
+        // Add some useful default handlers - these are useful if you use DefaultApiDocumentation:
+        getBuilder().registerTypeAdapter(Class.class, new ClassSerialiser());
+        getBuilder().registerTypeAdapter(Method.class, new MethodSerialiser());
+        getBuilder().registerTypeAdapter(Home.class, new ObjectClassSerialser());
+        getBuilder().registerTypeAdapter(NotFound.class, new ObjectClassSerialser());
+        getBuilder().registerTypeAdapter(ServerError.class, new ObjectClassSerialser());
+        getBuilder().registerTypeAdapter(Startup.class, new ObjectClassSerialser());
+        getBuilder().registerTypeAdapter(Filter.class, new ObjectClassSerialser());
+
+        // Set a reasonable default for date formatting:
+        getBuilder().setDateFormat(toUTCStringDateFormat);
+    }
 
     /**
      * Serialises the given object to Json.
