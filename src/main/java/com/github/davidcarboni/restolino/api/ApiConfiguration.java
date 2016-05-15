@@ -1,9 +1,6 @@
 package com.github.davidcarboni.restolino.api;
 
-import com.github.davidcarboni.restolino.framework.Api;
-import com.github.davidcarboni.restolino.framework.Home;
-import com.github.davidcarboni.restolino.framework.NotFound;
-import com.github.davidcarboni.restolino.framework.ServerError;
+import com.github.davidcarboni.restolino.framework.*;
 import com.github.davidcarboni.restolino.handlers.DefaultApiDocumentation;
 import com.github.davidcarboni.restolino.handlers.DefaultNotFoundHandler;
 import com.github.davidcarboni.restolino.handlers.DefaultServerErrorHandler;
@@ -41,10 +38,7 @@ public class ApiConfiguration {
     public ServerError serverError;
     public NotFound notFound;
 
-    public Map<String, RequestHandler> get = new HashMap<>();
-    public Map<String, RequestHandler> put = new HashMap<>();
-    public Map<String, RequestHandler> post = new HashMap<>();
-    public Map<String, RequestHandler> delete = new HashMap<>();
+    public Map<String, Map<HttpMethod, RequestHandler>> api = new HashMap<>();
 
     // The default request handler:
     public RequestHandler defaultRequestHandler = new RequestHandler() {
@@ -53,23 +47,16 @@ public class ApiConfiguration {
             try {
                 method = DefaultRequestHandler.class.getMethod("notImplemented", HttpServletRequest.class, HttpServletResponse.class);
             } catch (NoSuchMethodException | SecurityException e) {
-                throw new RuntimeException("Code issue - default request handler not found", e);
+                throw new RuntimeException("Code issue - default request handler method not found", e);
             }
         }
     };
 
-    public Map<String, RequestHandler> getMap(Annotation annotation) {
-        Class<? extends Annotation> type = annotation.getClass();
-        if (GET.class.isAssignableFrom(type)) {
-            return get;
-        } else if (PUT.class.isAssignableFrom(type)) {
-            return put;
-        } else if (POST.class.isAssignableFrom(type)) {
-            return post;
-        } else if (DELETE.class.isAssignableFrom(type)) {
-            return delete;
+    public Map<HttpMethod, RequestHandler> getHandlerMap(String endpointName) {
+        if (!api.containsKey(endpointName)) {
+            api.put(endpointName, new HashMap<HttpMethod, RequestHandler>());
         }
-        return null;
+        return api.get(endpointName);
     }
 
     public ApiConfiguration(Reflections reflections) {
@@ -90,11 +77,8 @@ public class ApiConfiguration {
      */
     void configureEndpoints(Reflections reflections) {
 
-        // [Re]initialise the maps:
-        get = new HashMap<>();
-        put = new HashMap<>();
-        post = new HashMap<>();
-        delete = new HashMap<>();
+        // [Re]initialise the api:
+        api = new HashMap<>();
 
         log.info("Scanning for endpoints..");
         Set<Class<?>> endpoints = reflections.getTypesAnnotatedWith(Api.class);
@@ -106,6 +90,7 @@ public class ApiConfiguration {
         // Configure the classes:
         for (Class<?> endpointClass : endpoints) {
             String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
+            Map<HttpMethod, RequestHandler> endpointMap = getHandlerMap(endpointName);
             log.info(" - /" + endpointName + " (" + endpointClass.getName() + ")");
 
             for (Method method : endpointClass.getMethods()) {
@@ -115,67 +100,49 @@ public class ApiConfiguration {
                     continue;
                 }
 
-                // We're looking for public methods that take reqest, responso
+                // We're looking for public methods that take reqest, response
                 // and optionally a message type:
                 Class<?>[] parameterTypes = method.getParameterTypes();
                 if (Modifier.isPublic(method.getModifiers()) && parameterTypes.length >= 2 && HttpServletRequest.class.isAssignableFrom(parameterTypes[0])
                         && HttpServletResponse.class.isAssignableFrom(parameterTypes[1])) {
 
+                    RequestHandler requestHandler = new RequestHandler();
+                    requestHandler.endpointClass = endpointClass;
+                    requestHandler.method = method;
+                    log.info(" " + method.getName());
+                    if (parameterTypes.length > 2) {
+                        requestHandler.requestMessageType = parameterTypes[2];
+                        log.info(" request:" + requestHandler.requestMessageType.getSimpleName());
+                    }
+                    if (method.getReturnType() != void.class) {
+                        requestHandler.responseMessageType = method.getReturnType();
+                        log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
+                    }
+
                     // Which HTTP method(s) will this method respond to?
                     List<Annotation> annotations = Arrays.asList(method.getAnnotations());
                     for (Annotation annotation : annotations) {
-
-                        Map<String, RequestHandler> map = getMap(annotation);
-                        if (map != null) {
-                            clashCheck(endpointName, annotation, endpointClass, method);
-                            log.info("   - " + annotation.getClass().getInterfaces()[0].getSimpleName());
-                            RequestHandler requestHandler = new RequestHandler();
-                            requestHandler.endpointClass = endpointClass;
-                            requestHandler.method = method;
-                            log.info(" " + method.getName());
-                            if (parameterTypes.length > 2) {
-                                requestHandler.requestMessageType = parameterTypes[2];
-                                log.info(" request:" + requestHandler.requestMessageType.getSimpleName());
-                            }
-                            if (method.getReturnType() != void.class) {
-                                requestHandler.responseMessageType = method.getReturnType();
-                                log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
-                            }
-                            map.put(endpointName, requestHandler);
-                        }
+                        setHandler(annotation, endpointMap, requestHandler);
                     }
                 }
-            }
-
-            // Set default handlers where needed:
-            // TODO: could these be set as defaults up above? I guess the class
-            // check would need to change.
-            if (!get.containsKey(endpointName)) {
-                get.put(endpointName, defaultRequestHandler);
-            }
-            if (!put.containsKey(endpointName)) {
-                put.put(endpointName, defaultRequestHandler);
-            }
-            if (!post.containsKey(endpointName)) {
-                post.put(endpointName, defaultRequestHandler);
-            }
-            if (!delete.containsKey(endpointName)) {
-                delete.put(endpointName, defaultRequestHandler);
             }
         }
 
     }
 
-    private void clashCheck(String name, Annotation annotation, Class<?> endpointClass, Method method) {
-        Map<String, RequestHandler> map = getMap(annotation);
-        if (map != null) {
-            if (map.containsKey(name)) {
-                log.info("   ! method " + method.getName() + " in " + endpointClass.getName() + " overwrites " + map.get(name).method.getName() + " in "
-                        + map.get(name).endpointClass.getName() + " for " + annotation.getClass().getSimpleName());
-            }
-        } else {
-            log.info("WAT? Expected GET/PUT/POST/DELETE but got " + annotation.getClass().getName());
+    private void setHandler(Annotation annotation, Map<HttpMethod, RequestHandler> endpointMap, RequestHandler requestHandler) {
+        Class<? extends Annotation> type = annotation.getClass();
+        if (isOneOf(type, GET.class, PUT.class, POST.class, DELETE.class)) {
+            endpointMap.put(HttpMethod.method(annotation), requestHandler);
+            log.info("   - " + annotation.getClass().getInterfaces()[0].getSimpleName());
         }
+    }
+
+    private boolean isOneOf(Class<? extends Annotation> annotationType, Class<?>... types) {
+        for (Class<?> type : types) {
+            if (type.isAssignableFrom(annotationType)) return true;
+        }
+        return false;
     }
 
     /**
@@ -234,20 +201,20 @@ public class ApiConfiguration {
         if (isRootRequest(request)) {
             doRootRequest(request, response);
         } else {
-            doMethod(request, response, get);
+            doMethod(request, response, GET.class);
         }
     }
 
     public void put(HttpServletRequest request, HttpServletResponse response) {
-        doMethod(request, response, put);
+        doMethod(request, response, PUT.class);
     }
 
     public void post(HttpServletRequest request, HttpServletResponse response) {
-        doMethod(request, response, post);
+        doMethod(request, response, POST.class);
     }
 
     public void delete(HttpServletRequest request, HttpServletResponse response) {
-        doMethod(request, response, delete);
+        doMethod(request, response, DELETE.class);
     }
 
     public void options(HttpServletRequest request, HttpServletResponse response) {
@@ -257,22 +224,16 @@ public class ApiConfiguration {
         if (isRootRequest(request)) {
 
             // We only allow GET to the root resource:
-            result.add("GET");
+            result.add(HttpMethod.GET.name());
 
         } else {
 
             // Determine which methods are configured:
-            if (mapRequestPath(get, request) != null) {
-                result.add("GET");
-            }
-            if (mapRequestPath(put, request) != null) {
-                result.add("PUT");
-            }
-            if (mapRequestPath(post, request) != null) {
-                result.add("POST");
-            }
-            if (mapRequestPath(delete, request) != null) {
-                result.add("DELETE");
+            String requestPath = mapRequestPath(request);
+            if (api.containsKey(requestPath)) {
+                for (HttpMethod httpMethod : api.get(requestPath).keySet()) {
+                    result.add(httpMethod.name());
+                }
             }
         }
 
@@ -370,12 +331,16 @@ public class ApiConfiguration {
      *
      * @param request         The request.
      * @param response        The response.
-     * @param requestHandlers One of the handler maps.
      */
-    void doMethod(HttpServletRequest request, HttpServletResponse response, Map<String, RequestHandler> requestHandlers) {
+    void doMethod(HttpServletRequest request, HttpServletResponse response, Class<?> method) {
 
         // Locate a request handler:
-        RequestHandler requestHandler = mapRequestPath(requestHandlers, request);
+        String requestPath = mapRequestPath(request);
+        Map<HttpMethod, RequestHandler> handlers = api.get(requestPath);
+        RequestHandler requestHandler = null;
+        if (handlers!=null) {
+            requestHandler = handlers.get(method.getSimpleName());
+        }
 
         try {
 
@@ -450,18 +415,15 @@ public class ApiConfiguration {
     }
 
     /**
-     * Locates a {@link RequestHandler} for the path of the given request.
+     * Determines the endpoint name for the path of the given request.
      *
-     * @param requestHandlers One of the handler maps.
      * @param request         The request.
      * @return A matching handler, if one exists.
      */
-    public RequestHandler mapRequestPath(Map<String, RequestHandler> requestHandlers, HttpServletRequest request) {
+    public String mapRequestPath(HttpServletRequest request) {
 
         String endpointName = Path.newInstance(request).firstSegment();
-        endpointName = StringUtils.lowerCase(endpointName);
-        // log.info("Mapping endpoint " + endpointName);
-        return requestHandlers.get(endpointName);
+        return StringUtils.lowerCase(endpointName);
     }
 
     private static Object instantiate(Class<?> endpointClass) {

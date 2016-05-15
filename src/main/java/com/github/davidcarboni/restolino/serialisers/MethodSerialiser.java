@@ -14,14 +14,15 @@ public class MethodSerialiser extends ClassNameSerialiser implements JsonSeriali
 
     @Override
     public JsonElement serialize(Method src, Type typeOfSrc, JsonSerializationContext context) {
-        JsonObject object = new JsonObject();
-        object.addProperty("name", src.getName());
-        object.addProperty("return", className(src.getReturnType()));
-        JsonArray parameters = new JsonArray();
-        for (Class<?> parameterType : src.getParameterTypes()) {
-            parameters.add(new JsonPrimitive(className(parameterType)));
-        }
-        object.add("parameters", parameters);
-        return object;
+        //JsonObject object = new JsonObject();
+        //object.addProperty("name", src.getName());
+        //object.addProperty("return", className(src.getReturnType()));
+        //JsonArray parameters = new JsonArray();
+        //for (Class<?> parameterType : src.getParameterTypes()) {
+        //    parameters.add(new JsonPrimitive(className(parameterType)));
+        //}
+        //object.add("parameters", parameters);
+        //return object;
+        return new JsonPrimitive(src.getName());
     }
 }
