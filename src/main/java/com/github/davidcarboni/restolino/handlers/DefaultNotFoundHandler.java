@@ -12,6 +12,6 @@ import java.io.IOException;
 public class DefaultNotFoundHandler implements NotFound {
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response) throws IOException {
-        return "No API endpoint is defined for " + request.getPathInfo();
+        return "No API is defined for " + request.getMethod() + " " + request.getPathInfo();
     }
 }
