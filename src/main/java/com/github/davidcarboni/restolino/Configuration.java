@@ -128,7 +128,7 @@ public class Configuration {
         result.append("\n - packagePrefix:\t" + packagePrefix);
 
         // Basic authentication
-        result.append("\nAuthentication:");
+        result.append("\nBasic Auth:");
         if (authenticationEnabled) {
             result.append("\n - username:\t" + username);
             result.append("\n - password:\t" + (StringUtils.isNotBlank(password) ? "(yes)" : "(no)"));
