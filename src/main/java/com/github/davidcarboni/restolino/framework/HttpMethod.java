@@ -19,9 +19,13 @@ public enum HttpMethod {
     }
 
     public static HttpMethod method(Annotation annotation) {
+        return method(annotation.getClass());
+    }
+
+    public static HttpMethod method(Class<? extends Annotation> annotationClass) {
         HttpMethod result = null;
         for (HttpMethod httpMethod : values()) {
-            if (httpMethod.annotationClass.isAssignableFrom(annotation.getClass())) {
+            if (httpMethod.annotationClass.isAssignableFrom(annotationClass)) {
                 result = httpMethod;
                 break;
             }
