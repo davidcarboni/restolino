@@ -10,12 +10,12 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
 /**
- * Default {@link Home} handler that prints out the API configuration (URIs, methods and messages).
+ * Default {@link Home} handler that prints out the API configuration (endpoints, http method request handlers and request/response Json messages).
  */
 public class DefaultApiDocumentation implements Home {
     @Override
     public ApiConfiguration get(HttpServletRequest req, HttpServletResponse res) throws IOException {
-        Serialiser.getBuilder().setPrettyPrinting();
+        //Serialiser.getBuilder().setPrettyPrinting();
         return ApiHandler.api;
     }
 }
