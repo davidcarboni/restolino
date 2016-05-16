@@ -1,6 +1,7 @@
 package com.github.davidcarboni.restolino.api;
 
 import com.github.davidcarboni.restolino.framework.*;
+import com.github.davidcarboni.restolino.framework.HttpMethod;
 import com.github.davidcarboni.restolino.handlers.DefaultApiDocumentation;
 import com.github.davidcarboni.restolino.handlers.DefaultNotFoundHandler;
 import com.github.davidcarboni.restolino.handlers.DefaultServerErrorHandler;
@@ -12,10 +13,6 @@ import org.slf4j.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.DELETE;
-import javax.ws.rs.GET;
-import javax.ws.rs.POST;
-import javax.ws.rs.PUT;
 import java.io.IOException;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.InvocationTargetException;
@@ -38,26 +35,7 @@ public class ApiConfiguration {
     public ServerError serverError;
     public NotFound notFound;
 
-    public Map<String, Map<HttpMethod, RequestHandler>> api = new HashMap<>();
-
-    // The default request handler:
-    public RequestHandler defaultRequestHandler = new RequestHandler() {
-        {
-            endpointClass = DefaultRequestHandler.class;
-            try {
-                method = DefaultRequestHandler.class.getMethod("notImplemented", HttpServletRequest.class, HttpServletResponse.class);
-            } catch (NoSuchMethodException | SecurityException e) {
-                throw new RuntimeException("Code issue - default request handler method not found", e);
-            }
-        }
-    };
-
-    public Map<HttpMethod, RequestHandler> getHandlerMap(String endpointName) {
-        if (!api.containsKey(endpointName)) {
-            api.put(endpointName, new HashMap<HttpMethod, RequestHandler>());
-        }
-        return api.get(endpointName);
-    }
+    public Map<String, Endpoint> api = new HashMap<>();
 
     public ApiConfiguration(Reflections reflections) {
 
@@ -89,9 +67,9 @@ public class ApiConfiguration {
 
         // Configure the classes:
         for (Class<?> endpointClass : endpoints) {
-            String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
-            Map<HttpMethod, RequestHandler> endpointMap = getHandlerMap(endpointName);
-            log.info(" - /" + endpointName + " (" + endpointClass.getName() + ")");
+
+            Endpoint endpoint = getEndpoint(endpointClass);
+            endpoint.endpointClass = endpointClass;
 
             for (Method method : endpointClass.getMethods()) {
 
@@ -106,23 +84,28 @@ public class ApiConfiguration {
                 if (Modifier.isPublic(method.getModifiers()) && parameterTypes.length >= 2 && HttpServletRequest.class.isAssignableFrom(parameterTypes[0])
                         && HttpServletResponse.class.isAssignableFrom(parameterTypes[1])) {
 
-                    RequestHandler requestHandler = new RequestHandler();
-                    requestHandler.endpointClass = endpointClass;
-                    requestHandler.method = method;
-                    log.info(" " + method.getName());
-                    if (parameterTypes.length > 2) {
-                        requestHandler.requestMessageType = parameterTypes[2];
-                        log.info(" request:" + requestHandler.requestMessageType.getSimpleName());
-                    }
-                    if (method.getReturnType() != void.class) {
-                        requestHandler.responseMessageType = method.getReturnType();
-                        log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
-                    }
-
                     // Which HTTP method(s) will this method respond to?
                     List<Annotation> annotations = Arrays.asList(method.getAnnotations());
                     for (Annotation annotation : annotations) {
-                        setHandler(annotation, endpointMap, requestHandler);
+                        HttpMethod httpMethod = HttpMethod.method(annotation);
+                        if (httpMethod != null) {
+
+                            RequestHandler requestHandler = new RequestHandler();
+                            requestHandler.endpointMethod = method;
+                            log.info(" " + method.getName());
+                            if (parameterTypes.length > 2) {
+                                requestHandler.requestMessageType = parameterTypes[2];
+                                log.info(" request:" + requestHandler.requestMessageType.getSimpleName());
+                            }
+                            if (method.getReturnType() != void.class) {
+                                requestHandler.responseMessageType = method.getReturnType();
+                                log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
+                            }
+
+                            endpoint.methods.put(httpMethod, requestHandler);
+                            log.info("   - " + httpMethod);
+
+                        }
                     }
                 }
             }
@@ -130,19 +113,13 @@ public class ApiConfiguration {
 
     }
 
-    private void setHandler(Annotation annotation, Map<HttpMethod, RequestHandler> endpointMap, RequestHandler requestHandler) {
-        Class<? extends Annotation> type = annotation.getClass();
-        if (isOneOf(type, GET.class, PUT.class, POST.class, DELETE.class)) {
-            endpointMap.put(HttpMethod.method(annotation), requestHandler);
-            log.info("   - " + annotation.getClass().getInterfaces()[0].getSimpleName());
+    private Endpoint getEndpoint(Class<?> endpointClass) {
+        String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
+        log.info(" - /" + endpointName + " (" + endpointClass.getName() + ")");
+        if (!api.containsKey(endpointName)) {
+            api.put(endpointName, new Endpoint());
         }
-    }
-
-    private boolean isOneOf(Class<? extends Annotation> annotationType, Class<?>... types) {
-        for (Class<?> type : types) {
-            if (type.isAssignableFrom(annotationType)) return true;
-        }
-        return false;
+        return api.get(endpointName);
     }
 
     /**
@@ -201,20 +178,20 @@ public class ApiConfiguration {
         if (isRootRequest(request)) {
             doRootRequest(request, response);
         } else {
-            doMethod(request, response, GET.class);
+            doMethod(request, response, HttpMethod.GET);
         }
     }
 
     public void put(HttpServletRequest request, HttpServletResponse response) {
-        doMethod(request, response, PUT.class);
+        doMethod(request, response, HttpMethod.PUT);
     }
 
     public void post(HttpServletRequest request, HttpServletResponse response) {
-        doMethod(request, response, POST.class);
+        doMethod(request, response, HttpMethod.POST);
     }
 
     public void delete(HttpServletRequest request, HttpServletResponse response) {
-        doMethod(request, response, DELETE.class);
+        doMethod(request, response, HttpMethod.DELETE);
     }
 
     public void options(HttpServletRequest request, HttpServletResponse response) {
@@ -231,7 +208,7 @@ public class ApiConfiguration {
             // Determine which methods are configured:
             String requestPath = mapRequestPath(request);
             if (api.containsKey(requestPath)) {
-                for (HttpMethod httpMethod : api.get(requestPath).keySet()) {
+                for (HttpMethod httpMethod : api.get(requestPath).methods.keySet()) {
                     result.add(httpMethod.name());
                 }
             }
@@ -332,20 +309,16 @@ public class ApiConfiguration {
      * @param request         The request.
      * @param response        The response.
      */
-    void doMethod(HttpServletRequest request, HttpServletResponse response, Class<?> method) {
+    void doMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) {
 
         // Locate a request handler:
         String requestPath = mapRequestPath(request);
-        Map<HttpMethod, RequestHandler> handlers = api.get(requestPath);
-        RequestHandler requestHandler = null;
-        if (handlers!=null) {
-            requestHandler = handlers.get(method.getSimpleName());
-        }
+        Endpoint endpoint = api.get(requestPath);
 
         try {
 
-            if (requestHandler != null) {
-                handleRequest(request, response, requestHandler);
+            if (endpoint != null && endpoint.methods.containsKey(httpMethod)) {
+                handleRequest(request, response, endpoint, httpMethod);
             } else {
                 handleNotFound(request, response);
             }
@@ -358,16 +331,19 @@ public class ApiConfiguration {
             if (InvocationTargetException.class.isAssignableFrom(t.getClass())) {
                 caught = t.getCause();
             }
+
+            RequestHandler requestHandler = (endpoint == null ? null : endpoint.methods.get(httpMethod));
             handleError(request, response, requestHandler, caught);
         }
 
     }
 
-    private void handleRequest(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler) throws Exception {
+    private void handleRequest(HttpServletRequest request, HttpServletResponse response, Endpoint endpoint, HttpMethod httpMethod) throws Exception {
 
         // An API endpoint is defined for this request:
-        Object handler = instantiate(requestHandler.endpointClass);
-        Object responseMessage = invoke(request, response, handler, requestHandler.method, requestHandler.requestMessageType);
+        Object handler = instantiate(endpoint.endpointClass);
+        RequestHandler requestHandler = endpoint.methods.get(httpMethod);
+        Object responseMessage = invoke(request, response, handler, requestHandler.endpointMethod, requestHandler.requestMessageType);
         if (requestHandler.responseMessageType != null && responseMessage != null) {
             Serialiser.serialise(response, responseMessage);
         }
@@ -388,7 +364,10 @@ public class ApiConfiguration {
         response.setStatus(HttpServletResponse.SC_NOT_FOUND);
 
         // Attempt to handle the not-found:
-        notFound.handle(request, response);
+        Object notFoundResponse = notFound.handle(request, response);
+        if (notFoundResponse != null) {
+            Serialiser.serialise(response, notFoundResponse);
+        }
     }
 
     private void handleError(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler, Throwable t) {
@@ -407,10 +386,8 @@ public class ApiConfiguration {
         } catch (Throwable t2) {
 
             // Fall back to printing
-            log.info("Error invoking error handler:");
-            t2.printStackTrace();
-            log.info("Original error being handled:");
-            t.printStackTrace();
+            log.error("Error invoking error handler", t2);
+            log.error("Original error being handled", t);
         }
     }
 
