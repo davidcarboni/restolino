@@ -6,10 +6,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by david on 16/05/2016.
+ * Represents an api endpoint, e.g. {@code /example}, mapped to a class of the same name annotated with {@link com.github.davidcarboni.restolino.framework.Api Api}.
  */
 public class Endpoint {
 
     public Class<?> endpointClass;
-    public Map<HttpMethod, RequestHandler> methods = new HashMap<>();
+    public Map<HttpMethod, RequestHandler> requestHandlers = new HashMap<>();
 }

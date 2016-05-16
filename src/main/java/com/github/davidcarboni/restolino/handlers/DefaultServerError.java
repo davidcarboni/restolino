@@ -16,9 +16,9 @@ import static org.slf4j.LoggerFactory.getLogger;
  *
  * This prints the error stack trace to stdout and also serialises it as a Json string to the response.
  */
-public class DefaultServerErrorHandler implements ServerError {
+public class DefaultServerError implements ServerError {
 
-    private static final Logger log = getLogger(DefaultServerErrorHandler.class);
+    private static final Logger log = getLogger(DefaultServerError.class);
 
     @Override
     public String handle(HttpServletRequest request, HttpServletResponse response, RequestHandler requestHandler, Throwable t) throws IOException {

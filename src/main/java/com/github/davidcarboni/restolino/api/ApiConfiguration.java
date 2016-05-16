@@ -3,8 +3,8 @@ package com.github.davidcarboni.restolino.api;
 import com.github.davidcarboni.restolino.framework.*;
 import com.github.davidcarboni.restolino.framework.HttpMethod;
 import com.github.davidcarboni.restolino.handlers.DefaultApiDocumentation;
-import com.github.davidcarboni.restolino.handlers.DefaultNotFoundHandler;
-import com.github.davidcarboni.restolino.handlers.DefaultServerErrorHandler;
+import com.github.davidcarboni.restolino.handlers.DefaultNotFound;
+import com.github.davidcarboni.restolino.handlers.DefaultServerError;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 import org.apache.commons.lang3.StringUtils;
@@ -63,7 +63,7 @@ public class ApiConfiguration {
         // log.info(reflections.getConfiguration().getUrls());
 
         log.info("Found " + endpoints.size() + " endpoints.");
-        log.info("Examining endpoint methods..");
+        log.info("Examining endpoint class methods..");
 
         // Configure the classes:
         for (Class<?> endpointClass : endpoints) {
@@ -102,7 +102,7 @@ public class ApiConfiguration {
                                 log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
                             }
 
-                            endpoint.methods.put(httpMethod, requestHandler);
+                            endpoint.requestHandlers.put(httpMethod, requestHandler);
                             log.info("   - " + httpMethod);
 
                         }
@@ -146,7 +146,7 @@ public class ApiConfiguration {
 
         log.info("Checking for a not-found endpoint..");
         NotFound notFound = getEndpoint(NotFound.class, "not-found", reflections);
-        if (notFound == null) notFound = new DefaultNotFoundHandler();
+        if (notFound == null) notFound = new DefaultNotFound();
         printEndpoint(notFound, "not-found");
         this.notFound = notFound;
     }
@@ -160,7 +160,7 @@ public class ApiConfiguration {
 
         log.info("Checking for an error endpoint..");
         ServerError serverError = getEndpoint(ServerError.class, "error", reflections);
-        if (serverError == null) serverError = new DefaultServerErrorHandler();
+        if (serverError == null) serverError = new DefaultServerError();
         printEndpoint(serverError, "error");
         this.serverError = serverError;
     }
@@ -205,10 +205,10 @@ public class ApiConfiguration {
 
         } else {
 
-            // Determine which methods are configured:
+            // Determine which http methods are configured:
             String requestPath = mapRequestPath(request);
             if (api.containsKey(requestPath)) {
-                for (HttpMethod httpMethod : api.get(requestPath).methods.keySet()) {
+                for (HttpMethod httpMethod : api.get(requestPath).requestHandlers.keySet()) {
                     result.add(httpMethod.name());
                 }
             }
@@ -317,7 +317,7 @@ public class ApiConfiguration {
 
         try {
 
-            if (endpoint != null && endpoint.methods.containsKey(httpMethod)) {
+            if (endpoint != null && endpoint.requestHandlers.containsKey(httpMethod)) {
                 handleRequest(request, response, endpoint, httpMethod);
             } else {
                 handleNotFound(request, response);
@@ -332,7 +332,7 @@ public class ApiConfiguration {
                 caught = t.getCause();
             }
 
-            RequestHandler requestHandler = (endpoint == null ? null : endpoint.methods.get(httpMethod));
+            RequestHandler requestHandler = (endpoint == null ? null : endpoint.requestHandlers.get(httpMethod));
             handleError(request, response, requestHandler, caught);
         }
 
@@ -342,7 +342,7 @@ public class ApiConfiguration {
 
         // An API endpoint is defined for this request:
         Object handler = instantiate(endpoint.endpointClass);
-        RequestHandler requestHandler = endpoint.methods.get(httpMethod);
+        RequestHandler requestHandler = endpoint.requestHandlers.get(httpMethod);
         Object responseMessage = invoke(request, response, handler, requestHandler.endpointMethod, requestHandler.requestMessageType);
         if (requestHandler.responseMessageType != null && responseMessage != null) {
             Serialiser.serialise(response, responseMessage);
@@ -354,8 +354,8 @@ public class ApiConfiguration {
      * is set, {@link NotFound#handle(HttpServletRequest, HttpServletResponse)}
      * will be called. Otherwise a simple 404 will be returned.
      *
-     * @param request
-     * @param response
+     * @param request {@link HttpServletRequest}
+     * @param response {@link HttpServletResponse}
      * @throws IOException If an error occurs in sending the response.
      */
     private void handleNotFound(HttpServletRequest request, HttpServletResponse response) throws IOException {
