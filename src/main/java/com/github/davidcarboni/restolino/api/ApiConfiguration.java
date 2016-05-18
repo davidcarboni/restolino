@@ -58,12 +58,12 @@ public class ApiConfiguration {
         // [Re]initialise the api:
         api = new HashMap<>();
 
-        log.info("Scanning for endpoints..");
+        log.info("Scanning for endpoint classes..");
         Set<Class<?>> endpoints = reflections.getTypesAnnotatedWith(Api.class);
         // log.info(reflections.getConfiguration().getUrls());
 
-        log.info("Found " + endpoints.size() + " endpoints.");
-        log.info("Examining endpoint class methods..");
+        log.info("Found " + endpoints.size() + " endpoint classes.");
+        log.info("Examining endpoint class methods:");
 
         // Configure the classes:
         for (Class<?> endpointClass : endpoints) {
@@ -78,32 +78,42 @@ public class ApiConfiguration {
                     continue;
                 }
 
-                // We're looking for public methods that take reqest, response
-                // and optionally a message type:
-                Class<?>[] parameterTypes = method.getParameterTypes();
-                if (Modifier.isPublic(method.getModifiers()) && parameterTypes.length >= 2 && HttpServletRequest.class.isAssignableFrom(parameterTypes[0])
-                        && HttpServletResponse.class.isAssignableFrom(parameterTypes[1])) {
+                // Find public methods:
+                if (Modifier.isPublic(method.getModifiers())) {
 
                     // Which HTTP method(s) will this method respond to?
-                    List<Annotation> annotations = Arrays.asList(method.getAnnotations());
-                    for (Annotation annotation : annotations) {
+                    annotation: for (Annotation annotation : method.getAnnotations()) {
                         HttpMethod httpMethod = HttpMethod.method(annotation);
                         if (httpMethod != null) {
+                            log.info("Http method: {}", httpMethod);
 
                             RequestHandler requestHandler = new RequestHandler();
                             requestHandler.endpointMethod = method;
-                            log.info(" " + method.getName());
-                            if (parameterTypes.length > 2) {
-                                requestHandler.requestMessageType = parameterTypes[2];
-                                log.info(" request:" + requestHandler.requestMessageType.getSimpleName());
+                            log.info("Java method: {}", method.getName());
+
+                            // Look for an optional Json message type parameter:
+                            for (Class<?> parameterType : method.getParameterTypes()) {
+                                if (!HttpServletRequest.class.isAssignableFrom(parameterType)
+                                        && !HttpServletResponse.class.isAssignableFrom(parameterType)) {
+                                    if (requestHandler.requestMessageType != null) {
+                                        log.error("Too many parameters on {} method {}. " +
+                                                "Message type already set to {} but also found a {} parameter.",
+                                                httpMethod, method.getName(),
+                                                requestHandler.requestMessageType.getSimpleName(), parameterType.getSimpleName());
+                                        break annotation;
+                                    }
+                                    requestHandler.requestMessageType = parameterType;
+                                    log.info("request Json: {}", requestHandler.requestMessageType.getSimpleName());
+                                }
                             }
+
+                            // Check the response Json message type:
                             if (method.getReturnType() != void.class) {
                                 requestHandler.responseMessageType = method.getReturnType();
-                                log.info(" response:" + requestHandler.responseMessageType.getSimpleName());
+                                log.info("Response Json: {}", requestHandler.responseMessageType.getSimpleName());
                             }
 
                             endpoint.requestHandlers.put(httpMethod, requestHandler);
-                            log.info("   - " + httpMethod);
 
                         }
                     }
@@ -115,7 +125,7 @@ public class ApiConfiguration {
 
     private Endpoint getEndpoint(Class<?> endpointClass) {
         String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
-        log.info(" - /" + endpointName + " (" + endpointClass.getName() + ")");
+        log.info("Endpoint: /{} (Class {})", endpointName, endpointClass.getName());
         if (!api.containsKey(endpointName)) {
             api.put(endpointName, new Endpoint());
         }
@@ -423,26 +433,23 @@ public class ApiConfiguration {
     private static Object invoke(HttpServletRequest request, HttpServletResponse response, Object handler, Method method, Class<?> requestMessage) throws Exception {
         Object result = null;
 
-        log.info("Invoking method {} on {}", method.getName(), handler.getClass().getSimpleName());
-        // + " for request message "
-        // + requestMessage);
-        if (requestMessage != null) {
-            // try (InputStreamReader streamReader = new InputStreamReader(
-            // request.getInputStream(), "UTF8")) {
-            // int c;
-            // while ((c = streamReader.read()) != -1) {
-            // log.info((char) c);
-            // }
-            // } catch (UnsupportedEncodingException e) {
-            // throw new RuntimeException("Unsupported encoding " + "UTF8"
-            // + "?", e);
-            // }
-            // result = null;
-            Object message = Serialiser.deserialise(request, requestMessage);
-            result = method.invoke(handler, request, response, message);
-        } else {
-            result = method.invoke(handler, request, response);
+        // Build the parameter list:
+        ArrayList<Object> args = new ArrayList<>();
+        for (Class<?> parameterType : method.getParameterTypes()) {
+            if (parameterType.isAssignableFrom(HttpServletRequest.class)) {
+                args.add(request);
+            } else if (parameterType.isAssignableFrom(HttpServletResponse.class)) {
+                args.add(response);
+            } else if (requestMessage !=null && parameterType.isAssignableFrom(requestMessage)) {
+                args.add(Serialiser.deserialise(request, requestMessage));
+            } else {
+                log.warn("Warning: unexpected parameter type {}. Attempting to assign null", parameterType.getSimpleName());
+                args.add(null);
+            }
         }
+
+        log.info("Invoking method {} on {}", method.getName(), handler.getClass().getSimpleName());
+        result = method.invoke(handler, args);
 
         // log.info("Result is " + result);
         return result;
