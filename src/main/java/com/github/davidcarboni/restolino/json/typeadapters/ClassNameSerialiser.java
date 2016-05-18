@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.serialisers;
+package com.github.davidcarboni.restolino.json.typeadapters;
 
 import com.github.davidcarboni.restolino.Main;
 import org.apache.commons.lang3.StringUtils;

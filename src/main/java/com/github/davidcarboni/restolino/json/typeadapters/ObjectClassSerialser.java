@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.serialisers;
+package com.github.davidcarboni.restolino.json.typeadapters;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonPrimitive;

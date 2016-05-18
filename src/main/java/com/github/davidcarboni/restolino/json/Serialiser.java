@@ -1,9 +1,9 @@
 package com.github.davidcarboni.restolino.json;
 
 import com.github.davidcarboni.restolino.framework.*;
-import com.github.davidcarboni.restolino.serialisers.ClassSerialiser;
-import com.github.davidcarboni.restolino.serialisers.MethodSerialiser;
-import com.github.davidcarboni.restolino.serialisers.ObjectClassSerialser;
+import com.github.davidcarboni.restolino.json.typeadapters.ClassSerialiser;
+import com.github.davidcarboni.restolino.json.typeadapters.MethodSerialiser;
+import com.github.davidcarboni.restolino.json.typeadapters.ObjectClassSerialser;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;

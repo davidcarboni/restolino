@@ -1,8 +1,6 @@
-package com.github.davidcarboni.restolino.serialisers;
+package com.github.davidcarboni.restolino.json.typeadapters;
 
-import com.github.davidcarboni.restolino.Main;
 import com.google.gson.*;
-import org.apache.commons.lang3.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
