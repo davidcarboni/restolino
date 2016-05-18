@@ -244,7 +244,7 @@ public class Configuration {
      * so is most useful for development (rather than deployment). This
      * typically serves files from the <code>src/main/resources/files/...</code>
      * directory of your development project.
-     *
+     * <p>
      * NB This provides an efficient development workflow, allowing you to see
      * static file changes without having to rebuild.
      */
@@ -264,7 +264,7 @@ public class Configuration {
      * reloadable, so is most useful for deployment (rather than development).
      * This typically serves files from the <code>web/...</code> directory at
      * the root of a <code>*-jar-with-dependencies.jar</code> artifact.
-     *
+     * <p>
      * NB Part of the intent here is to support a compact and simple deployment
      * model (single JAR) that discourages changes in the target environment
      * (because the JAR is not unpacked) and favours automated deployment of a

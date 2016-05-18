@@ -8,13 +8,19 @@ import org.apache.commons.lang3.StringUtils;
  */
 public abstract class ClassNameSerialiser {
 
-    /** For abbreviating class names like String and Integer. */
+    /**
+     * For abbreviating class names like String and Integer.
+     */
     static final String LANG_PACKAGE = "java.lang.";
 
-    /** For abbreviating class names like List, Map and Set. */
+    /**
+     * For abbreviating class names like List, Map and Set.
+     */
     static final String UTIL_PACKAGE = "java.util.";
 
-    /** For abbreviating request and response class names. */
+    /**
+     * For abbreviating request and response class names.
+     */
     static final String HTTP_PACKAGE = "javax.servlet.http.";
 
     protected String className(Class<?> clazz) {

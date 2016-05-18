@@ -10,7 +10,7 @@ import java.lang.reflect.Type;
 /**
  * Custom serialiser for the {@link Class} of an object that represents the class by name.
  */
-public class ObjectClassSerialser  extends ClassNameSerialiser implements JsonSerializer<Object> {
+public class ObjectClassSerialser extends ClassNameSerialiser implements JsonSerializer<Object> {
 
     @Override
     public JsonElement serialize(Object src, Type typeOfSrc, JsonSerializationContext context) {

@@ -10,7 +10,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Monitors a {@link Path} for changes, including subfolders.
- *
+ * <p>
  * Thanks to the following resources:
  * <ul>
  * <li>

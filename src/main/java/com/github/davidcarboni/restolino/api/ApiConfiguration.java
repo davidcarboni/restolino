@@ -82,7 +82,8 @@ public class ApiConfiguration {
                 if (Modifier.isPublic(method.getModifiers())) {
 
                     // Which HTTP method(s) will this method respond to?
-                    annotation: for (Annotation annotation : method.getAnnotations()) {
+                    annotation:
+                    for (Annotation annotation : method.getAnnotations()) {
                         HttpMethod httpMethod = HttpMethod.method(annotation);
                         if (httpMethod != null) {
                             log.info("Http method: {}", httpMethod);
@@ -97,7 +98,7 @@ public class ApiConfiguration {
                                         && !HttpServletResponse.class.isAssignableFrom(parameterType)) {
                                     if (requestHandler.requestMessageType != null) {
                                         log.error("Too many parameters on {} method {}. " +
-                                                "Message type already set to {} but also found a {} parameter.",
+                                                        "Message type already set to {} but also found a {} parameter.",
                                                 httpMethod, method.getName(),
                                                 requestHandler.requestMessageType.getSimpleName(), parameterType.getSimpleName());
                                         break annotation;
@@ -274,7 +275,7 @@ public class ApiConfiguration {
                 //log.info("Filtered out " + next.getName());
                 iterator.remove();
             } //else {
-                //log.info("Filtered in " + next.getName());
+            //log.info("Filtered in " + next.getName());
             //}
         }
         //log.info("Filtered.");
@@ -316,8 +317,8 @@ public class ApiConfiguration {
     /**
      * GO!
      *
-     * @param request         The request.
-     * @param response        The response.
+     * @param request  The request.
+     * @param response The response.
      */
     void doMethod(HttpServletRequest request, HttpServletResponse response, HttpMethod httpMethod) {
 
@@ -364,7 +365,7 @@ public class ApiConfiguration {
      * is set, {@link NotFound#handle(HttpServletRequest, HttpServletResponse)}
      * will be called. Otherwise a simple 404 will be returned.
      *
-     * @param request {@link HttpServletRequest}
+     * @param request  {@link HttpServletRequest}
      * @param response {@link HttpServletResponse}
      * @throws IOException If an error occurs in sending the response.
      */
@@ -404,7 +405,7 @@ public class ApiConfiguration {
     /**
      * Determines the endpoint name for the path of the given request.
      *
-     * @param request         The request.
+     * @param request The request.
      * @return A matching handler, if one exists.
      */
     public String mapRequestPath(HttpServletRequest request) {
@@ -440,7 +441,7 @@ public class ApiConfiguration {
                 args.add(request);
             } else if (parameterType.isAssignableFrom(HttpServletResponse.class)) {
                 args.add(response);
-            } else if (requestMessage !=null && parameterType.isAssignableFrom(requestMessage)) {
+            } else if (requestMessage != null && parameterType.isAssignableFrom(requestMessage)) {
                 args.add(Serialiser.deserialise(request, requestMessage));
             } else {
                 log.warn("Warning: unexpected parameter type {}. Attempting to assign null", parameterType.getSimpleName());

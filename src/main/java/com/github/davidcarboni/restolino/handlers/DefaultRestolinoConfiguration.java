@@ -11,7 +11,7 @@ import java.io.IOException;
 /**
  * Returns the Restolino configuration.
  */
-public class DefaultRestolinoConfiguration  implements Home {
+public class DefaultRestolinoConfiguration implements Home {
 
     @Override
     public Configuration get(HttpServletRequest req, HttpServletResponse res) throws IOException {

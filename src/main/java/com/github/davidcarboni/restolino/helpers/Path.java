@@ -41,7 +41,6 @@ public class Path {
     /**
      * @return The last path segment. This is useful if you're expecting a
      * parameter such as an ID, e.g.:
-     *
      * <pre>
      * /users/{ID}
      * </pre>

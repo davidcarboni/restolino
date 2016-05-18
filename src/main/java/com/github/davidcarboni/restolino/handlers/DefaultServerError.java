@@ -13,7 +13,7 @@ import static org.slf4j.LoggerFactory.getLogger;
 
 /**
  * Default {@link ServerError} handler.
- *
+ * <p>
  * This prints the error stack trace to stdout and also serialises it as a Json string to the response.
  */
 public class DefaultServerError implements ServerError {
