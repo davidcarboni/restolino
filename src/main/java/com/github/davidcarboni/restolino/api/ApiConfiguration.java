@@ -449,7 +449,7 @@ public class ApiConfiguration {
         }
 
         log.info("Invoking method {} on {}", method.getName(), handler.getClass().getSimpleName());
-        result = method.invoke(handler, args);
+        result = method.invoke(handler, args.toArray());
 
         // log.info("Result is " + result);
         return result;
