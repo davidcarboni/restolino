@@ -38,21 +38,22 @@ The framework does less than you'd expect, and that's better:
  * Requests that do not have a file extension go to your API.
  * APIs consume and return JSON. Accept a parameter of any type, return a result of any type. Serialisation is done for you using Gson.
  * You get direct access to `HttpServletRequest` and `HttpServletResponse`.
- * If you need to return something other than Json, use `void` or return `null`.
- * Unmapped requests go to your implementation of the `NotFound` interface, or generate a 404 by default.
- * Errored requests go to your implementation of the `ServerError` interface, or generate a 500 by default.
+ * If you need to return something other than Json, use a `void` method or return `null`.
+ * Unmapped requests go to your implementation of the `NotFound` interface, or the `DefaultNotFound` implementation. A 404 status code is set by default.
+ * Errored requests go to your implementation of the `ServerError` interface, or the `DefaultServerError` implementation. A 500 status code is set by default.
  * Responses are compressed automatically by a Jetty `GzipHandler` if the client supports gzip encoding.
 
 #### Getting started
 
- * You can only `GET` `/`. Why would you `PUT`, `POST` or `DELETE` the root? You wouldn't. If you think you would, your design sucks. Implement the `Home` interface, which provides a single method: `get(req, res)` (or subclass `HomeRedirect`). By default `/` will attempt to redirect to `/index.html`.
+ * You can only `GET` `/`. Why would you `PUT`, `POST` or `DELETE` the root? You wouldn't. If you think you would, your design sucks.
+ * By default `/` will give you Json documentation of your API. To change this, implement the `Home` interface, which provides a single method: `get(req, res)` (or subclass `HomeRedirect`).
  * Put all your static files under `web` - i.e. `src/main/resources/web/...` (or  `src/main/web/...` and add a `resources` section to your pom).
  * Annotate your API classes as `@Api`.
  * API names are lowercased class names. More complexity would need more of your time. Get over it.
  * Annotate your methods with JAX-RS `@GET`, `@PUT`, `@POST` and `@DELETE`.
- * Method parameters must be `req, res[, request message]` (`HttpServletRequest`, `HttpServletResponse` and optionally any type you want Gson to attempt to deserialise from the request body). 
- * The return type of your method can be any type you want Gson to attempt to serialise into the response. Returns of `void` and `null` are fine, Restolino won't change your response.
- * Request and response messages are [de]serialised as JSON using Gson. If you need to add custom type adapters for serialisation, you can access the `GsonBuilder` via `Serialiser.getBuilder()`.
+ * Method parameters can include `HttpServletRequest` and `HttpServletResponse`. You can optionally have one parameter of any type you want. Gson will attempt to deserialise this from the request body.
+ * The return type of your method can be any type you want Gson to attempt to serialise into the response. Returns of `void` and `null` are fine, in which case Restolino won't change your response.
+ * Request and response messages are [de]serialised as JSON using Gson. If you need to add custom type adapters for serialisation, you can access the `GsonBuilder` via `Serialiser.getBuilder()`. A few default type adapters (in the `serialisers` package) and a sensible Javascript isoDate format are set for you by default.
  * There's no context path. Why would you run more than one app in the same server process? The Jetty process is one-to-one with your app.
  * You only need one not-found handler. Implement the `NotFound` interface. It provides a single method: `handle(req, res)`. A 404 status will be pre-set for you. You can update it if you want.
  * You only need one error handler, but you do need to know where the error occurred. Implement the `ServerError` interface, which provides a single method `handle(req, res, RequestHandler, Throwable)`. A 500 status will be pre-set for you. You can update it if you want.
