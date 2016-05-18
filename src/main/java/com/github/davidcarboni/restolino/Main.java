@@ -82,7 +82,7 @@ public class Main {
             // And we're good to go
             server.start();
             System.out.println(configuration);
-            log.info("\nCompleted startup process.");
+            log.info("Completed startup process.");
             server.join();
 
         } finally {
