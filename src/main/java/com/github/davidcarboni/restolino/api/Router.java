@@ -2,9 +2,9 @@ package com.github.davidcarboni.restolino.api;
 
 import com.github.davidcarboni.restolino.framework.*;
 import com.github.davidcarboni.restolino.framework.HttpMethod;
-import com.github.davidcarboni.restolino.handlers.DefaultApiDocumentation;
-import com.github.davidcarboni.restolino.handlers.DefaultNotFound;
-import com.github.davidcarboni.restolino.handlers.DefaultServerError;
+import com.github.davidcarboni.restolino.routes.DefaultApiDocumentation;
+import com.github.davidcarboni.restolino.routes.DefaultNotFound;
+import com.github.davidcarboni.restolino.routes.DefaultServerError;
 import com.github.davidcarboni.restolino.helpers.Path;
 import com.github.davidcarboni.restolino.json.Serialiser;
 import org.apache.commons.lang3.StringUtils;
@@ -27,22 +27,22 @@ import static org.slf4j.LoggerFactory.getLogger;
  *
  * @author David Carboni
  */
-public class ApiConfiguration {
+public class Router {
 
-    private static final Logger log = getLogger(ApiConfiguration.class);
+    private static final Logger log = getLogger(Router.class);
 
     public Home home;
     public ServerError serverError;
     public NotFound notFound;
 
-    public Map<String, Endpoint> api = new HashMap<>();
+    public Map<String, Route> api = new HashMap<>();
 
-    public ApiConfiguration(Reflections reflections) {
+    public Router(Reflections reflections) {
 
         // Set up the API endpoints:
         configureEndpoints(reflections);
 
-        // Configure standard handlers:
+        // Configure standard routes:
         configureHome(reflections);
         configureNotFound(reflections);
         configureServerError(reflections);
@@ -68,8 +68,8 @@ public class ApiConfiguration {
         // Configure the classes:
         for (Class<?> endpointClass : endpoints) {
 
-            Endpoint endpoint = getEndpoint(endpointClass);
-            endpoint.endpointClass = endpointClass;
+            Route route = getEndpoint(endpointClass);
+            route.endpointClass = endpointClass;
 
             for (Method method : endpointClass.getMethods()) {
 
@@ -89,7 +89,7 @@ public class ApiConfiguration {
                             log.info("Http method: {}", httpMethod);
 
                             RequestHandler requestHandler = new RequestHandler();
-                            requestHandler.endpointMethod = method;
+                            requestHandler.handlerMethod = method;
                             log.info("Java method: {}", method.getName());
 
                             // Look for an optional Json message type parameter:
@@ -114,7 +114,7 @@ public class ApiConfiguration {
                                 log.info("Response Json: {}", requestHandler.responseMessageType.getSimpleName());
                             }
 
-                            endpoint.requestHandlers.put(httpMethod, requestHandler);
+                            route.requestHandlers.put(httpMethod, requestHandler);
 
                         }
                     }
@@ -124,11 +124,11 @@ public class ApiConfiguration {
 
     }
 
-    private Endpoint getEndpoint(Class<?> endpointClass) {
+    private Route getEndpoint(Class<?> endpointClass) {
         String endpointName = StringUtils.lowerCase(endpointClass.getSimpleName());
-        log.info("Endpoint: /{} (Class {})", endpointName, endpointClass.getName());
+        log.info("Route: /{} (Class {})", endpointName, endpointClass.getName());
         if (!api.containsKey(endpointName)) {
-            api.put(endpointName, new Endpoint());
+            api.put(endpointName, new Route());
         }
         return api.get(endpointName);
     }
@@ -266,12 +266,12 @@ public class ApiConfiguration {
             }
         }
 
-        // Filter out any default handlers:
+        // Filter out any default routes:
         //log.info("Filtering " + type.getName());
         Iterator<Class<? extends E>> iterator = endpointClasses.iterator();
         while (iterator.hasNext()) {
             Class<? extends E> next = iterator.next();
-            if (StringUtils.startsWithIgnoreCase(next.getName(), "com.github.davidcarboni.restolino.handlers.")) {
+            if (StringUtils.startsWithIgnoreCase(next.getName(), "com.github.davidcarboni.restolino.routes.")) {
                 //log.info("Filtered out " + next.getName());
                 iterator.remove();
             } //else {
@@ -324,12 +324,12 @@ public class ApiConfiguration {
 
         // Locate a request handler:
         String requestPath = mapRequestPath(request);
-        Endpoint endpoint = api.get(requestPath);
+        Route route = api.get(requestPath);
 
         try {
 
-            if (endpoint != null && endpoint.requestHandlers.containsKey(httpMethod)) {
-                handleRequest(request, response, endpoint, httpMethod);
+            if (route != null && route.requestHandlers.containsKey(httpMethod)) {
+                handleRequest(request, response, route, httpMethod);
             } else {
                 handleNotFound(request, response);
             }
@@ -343,18 +343,18 @@ public class ApiConfiguration {
                 caught = t.getCause();
             }
 
-            RequestHandler requestHandler = (endpoint == null ? null : endpoint.requestHandlers.get(httpMethod));
+            RequestHandler requestHandler = (route == null ? null : route.requestHandlers.get(httpMethod));
             handleError(request, response, requestHandler, caught);
         }
 
     }
 
-    private void handleRequest(HttpServletRequest request, HttpServletResponse response, Endpoint endpoint, HttpMethod httpMethod) throws Exception {
+    private void handleRequest(HttpServletRequest request, HttpServletResponse response, Route route, HttpMethod httpMethod) throws Exception {
 
-        // An API endpoint is defined for this request:
-        Object handler = instantiate(endpoint.endpointClass);
-        RequestHandler requestHandler = endpoint.requestHandlers.get(httpMethod);
-        Object responseMessage = invoke(request, response, handler, requestHandler.endpointMethod, requestHandler.requestMessageType);
+        // An API route is defined for this request:
+        Object handler = instantiate(route.endpointClass);
+        RequestHandler requestHandler = route.requestHandlers.get(httpMethod);
+        Object responseMessage = invoke(request, response, handler, requestHandler.handlerMethod, requestHandler.requestMessageType);
         if (requestHandler.responseMessageType != null && responseMessage != null) {
             Serialiser.serialise(response, responseMessage);
         }
@@ -398,15 +398,15 @@ public class ApiConfiguration {
 
             // Fall back to printing
             log.error("Error invoking error handler", t2);
-            log.error("Original error being handled", t);
+            log.error("Original error caught was", t);
         }
     }
 
     /**
-     * Determines the endpoint name for the path of the given request.
+     * Determines the route name for the path of the given request.
      *
      * @param request The request.
-     * @return A matching handler, if one exists.
+     * @return A matching route name, if one exists.
      */
     public String mapRequestPath(HttpServletRequest request) {
 
@@ -431,12 +431,12 @@ public class ApiConfiguration {
 
     }
 
-    private static Object invoke(HttpServletRequest request, HttpServletResponse response, Object handler, Method method, Class<?> requestMessage) throws Exception {
+    private static Object invoke(HttpServletRequest request, HttpServletResponse response, Object route, Method requestHandler, Class<?> requestMessage) throws Exception {
         Object result = null;
 
         // Build the parameter list:
         ArrayList<Object> args = new ArrayList<>();
-        for (Class<?> parameterType : method.getParameterTypes()) {
+        for (Class<?> parameterType : requestHandler.getParameterTypes()) {
             if (parameterType.isAssignableFrom(HttpServletRequest.class)) {
                 args.add(request);
             } else if (parameterType.isAssignableFrom(HttpServletResponse.class)) {
@@ -449,8 +449,8 @@ public class ApiConfiguration {
             }
         }
 
-        log.info("Invoking method {} on {}", method.getName(), handler.getClass().getSimpleName());
-        result = method.invoke(handler, args.toArray());
+        log.info("Invoking method {} on {}", requestHandler.getName(), route.getClass().getSimpleName());
+        result = requestHandler.invoke(route, args.toArray());
 
         // log.info("Result is " + result);
         return result;

@@ -1,7 +1,7 @@
 package com.github.davidcarboni.restolino.jetty;
 
 import com.github.davidcarboni.restolino.Main;
-import com.github.davidcarboni.restolino.api.ApiConfiguration;
+import com.github.davidcarboni.restolino.api.Router;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.server.Request;
 import org.eclipse.jetty.server.handler.AbstractHandler;
@@ -20,7 +20,7 @@ public class ApiHandler extends AbstractHandler {
     private static final Logger log = getLogger(ApiHandler.class);
     static final String KEY_CLASSES = "restolino.classes";
 
-    public static volatile ApiConfiguration api;
+    public static volatile Router api;
 
     public ApiHandler() {
         if (Main.configuration.classesInClasspath != null) {
@@ -29,7 +29,7 @@ public class ApiHandler extends AbstractHandler {
     }
 
     public static void setupApi(Reflections reflections) {
-        api = new ApiConfiguration(reflections);
+        api = new Router(reflections);
     }
 
     @Override

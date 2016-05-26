@@ -1,4 +1,4 @@
-package com.github.davidcarboni.restolino.handlers;
+package com.github.davidcarboni.restolino.routes;
 
 import com.github.davidcarboni.restolino.Configuration;
 import com.github.davidcarboni.restolino.Main;
