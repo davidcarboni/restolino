@@ -87,7 +87,7 @@ Here is the list of packages and what they mean. There are no more than a pizza'
         <dependency>
             <groupId>com.github.davidcarboni</groupId>
             <artifactId>restolino</artifactId>
-            <version>0.1.12</version>
+            <version>0.1.14</version>
         </dependency>
             
     </dependencies>
