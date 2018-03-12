@@ -25,7 +25,7 @@ Restolino has unreasonable opinions:
  * Templating is great: do it in Javascript, not server-side.
  * Efficient development: add classes, change interfaces, whatever, then refresh.
  * Immutable releases: single-jar artifact. To make a change to the deployed version, deploy a new version and delete the old vesion ([blue-green](http://martinfowler.com/bliki/BlueGreenDeployment.html) and all that).
- * Stateless requests: when deployed, you'll probably have multiple nodes. Everything gets reinitialised after each change in development. That makes stetefulness difficult, which is a good thing.
+ * Stateless requests: when deployed, you'll probably have multiple nodes. Everything gets reinitialised after each change in development. That makes statefulness difficult, which is a good thing.
  * Restolino will cause your design to hurt and adapt. You'll be better for it in the long run.
  * Constraints are your path to simplicity. Enjoy them.
 
