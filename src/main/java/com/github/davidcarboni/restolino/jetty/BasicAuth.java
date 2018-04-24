@@ -4,6 +4,7 @@ import com.github.davidcarboni.restolino.Main;
 import org.eclipse.jetty.security.ConstraintMapping;
 import org.eclipse.jetty.security.ConstraintSecurityHandler;
 import org.eclipse.jetty.security.HashLoginService;
+import org.eclipse.jetty.security.UserStore;
 import org.eclipse.jetty.security.authentication.BasicAuthenticator;
 import org.eclipse.jetty.util.security.Constraint;
 import org.eclipse.jetty.util.security.Credential;
@@ -24,7 +25,11 @@ public class BasicAuth extends ConstraintSecurityHandler {
     public BasicAuth() {
 
         HashLoginService loginService = new HashLoginService();
-        loginService.putUser(Main.configuration.username, Credential.getCredential(Main.configuration.password), new String[]{"user"});
+        UserStore userStore = new UserStore();
+        Credential credential = Credential.getCredential(Main.configuration.password);
+        String[] roles = new String[]{"user"};
+        userStore.addUser(Main.configuration.username, credential, roles);
+        loginService.setUserStore(userStore);
         loginService.setName(Main.configuration.realm);
 
         Constraint constraint = new Constraint();
