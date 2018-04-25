@@ -448,7 +448,7 @@ public class Router {
             }
         }
 
-        log.info("Invoking method {} on {}", requestHandler.getName(), route.getClass().getSimpleName());
+        log.debug("Invoking method {} on {}", requestHandler.getName(), route.getClass().getSimpleName());
         result = requestHandler.invoke(route, args.toArray());
 
         // log.info("Result is " + result);
