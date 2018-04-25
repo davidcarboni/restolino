@@ -48,9 +48,9 @@ public class ClassFinder {
         }
         Reflections reflections = new Reflections(configurationBuilder);
 
-        log.info("Reflections URLs: " + reflections.getConfiguration().getUrls());
+        log.info("Reflections URLs: {}", reflections.getConfiguration().getUrls());
         if (Main.configuration.classesReloadable && reflections.getConfiguration().getUrls().size() == 0 && StringUtils.isNotEmpty(Main.configuration.packagePrefix)) {
-            log.info("It looks like no reloadable classes were found. Is '" + Main.configuration.packagePrefix + "' the correct package prefix for your app?");
+            log.info("It looks like no reloadable classes were found. Is '{}' the correct package prefix for your app?", Main.configuration.packagePrefix);
         }
         return reflections;
     }

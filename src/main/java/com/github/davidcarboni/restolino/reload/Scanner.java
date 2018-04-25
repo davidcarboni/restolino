@@ -29,7 +29,7 @@ public class Scanner implements Runnable {
         Scanner.watcher = watcher;
         Scanner.root = root;
 
-        log.info("Monitoring changes under " + root);
+        log.info("Monitoring changes under {}", root);
         Thread t = new Thread(new Scanner(), "Directory scanner");
         t.setDaemon(true);
         t.start();
@@ -45,7 +45,7 @@ public class Scanner implements Runnable {
 
             // Scan for directories:
             try {
-                log.info("Scanning for directories under " + root);
+                log.info("Scanning for directories under {}", root);
                 Files.walkFileTree(root, new Visitor());
             } catch (IOException e) {
                 log.info("Error in scanning for directories to monitor:");
@@ -79,7 +79,7 @@ public class Scanner implements Runnable {
             if (!monitors.containsKey(path)) {
                 // Not too worried about race conditions here,
                 // so long as one ends up in the Map.
-                log.info("Adding monitor for path " + path);
+                log.info("Adding monitor for path {}", path);
                 monitors.put(path, new Monitor(path, watcher));
             }
             return CONTINUE;

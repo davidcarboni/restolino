@@ -172,9 +172,9 @@ public class Configuration {
         if (StringUtils.isNotBlank(port)) {
             try {
                 this.port = Integer.parseInt(port);
-                log.info(this.getClass().getSimpleName() + ": Using port " + this.port + " (specify a PORT environment variable to change it)");
+                log.info("Using port {}", this.port);
             } catch (NumberFormatException e) {
-                log.info(this.getClass().getSimpleName() + ": Unable to parse server PORT variable (" + port + ") using port " + port);
+                log.info("Unable to parse server PORT variable ({}). Defaulting to port {}", port, this.port);
             }
         }
     }
@@ -363,7 +363,7 @@ public class Configuration {
         } else {
             message = "No static files will be served.";
         }
-        log.info(this.getClass().getSimpleName() + ": Files: " + message);
+        log.info("Files: {}", message);
     }
 
     /**
@@ -373,8 +373,8 @@ public class Configuration {
 
         // Warning about a classes folder present in the classpath:
         if (classesInClasspath != null) {
-            log.info(this.getClass().getSimpleName() + ": WARNING: Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
-                    + "lease launch without including your classes directory: " + classesInClasspath);
+            log.warn("Dynamic class reloading is disabled because a classes URL is present in the classpath. P"
+                    + "lease launch without including your classes directory: {}", classesInClasspath);
         }
 
         // Message to communicate the resolved configuration:
@@ -388,7 +388,7 @@ public class Configuration {
         } else {
             message = "Classes will not be dynamically reloaded.";
         }
-        log.info(this.getClass().getSimpleName() + ": Classes: " + message);
+        log.info("Classes: {}", message);
     }
 
     /**

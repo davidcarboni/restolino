@@ -62,7 +62,7 @@ public class Router {
         Set<Class<?>> endpoints = reflections.getTypesAnnotatedWith(Api.class);
         // log.info(reflections.getConfiguration().getUrls());
 
-        log.info("Found " + endpoints.size() + " endpoint classes.");
+        log.info("Found {} endpoint classes.", endpoints.size());
         log.info("Examining endpoint class methods:");
 
         // Configure the classes:
@@ -178,9 +178,9 @@ public class Router {
 
     private void printEndpoint(Object endpoint, String name) {
         if (endpoint != null) {
-            log.info("Class " + endpoint.getClass().getSimpleName() + " configured as " + name + " endpoint");
+            log.info("Class {} configured as {} endpoint", endpoint.getClass().getSimpleName(), name);
         } else {
-            log.info("No " + name + " enpoint configured.");
+            log.info("No {} enpoint configured.", name);
         }
     }
 
@@ -284,14 +284,14 @@ public class Router {
 
             // Dump multiple endpoints:
             if (endpointClasses.size() > 1) {
-                log.info("Warning: found multiple candidates for " + name + " endpoint: " + endpointClasses);
+                log.info("Warning: found multiple candidates for {} endpoint: {}", name, endpointClasses);
             }
 
             // Instantiate the endpoint if possible:
             try {
                 result = endpointClasses.iterator().next().newInstance();
             } catch (Exception e) {
-                log.info("Error: cannot instantiate " + name + " endpoint class " + endpointClasses.iterator().next());
+                log.info("Error: cannot instantiate {} endpoint class {}",name, endpointClasses.iterator().next());
                 e.printStackTrace();
             }
         }

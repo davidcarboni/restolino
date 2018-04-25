@@ -73,7 +73,7 @@ public class Monitor implements Runnable {
                         // explicitly registered, if events are lost or
                         // discarded:
                         if (kind == OVERFLOW) {
-                            log.info("Reload triggered by " + OVERFLOW + " on " + path);
+                            log.info("Reload triggered by {} on {}", OVERFLOW, path);
                             reload = true;
                             continue;
                         }
@@ -85,12 +85,12 @@ public class Monitor implements Runnable {
 
                         // Reload classes:
                         if (kind == ENTRY_CREATE || kind == ENTRY_MODIFY) {
-                            log.info("Reload triggered by " + kind + " on " + filename);
+                            log.info("Reload triggered by {} on {}", kind, filename);
                             log.info(kind.name());
                             log.info(kind.type().getName());
                             reload = true;
                         } else {
-                            log.info("Not triggering reload for " + kind + ": " + filename);
+                            log.info("Not triggering reload for {}: {}", kind, filename);
                         }
                     }
 
@@ -102,13 +102,13 @@ public class Monitor implements Runnable {
                     }
 
                     if (!key.reset()) {
-                        log.info("No longer able to access " + path + ". Exiting monitor");
+                        log.info("No longer able to access {}. Exiting monitor", path);
                         Scanner.remove(path);
                         break;
                     }
 
                 } catch (InterruptedException e) {
-                    log.info("Error taking a WatchKey for " + path + ". Exiting this monitor.");
+                    log.info("Error taking a WatchKey for {}. Exiting this monitor.", path);
                     Scanner.remove(path);
                     break;
                 }
@@ -116,7 +116,7 @@ public class Monitor implements Runnable {
             } while (true);
 
         } catch (IOException e) {
-            log.info("Error closing WatchService for " + path);
+            log.info("Error closing WatchService for {}", path);
             e.printStackTrace();
         }
 
