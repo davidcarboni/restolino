@@ -8,6 +8,8 @@ Java for the Web. A brutally opinionated, super-simple REST API framework, plus 
 
 It's not comprehensive, won't give you the flexibility you want and doesn't really care about your special needs.
 
+For an overview and examples of the framework, head to the [restolino-example](https://github.com/davidcarboni/restolino-example) repo to see a template project.
+
 What it does do is let you work and stays out of your way, because configuring frameworks is a distraction. Java is a great language with loads of support, but it's never been efficient for Web development. This changes that.
 
 Life is hard enough. Complexity will quitetly come and steal your time. Bar the door. Don't go looking for it. If it sits down it won't want to leave.
