@@ -20,6 +20,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -184,13 +185,15 @@ public class MainHandler extends HandlerCollection {
         Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
         for (Class<? extends Filter> filterClass : filterClasses) {
             try {
-                result.add(filterClass.newInstance());
-            } catch (InstantiationException | IllegalAccessException e) {
-                log.info("Error instantiating filter class " + filterClass.getName());
+                result.add(filterClass.getDeclaredConstructor().newInstance());
+                log.info("Added filter class {}", filterClass.getSimpleName());
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                log.error("Error instantiating filter class {}", filterClass.getName());
                 e.printStackTrace();
             }
         }
         filters = result;
+        log.info("Found {} filter classes.", filters.size());
     }
 
     public void runStartups(Reflections reflections) {
@@ -201,7 +204,7 @@ public class MainHandler extends HandlerCollection {
             try {
                 startups.add(startupClass.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
-                log.info("Error instantiating startup class " + startupClass.getName());
+                log.info("Error instantiating startup class {}", startupClass.getName());
                 e.printStackTrace();
             }
         }
