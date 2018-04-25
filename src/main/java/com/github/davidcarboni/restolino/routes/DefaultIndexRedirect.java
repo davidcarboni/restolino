@@ -15,7 +15,7 @@ import java.net.URL;
  *
  * @author david
  */
-public abstract class DefaultIndexRedirect implements Home {
+public class DefaultIndexRedirect implements Home {
 
     private String path;
 
