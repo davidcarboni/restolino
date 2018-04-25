@@ -121,7 +121,7 @@ This also configures your project for Java 1.8. You could do this with profiles 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-compiler-plugin</artifactId>
-				<version>3.5.1</version>
+				<version>3.7.0</version>
 				<configuration>
 					<source>1.8</source>
 					<target>1.8</target>
@@ -132,7 +132,7 @@ This also configures your project for Java 1.8. You could do this with profiles 
 			<!-- An assembly that includes all dependencies is produced for deployment: -->
 			<plugin>
 				<artifactId>maven-assembly-plugin</artifactId>
-				<version>2.6</version>
+				<version>3.1.0</version>
 				<configuration>
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
@@ -160,7 +160,7 @@ This also configures your project for Java 1.8. You could do this with profiles 
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-dependency-plugin</artifactId>
-				<version>2.10</version>
+				<version>3.1.0</version>
 				<executions>
 					<execution>
 						<id>copy-dependencies</id>
