@@ -1,7 +1,6 @@
 package com.github.davidcarboni.restolino.api;
 
 import com.github.davidcarboni.restolino.framework.*;
-import com.github.davidcarboni.restolino.framework.HttpMethod;
 import com.github.davidcarboni.restolino.routes.DefaultApiDocumentation;
 import com.github.davidcarboni.restolino.routes.DefaultNotFound;
 import com.github.davidcarboni.restolino.routes.DefaultServerError;

@@ -1,7 +1,5 @@
 package com.github.davidcarboni.restolino.api;
 
-import com.github.davidcarboni.restolino.framework.HttpMethod;
-
 import java.util.HashMap;
 import java.util.Map;
 

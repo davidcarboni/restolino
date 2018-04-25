@@ -1,8 +1,7 @@
-package com.github.davidcarboni.restolino.framework;
+package com.github.davidcarboni.restolino.api;
 
 import org.apache.commons.lang3.StringUtils;
 
-import javax.ws.rs.GET;
 import java.lang.annotation.Annotation;
 
 /**
