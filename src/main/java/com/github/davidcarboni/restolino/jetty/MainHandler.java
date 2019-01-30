@@ -2,6 +2,7 @@ package com.github.davidcarboni.restolino.jetty;
 
 import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.framework.Filter;
+import com.github.davidcarboni.restolino.framework.FilterOrderComparator;
 import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.reload.ClassFinder;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
@@ -24,7 +25,9 @@ import java.lang.reflect.InvocationTargetException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -180,7 +183,6 @@ public class MainHandler extends HandlerCollection {
     }
 
     public void setupFilters(Reflections reflections) {
-
         Set<Filter> result = new HashSet<>();
         Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
         for (Class<? extends Filter> filterClass : filterClasses) {
@@ -192,7 +194,13 @@ public class MainHandler extends HandlerCollection {
                 e.printStackTrace();
             }
         }
-        filters = result;
+
+        List<Filter> sortedFilters = new ArrayList<>();
+        sortedFilters.addAll(result);
+
+        Collections.sort(sortedFilters, new FilterOrderComparator(sortedFilters.size()));
+
+        filters = new HashSet<>(sortedFilters);
         log.info("Found {} filter classes.", filters.size());
     }
 

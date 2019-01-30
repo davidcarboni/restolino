@@ -1,6 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>com.github.davidcarboni</groupId>
+    <groupId>com.github.ONSdigital.restolino</groupId>
     <artifactId>restolino</artifactId>
     <version>0.1.17-SNAPSHOT</version>
     <packaging>jar</packaging>
@@ -23,30 +24,30 @@
         <name>Carboni</name>
         <url>https://github.com/carboni/</url>
     </organization>
-
-    <scm>
-        <url>https://github.com/davidcarboni/restolino</url>
-        <connection>scm:git:git://github.com/davidcarboni/restolino.git</connection>
-        <developerConnection>scm:git:git@github.com:davidcarboni/restolino.git</developerConnection>
-        <tag>HEAD</tag>
-    </scm>
+    <!--
+        <scm>
+            <url>https://github.com/davidcarboni/restolino</url>
+            <connection>scm:git:git://github.com/davidcarboni/restolino.git</connection>
+            <developerConnection>scm:git:git@github.com:davidcarboni/restolino.git</developerConnection>
+            <tag>HEAD</tag>
+        </scm>-->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <name>Sonatype Nexus snapshot repository</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <name>Sonatype Nexus release repository</name>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-        </repository>
-    </distributionManagement>
+    <!--    <distributionManagement>
+            <snapshotRepository>
+                <id>sonatype-nexus-snapshots</id>
+                <name>Sonatype Nexus snapshot repository</name>
+                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            </snapshotRepository>
+            <repository>
+                <id>sonatype-nexus-staging</id>
+                <name>Sonatype Nexus release repository</name>
+                <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
+            </repository>
+        </distributionManagement>-->
 
     <dependencies>
 
@@ -138,8 +139,8 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>1.7</source>
-                    <target>1.7</target>
+                    <source>8</source>
+                    <target>8</target>
                     <encoding>UTF-8</encoding>
                 </configuration>
             </plugin>
@@ -238,45 +239,45 @@
     <profiles>
 
         <!-- GPG Signature on release -->
-        <profile>
-            <id>release-sign-artifacts</id>
-            <activation>
-                <property>
-                    <name>performRelease</name>
-                    <value>true</value>
-                </property>
-            </activation>
-            <build>
-                <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-gpg-plugin</artifactId>
-                        <version>1.6</version>
-                        <executions>
-                            <execution>
-                                <id>sign-artifacts</id>
-                                <phase>verify</phase>
-                                <goals>
-                                    <goal>sign</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                    </plugin>
-                </plugins>
-            </build>
-        </profile>
+        <!--        <profile>
+                    <id>release-sign-artifacts</id>
+                    <activation>
+                        <property>
+                            <name>performRelease</name>
+                            <value>true</value>
+                        </property>
+                    </activation>
+                    <build>
+                        <plugins>
+                            <plugin>
+                                <groupId>org.apache.maven.plugins</groupId>
+                                <artifactId>maven-gpg-plugin</artifactId>
+                                <version>1.6</version>
+                                <executions>
+                                    <execution>
+                                        <id>sign-artifacts</id>
+                                        <phase>verify</phase>
+                                        <goals>
+                                            <goal>sign</goal>
+                                        </goals>
+                                    </execution>
+                                </executions>
+                            </plugin>
+                        </plugins>
+                    </build>
+                </profile>-->
 
     </profiles>
 
-    <developers>
-        <developer>
-            <id>david</id>
-            <name>David Carboni</name>
-            <email>david@carboni.io</email>
-            <organization>Carboni</organization>
-            <organizationUrl>https://github.com/carboni</organizationUrl>
-            <url>https://github.com/davidcarboni</url>
-        </developer>
-    </developers>
+    <!--    <developers>
+            <developer>
+                <id>david</id>
+                <name>David Carboni</name>
+                <email>david@carboni.io</email>
+                <organization>Carboni</organization>
+                <organizationUrl>https://github.com/carboni</organizationUrl>
+                <url>https://github.com/davidcarboni</url>
+            </developer>
+        </developers>-->
 
 </project>
