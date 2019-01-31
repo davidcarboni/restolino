@@ -201,7 +201,7 @@ public class MainHandler extends HandlerCollection {
         }
 
         Collections.sort(sortedFilters, new FilterOrderComparator(sortedFilters.size()));
-        filters = new HashSet<>(sortedFilters);
+        filters = sortedFilters;
         log.info("registered Filter classes {} ", filters);
     }
 
@@ -223,7 +223,7 @@ public class MainHandler extends HandlerCollection {
         }
 
         Collections.sort(sortedPostFilters, new PostFilterOrderComparator(sortedPostFilters.size()));
-        postFilters = new HashSet<>(sortedPostFilters);
+        postFilters = sortedPostFilters;
         log.info("registered  PostFilter classes {}", postFilters);
     }
 
