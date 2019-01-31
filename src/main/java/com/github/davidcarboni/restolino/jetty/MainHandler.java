@@ -139,7 +139,11 @@ public class MainHandler extends HandlerCollection {
         boolean isApiRequest = isApiRequest(target);
         if (filter(request, response)) {
             if (isApiRequest) {
-                apiHandler.handle(target, baseRequest, request, response);
+                try {
+                    apiHandler.handle(target, baseRequest, request, response);
+                } finally {
+                    postFilters.stream().forEach(pf -> pf.filter(request, response));
+                }
             } else if (filesHandler != null) {
                 filesHandler.handle(target, baseRequest, request, response);
             } else {
