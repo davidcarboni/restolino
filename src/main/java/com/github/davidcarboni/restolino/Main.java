@@ -81,7 +81,7 @@ public class Main {
 
             // And we're good to go
             server.start();
-            System.out.println(configuration);
+            log.info("configuration {}", configuration);
             log.info("Completed startup process.");
             server.join();
 

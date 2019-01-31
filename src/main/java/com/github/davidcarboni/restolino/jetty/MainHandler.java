@@ -3,6 +3,8 @@ package com.github.davidcarboni.restolino.jetty;
 import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.framework.Filter;
 import com.github.davidcarboni.restolino.framework.FilterOrderComparator;
+import com.github.davidcarboni.restolino.framework.PostFilter;
+import com.github.davidcarboni.restolino.framework.PostFilterOrderComparator;
 import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.reload.ClassFinder;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
@@ -44,6 +46,7 @@ public class MainHandler extends HandlerCollection {
     ResourceHandler filesHandler;
     ApiHandler apiHandler;
     Collection<Filter> filters;
+    Collection<PostFilter> postFilters;
     Collection<Startup> startups;
 
     public MainHandler() throws IOException {
@@ -66,6 +69,7 @@ public class MainHandler extends HandlerCollection {
 
         // "meta-handling"
         setupFilters(reflections);
+        setupPostFilters(reflections);
         runStartups(reflections);
 
         // Class reloading
@@ -183,25 +187,44 @@ public class MainHandler extends HandlerCollection {
     }
 
     public void setupFilters(Reflections reflections) {
-        Set<Filter> result = new HashSet<>();
+        List<Filter> sortedFilters = new ArrayList<>();
         Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
         for (Class<? extends Filter> filterClass : filterClasses) {
+            Filter filter = null;
             try {
-                result.add(filterClass.getDeclaredConstructor().newInstance());
-                log.info("Added filter class {}", filterClass.getSimpleName());
+                filter = filterClass.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 log.error("Error instantiating filter class {}", filterClass.getName());
                 e.printStackTrace();
             }
+            sortedFilters.add(filter);
         }
 
-        List<Filter> sortedFilters = new ArrayList<>();
-        sortedFilters.addAll(result);
-
         Collections.sort(sortedFilters, new FilterOrderComparator(sortedFilters.size()));
-
         filters = new HashSet<>(sortedFilters);
-        log.info("Found {} filter classes.", filters.size());
+        log.info("registered Filter classes {} ", filters);
+    }
+
+
+    public void setupPostFilters(Reflections reflections) {
+        List<PostFilter> sortedPostFilters = new ArrayList<>();
+
+        Set<Class<? extends PostFilter>> classes = reflections.getSubTypesOf(PostFilter.class);
+        for (Class<? extends PostFilter> clazz : classes) {
+
+            PostFilter postFilter = null;
+            try {
+                postFilter = clazz.getDeclaredConstructor().newInstance();
+            } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
+                log.error("Error instantiating PostFilter {}", clazz.getName());
+                e.printStackTrace();
+            }
+            sortedPostFilters.add(postFilter);
+        }
+
+        Collections.sort(sortedPostFilters, new PostFilterOrderComparator(sortedPostFilters.size()));
+        postFilters = new HashSet<>(sortedPostFilters);
+        log.info("registered  PostFilter classes {}", postFilters);
     }
 
     public void runStartups(Reflections reflections) {
