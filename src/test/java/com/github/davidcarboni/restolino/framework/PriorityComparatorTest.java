@@ -11,11 +11,11 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.equalTo;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-public class FilterOrderComparatorTest {
+public class PriorityComparatorTest {
 
     @Test
     public void testCompare() {
-        FilterOrderComparator comparator = new FilterOrderComparator(4);
+        PriorityComparator comparator = new PriorityComparator(4);
         // Same priorty
         assertThat(comparator.compare(new A(), new A()), equalTo(0));
 
@@ -43,14 +43,14 @@ public class FilterOrderComparatorTest {
             add(new A());
         }};
 
-        Collections.sort(filters, new FilterOrderComparator(4));
+        Collections.sort(filters, new PriorityComparator(4));
         assertThat(filters.get(0).getClass().getSimpleName(), equalTo("A"));
         assertThat(filters.get(1).getClass().getSimpleName(), equalTo("B"));
         assertThat(filters.get(2).getClass().getSimpleName(), equalTo("C"));
         assertThat(filters.get(3).getClass().getSimpleName(), equalTo("D"));
     }
 
-    @Order(priority = 1)
+    @Priority(1)
     static class A implements Filter {
 
         @Override
@@ -64,7 +64,7 @@ public class FilterOrderComparatorTest {
         }
     }
 
-    @Order(priority = 2)
+    @Priority(2)
     static class B implements Filter {
 
         @Override
@@ -79,7 +79,7 @@ public class FilterOrderComparatorTest {
     }
 
     // Same priority as a "B"
-    @Order(priority = 2)
+    @Priority(2)
     static class C implements Filter {
 
         @Override

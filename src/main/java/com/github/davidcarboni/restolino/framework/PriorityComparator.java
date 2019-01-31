@@ -3,14 +3,14 @@ package com.github.davidcarboni.restolino.framework;
 import java.util.Comparator;
 
 /**
- * {@link Comparator} impl for classes that use the {@link Order} annotation. Objects are order by {@link Order#priority()}
+ * {@link Comparator} impl for classes that use the {@link Priority} annotation. Objects are order by {@link Priority#priority()}
  * if they implement it or by Class name if they don't / if two priorities are equal.
  */
-public class OrderComparator implements Comparator<Object> {
+public class PriorityComparator implements Comparator<Object> {
 
     private int defaultPriority;
 
-    public OrderComparator(int defaultPriority) {
+    public PriorityComparator(int defaultPriority) {
         this.defaultPriority = defaultPriority;
     }
 
@@ -28,12 +28,12 @@ public class OrderComparator implements Comparator<Object> {
     private Integer getFilterPriority(Object obj) {
         Class objClass = obj.getClass();
 
-        if (!objClass.isAnnotationPresent(Order.class)) {
+        if (!objClass.isAnnotationPresent(Priority.class)) {
             return defaultPriority;
         }
 
-        Order order = (Order) objClass.getAnnotation(Order.class);
-        int declaredPriority = order.priority();
+        Priority priority = (Priority) objClass.getAnnotation(Priority.class);
+        int declaredPriority = priority.value();
         if (declaredPriority > -1) {
             return declaredPriority;
         }

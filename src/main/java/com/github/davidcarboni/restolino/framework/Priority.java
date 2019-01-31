@@ -7,7 +7,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-public @interface Order {
+public @interface Priority {
 
-    int priority() default -1;
+    int value() default -1;
 }

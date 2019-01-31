@@ -2,7 +2,7 @@ package com.github.davidcarboni.restolino.jetty;
 
 import com.github.davidcarboni.restolino.Main;
 import com.github.davidcarboni.restolino.framework.Filter;
-import com.github.davidcarboni.restolino.framework.OrderComparator;
+import com.github.davidcarboni.restolino.framework.PriorityComparator;
 import com.github.davidcarboni.restolino.framework.PostFilter;
 import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.reload.ClassFinder;
@@ -203,7 +203,7 @@ public class MainHandler extends HandlerCollection {
             sortedFilters.add(filter);
         }
 
-        Collections.sort(sortedFilters, new OrderComparator(sortedFilters.size()));
+        Collections.sort(sortedFilters, new PriorityComparator(sortedFilters.size()));
         filters = sortedFilters;
         log.info("registered Filter classes {} ", filters);
     }
@@ -225,7 +225,7 @@ public class MainHandler extends HandlerCollection {
             sortedPostFilters.add(postFilter);
         }
 
-        Collections.sort(sortedPostFilters, new OrderComparator(sortedPostFilters.size()));
+        Collections.sort(sortedPostFilters, new PriorityComparator(sortedPostFilters.size()));
         postFilters = sortedPostFilters;
         log.info("registered  PostFilter classes {}", postFilters);
     }
