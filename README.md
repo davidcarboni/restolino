@@ -7,12 +7,7 @@ Restolino
 ***
 #### IMPORTANT
 
-Restolino is in the process of being depricated and removed from our tech stack due to:
- - Lack of support.
- - Missing / unsupported features standard to most web frameworks.
- - Performance issues.
-**We strongly discourage the use of Restolino for any production application.**
-***
+Restolino is in the process of being depricated and removed from our tech stack. We strongly discourage the use of Restolino for any production application due to a range of performance issues
 
 ~~Java for the Web. A brutally opinionated, super-simple REST API framework, plus static file serving.~~
 
@@ -239,12 +234,7 @@ Why not reload when deployed? You want to be using containers, but as a minimum 
  worked. The best thing about using Restolino was nobody talked about Restolino - it stayed out of the way and never 
  became the conversation.~~
 
-
-**We strongly discourage the use of Restolino for any production application.** Restolino is in the process of being 
-depricated and removed from our tech stack due to:
- - Lack of support.
- - Missing / unsupported features standard to most web frameworks.
- - Performance issues.
+Restolino is in the process of being depricated and removed from our tech stack. We strongly discourage the use of Restolino for any production application due to a range of performance issues
 
 
 #### Is it fast/secure/productionised?
