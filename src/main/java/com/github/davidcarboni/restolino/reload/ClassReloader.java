@@ -65,7 +65,8 @@ public class ClassReloader implements Runnable {
                     reloadRequested = false;
                     Reflections reflections = ClassFinder.newReflections();
                     ApiHandler.setupApi(reflections);
-                    Main.mainHandler.setupFilters(reflections);
+                    Main.mainHandler.setupPreFilters(reflections);
+                    Main.mainHandler.setupPostFilters(reflections);
                     Main.mainHandler.runStartups(reflections);
                 }
 

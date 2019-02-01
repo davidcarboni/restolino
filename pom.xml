@@ -9,7 +9,6 @@
     <description>
         An unreasonably opinionated Java REST micro-framework with an efficient, reloadable workflow in development.
     </description>
-    <url>https://github.com/davidcarboni/restolino</url>
 
     <licenses>
         <license>
@@ -20,34 +19,10 @@
         </license>
     </licenses>
 
-    <organization>
-        <name>Carboni</name>
-        <url>https://github.com/carboni/</url>
-    </organization>
-    <!--
-        <scm>
-            <url>https://github.com/davidcarboni/restolino</url>
-            <connection>scm:git:git://github.com/davidcarboni/restolino.git</connection>
-            <developerConnection>scm:git:git@github.com:davidcarboni/restolino.git</developerConnection>
-            <tag>HEAD</tag>
-        </scm>-->
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
-
-    <!--    <distributionManagement>
-            <snapshotRepository>
-                <id>sonatype-nexus-snapshots</id>
-                <name>Sonatype Nexus snapshot repository</name>
-                <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-            </snapshotRepository>
-            <repository>
-                <id>sonatype-nexus-staging</id>
-                <name>Sonatype Nexus release repository</name>
-                <url>https://oss.sonatype.org/service/local/staging/deploy/maven2</url>
-            </repository>
-        </distributionManagement>-->
 
     <dependencies>
 
@@ -235,49 +210,5 @@
 
         </plugins>
     </build>
-
-    <profiles>
-
-        <!-- GPG Signature on release -->
-        <!--        <profile>
-                    <id>release-sign-artifacts</id>
-                    <activation>
-                        <property>
-                            <name>performRelease</name>
-                            <value>true</value>
-                        </property>
-                    </activation>
-                    <build>
-                        <plugins>
-                            <plugin>
-                                <groupId>org.apache.maven.plugins</groupId>
-                                <artifactId>maven-gpg-plugin</artifactId>
-                                <version>1.6</version>
-                                <executions>
-                                    <execution>
-                                        <id>sign-artifacts</id>
-                                        <phase>verify</phase>
-                                        <goals>
-                                            <goal>sign</goal>
-                                        </goals>
-                                    </execution>
-                                </executions>
-                            </plugin>
-                        </plugins>
-                    </build>
-                </profile>-->
-
-    </profiles>
-
-    <!--    <developers>
-            <developer>
-                <id>david</id>
-                <name>David Carboni</name>
-                <email>david@carboni.io</email>
-                <organization>Carboni</organization>
-                <organizationUrl>https://github.com/carboni</organizationUrl>
-                <url>https://github.com/davidcarboni</url>
-            </developer>
-        </developers>-->
 
 </project>

@@ -36,22 +36,22 @@ public class PriorityComparatorTest {
 
     @Test
     public void testSortList() {
-        List<Filter> filters = new ArrayList<Filter>() {{
+        List<PreFilter> preFilters = new ArrayList<PreFilter>() {{
             add(new B());
             add(new D());
             add(new C());
             add(new A());
         }};
 
-        Collections.sort(filters, new PriorityComparator(4));
-        assertThat(filters.get(0).getClass().getSimpleName(), equalTo("A"));
-        assertThat(filters.get(1).getClass().getSimpleName(), equalTo("B"));
-        assertThat(filters.get(2).getClass().getSimpleName(), equalTo("C"));
-        assertThat(filters.get(3).getClass().getSimpleName(), equalTo("D"));
+        Collections.sort(preFilters, new PriorityComparator(4));
+        assertThat(preFilters.get(0).getClass().getSimpleName(), equalTo("A"));
+        assertThat(preFilters.get(1).getClass().getSimpleName(), equalTo("B"));
+        assertThat(preFilters.get(2).getClass().getSimpleName(), equalTo("C"));
+        assertThat(preFilters.get(3).getClass().getSimpleName(), equalTo("D"));
     }
 
     @Priority(1)
-    static class A implements Filter {
+    static class A implements PreFilter {
 
         @Override
         public boolean filter(HttpServletRequest req, HttpServletResponse res) {
@@ -65,7 +65,7 @@ public class PriorityComparatorTest {
     }
 
     @Priority(2)
-    static class B implements Filter {
+    static class B implements PreFilter {
 
         @Override
         public boolean filter(HttpServletRequest req, HttpServletResponse res) {
@@ -80,7 +80,7 @@ public class PriorityComparatorTest {
 
     // Same priority as a "B"
     @Priority(2)
-    static class C implements Filter {
+    static class C implements PreFilter {
 
         @Override
         public boolean filter(HttpServletRequest req, HttpServletResponse res) {
@@ -94,7 +94,7 @@ public class PriorityComparatorTest {
     }
 
     // Has no priority set
-    static class D implements Filter {
+    static class D implements PreFilter {
 
         @Override
         public boolean filter(HttpServletRequest req, HttpServletResponse res) {

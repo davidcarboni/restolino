@@ -41,7 +41,9 @@ public class Serialiser {
         getBuilder().registerTypeAdapter(NotFound.class, new ObjectClassSerialser());
         getBuilder().registerTypeAdapter(ServerError.class, new ObjectClassSerialser());
         getBuilder().registerTypeAdapter(Startup.class, new ObjectClassSerialser());
-        getBuilder().registerTypeAdapter(Filter.class, new ObjectClassSerialser());
+        getBuilder().registerTypeAdapter(PreFilter.class, new ObjectClassSerialser());
+        getBuilder().registerTypeAdapter(PostFilter.class, new ObjectClassSerialser());
+
 
         // Set a reasonable default for date formatting:
         getBuilder().setDateFormat(toUTCStringDateFormat);

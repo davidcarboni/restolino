@@ -1,9 +1,9 @@
 package com.github.davidcarboni.restolino.jetty;
 
 import com.github.davidcarboni.restolino.Main;
-import com.github.davidcarboni.restolino.framework.Filter;
-import com.github.davidcarboni.restolino.framework.PriorityComparator;
 import com.github.davidcarboni.restolino.framework.PostFilter;
+import com.github.davidcarboni.restolino.framework.PreFilter;
+import com.github.davidcarboni.restolino.framework.PriorityComparator;
 import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.reload.ClassFinder;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
@@ -30,6 +30,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.slf4j.LoggerFactory.getLogger;
 
@@ -44,7 +45,7 @@ public class MainHandler extends HandlerCollection {
 
     ResourceHandler filesHandler;
     ApiHandler apiHandler;
-    Collection<Filter> filters;
+    Collection<PreFilter> preFilters;
     Collection<PostFilter> postFilters;
     Collection<Startup> startups;
 
@@ -67,7 +68,7 @@ public class MainHandler extends HandlerCollection {
         setHandlers(handlers.toArray(new Handler[0]));
 
         // "meta-handling"
-        setupFilters(reflections);
+        setupPreFilters(reflections);
         setupPostFilters(reflections);
         runStartups(reflections);
 
@@ -126,7 +127,8 @@ public class MainHandler extends HandlerCollection {
         Reflections reflections = ClassFinder.newReflections();
 
         ApiHandler.setupApi(reflections);
-        setupFilters(reflections);
+        setupPreFilters(reflections);
+        setupPostFilters(reflections);
         runStartups(reflections);
     }
 
@@ -136,7 +138,7 @@ public class MainHandler extends HandlerCollection {
         // Should we try redirecting to index.html?
         boolean isRootRequest = isRootRequest(request);
         boolean isApiRequest = isApiRequest(target);
-        if (filter(request, response)) {
+        if (preFilter(request, response)) {
             if (isApiRequest) {
                 try {
                     apiHandler.handle(target, baseRequest, request, response);
@@ -175,10 +177,10 @@ public class MainHandler extends HandlerCollection {
         return StringUtils.isBlank(extension);
     }
 
-    boolean filter(HttpServletRequest req, HttpServletResponse res) {
+    boolean preFilter(HttpServletRequest req, HttpServletResponse res) {
         boolean result = true;
-        for (Filter filter : filters) {
-            result &= filter.filter(req, res);
+        for (PreFilter preFilter : preFilters) {
+            result &= preFilter.filter(req, res);
         }
         return result;
     }
@@ -189,23 +191,24 @@ public class MainHandler extends HandlerCollection {
         response.getWriter().println("Not found: " + target);
     }
 
-    public void setupFilters(Reflections reflections) {
-        List<Filter> sortedFilters = new ArrayList<>();
-        Set<Class<? extends Filter>> filterClasses = reflections.getSubTypesOf(Filter.class);
-        for (Class<? extends Filter> filterClass : filterClasses) {
-            Filter filter = null;
+    public void setupPreFilters(Reflections reflections) {
+        List<PreFilter> sortedPreFilters = new ArrayList<>();
+        Set<Class<? extends PreFilter>> filterClasses = reflections.getSubTypesOf(PreFilter.class);
+        for (Class<? extends PreFilter> filterClass : filterClasses) {
+            PreFilter preFilter = null;
             try {
-                filter = filterClass.getDeclaredConstructor().newInstance();
+                preFilter = filterClass.getDeclaredConstructor().newInstance();
             } catch (InstantiationException | IllegalAccessException | NoSuchMethodException | InvocationTargetException e) {
                 log.error("Error instantiating filter class {}", filterClass.getName());
                 e.printStackTrace();
             }
-            sortedFilters.add(filter);
+            sortedPreFilters.add(preFilter);
         }
 
-        Collections.sort(sortedFilters, new PriorityComparator(sortedFilters.size()));
-        filters = sortedFilters;
-        log.info("registered Filter classes {} ", filters);
+        Collections.sort(sortedPreFilters, new PriorityComparator(sortedPreFilters.size()));
+        preFilters = sortedPreFilters;
+        log.info("registered Filter classes {} ",
+                preFilters.stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
     }
 
 
@@ -227,7 +230,8 @@ public class MainHandler extends HandlerCollection {
 
         Collections.sort(sortedPostFilters, new PriorityComparator(sortedPostFilters.size()));
         postFilters = sortedPostFilters;
-        log.info("registered  PostFilter classes {}", postFilters);
+        log.info("registered  PostFilter classes {}",
+                postFilters.stream().map(f -> f.getClass().getSimpleName()).collect(Collectors.toList()));
     }
 
     public void runStartups(Reflections reflections) {

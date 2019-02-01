@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
  * <p>
  * This enables you to do things like add cache headers to static requests.
  * <p>
- * This interface is named {@link Filter} because it provides similar
+ * This interface is named {@link PreFilter} because it provides similar
  * functionality to a Servlet filter, however there are important differences.
  * Restolino doesn't offer a "chain" of filters. Implementations of this class
  * will be called on each request but the order is not guaranteed.
@@ -22,7 +22,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  * @author david
  */
-public interface Filter {
+public interface PreFilter {
 
     /**
      * @param req The request.
