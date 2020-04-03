@@ -3,7 +3,7 @@ package com.github.davidcarboni.restolino.framework;
 import java.util.Comparator;
 
 /**
- * {@link Comparator} impl for classes that use the {@link Priority} annotation. Objects are order by {@link Priority#priority()}
+ * {@link Comparator} impl for classes that use the {@link Priority} annotation. Objects are order by {@link Priority#value()}
  * if they implement it or by Class name if they don't / if two priorities are equal.
  */
 public class PriorityComparator implements Comparator<Object> {
