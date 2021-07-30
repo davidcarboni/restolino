@@ -146,11 +146,11 @@ public class Serialiser {
 
     private static void deleteTempFile(Path temp) throws IOException {
         if (temp == null) {
-            LOG.debug("temp file is null no clean up required");
+            LOG.info("temp file is null no clean up required");
             return;
         }
 
-        LOG.debug("attempting to delete temp file creating by serialise method file:{}", temp.getFileName().toString());
+        LOG.info("attempting to delete temp file creating by serialise method file:{}", temp.getFileName().toString());
 
         if (!Files.deleteIfExists(temp)) {
             LOG.warn("attempt to delete temp file was unsucessful, file has been added to deleteOnExit list " +
