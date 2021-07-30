@@ -150,11 +150,11 @@ public class Serialiser {
             return;
         }
 
-        LOG.info("attempting to delete temp file creating by serialise method file:{}", temp.getFileName().toString());
+        LOG.info("attempting to delete temp file creating by serialise method file:{}", temp.toString());
 
         if (!Files.deleteIfExists(temp)) {
             LOG.warn("attempt to delete temp file was unsucessful, file has been added to deleteOnExit list " +
-                    "and will be removed when the JVM shutdown normally, file: {}", temp.getFileName().toString());
+                    "and will be removed when the JVM shutdown normally, file: {}", temp.toString());
             temp.toFile().deleteOnExit();
         }
     }
