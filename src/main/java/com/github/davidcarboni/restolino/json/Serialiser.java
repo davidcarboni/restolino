@@ -146,15 +146,14 @@ public class Serialiser {
 
     private static void deleteTempFile(Path temp) throws IOException {
         if (temp == null) {
-            LOG.info("temp file is null no clean up required");
+            LOG.debug("temp file is null no clean up required");
             return;
         }
 
-        LOG.info("attempting to delete temp file creating by serialise method file:{}", temp.toString());
-
+        LOG.debug("attempting to delete temp file created by serialise method file:{}", temp.toString());
         if (!Files.deleteIfExists(temp)) {
-            LOG.warn("attempt to delete temp file was unsucessful, file has been added to deleteOnExit list " +
-                    "and will be removed when the JVM shutdown normally, file: {}", temp.toString());
+            LOG.warn("attempt to delete temp file was unsuccessful, file has been added to deleteOnExit list " +
+                    "and will be removed when the JVM is shutdown, file: {}", temp.toString());
             temp.toFile().deleteOnExit();
         }
     }
@@ -167,6 +166,7 @@ public class Serialiser {
         //  However, this functionality is it at the centre of the website and publishing services so I've made a
         //  concious tactical decision to only fix the immediate problem of ensuring the temp files are deleted rather
         //  than rewriting/refactoring this whole process and risk introducing a regression.
+
         // First serialise to a temp file
         Gson gson = getBuilder().create();
         try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
@@ -184,27 +184,6 @@ public class Serialiser {
             outputChannel.truncate(size);
         }
     }
-/*
-    public static void serialise(Path output, Object json) throws IOException {
-
-        // First serialise to a temp file:
-        Gson gson = getBuilder().create();
-        Path temp = Files.createTempFile(json.getClass().getSimpleName(), ".json");
-        try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
-            gson.toJson(json, writer);
-        }
-
-        // Now do an optimised Channel-to-Channel transfer to the output file:
-        long size = Files.size(temp);
-        try (FileChannel tempChannel = FileChannel.open(temp, StandardOpenOption.READ);
-             FileChannel outputChannel = FileChannel.open(output, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
-            // NB the lock will be released when the channel is closed:
-            writeLock(outputChannel);
-            outputChannel.truncate(0);
-            tempChannel.transferTo(0, size, outputChannel);
-            outputChannel.truncate(size);
-        }
-    }*/
 
     /**
      * Deserialises the given {@link InputStream} to a JSON String.
