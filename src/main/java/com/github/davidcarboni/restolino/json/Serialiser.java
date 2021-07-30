@@ -160,12 +160,15 @@ public class Serialiser {
 
     private static void writeJsonObjectToFile(Path temp, Path output, Object json) throws IOException {
         // TODO
-        //  To fix defect Trello #616 I've refactored this code to ensure that the temp file is deleted immeditely
-        //  after use.
-        //  I am not sure why this first step of serialising to a temp file is required it seems unncessary to me?
-        //  However, this functionality is it at the centre of the website and publishing services so I've made a
-        //  concious tactical decision to only fix the immediate problem of ensuring the temp files are deleted rather
-        //  than rewriting/refactoring this whole process and risk introducing a regression.
+        //  Fix for defect Trello #616:
+        //  Refactored serialise method to ensure temp files are deleted immediately after use. These files are not
+        //  used again and over time this results in large amounts of disk space being consumed unnecessarily.
+        //  It's not clear why the first step in serialise needs to be written to a temp file - there could be a
+        //  technical reason for this but it's not documented anywhere.
+        //  As this functionality is it at the centre of the website and publishing services we've made a conscious
+        //  tactical decision to hold off removing this step. For now we have implemented a fix to ensure any temp
+        //  files are cleaned up which will fix our immediate problem whilst reducing the risk introducing
+        //  a regression into core publishing services.
 
         // First serialise to a temp file
         Gson gson = getBuilder().create();
