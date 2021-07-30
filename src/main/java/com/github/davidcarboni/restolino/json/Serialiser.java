@@ -1,6 +1,11 @@
 package com.github.davidcarboni.restolino.json;
 
-import com.github.davidcarboni.restolino.framework.*;
+import com.github.davidcarboni.restolino.framework.Home;
+import com.github.davidcarboni.restolino.framework.NotFound;
+import com.github.davidcarboni.restolino.framework.PostFilter;
+import com.github.davidcarboni.restolino.framework.PreFilter;
+import com.github.davidcarboni.restolino.framework.ServerError;
+import com.github.davidcarboni.restolino.framework.Startup;
 import com.github.davidcarboni.restolino.json.typeadapters.ClassSerialiser;
 import com.github.davidcarboni.restolino.json.typeadapters.MethodSerialiser;
 import com.github.davidcarboni.restolino.json.typeadapters.ObjectClassSerialser;
@@ -8,10 +13,19 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonIOException;
 import com.google.gson.JsonSyntaxException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Reader;
+import java.io.Writer;
 import java.lang.reflect.Method;
 import java.nio.channels.Channels;
 import java.nio.channels.FileChannel;
@@ -23,6 +37,8 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 
 public class Serialiser {
+
+    private static Logger LOG = LoggerFactory.getLogger(Serialiser.class);
 
     private static GsonBuilder builder;
 
@@ -119,6 +135,57 @@ public class Serialiser {
      * @throws IOException If an error occurs in writing the output.
      */
     public static void serialise(Path output, Object json) throws IOException {
+        Path temp = null;
+        try {
+            temp = Files.createTempFile(json.getClass().getSimpleName(), ".json");
+            writeJsonObjectToFile(temp, output, json);
+        } finally {
+            deleteTempFile(temp);
+        }
+    }
+
+    private static void deleteTempFile(Path temp) throws IOException {
+        if (temp == null) {
+            LOG.debug("temp file is null no clean up required");
+            return;
+        }
+
+        LOG.debug("attempting to delete temp file creating by serialise method file:{}", temp.getFileName().toString());
+
+        if (!Files.deleteIfExists(temp)) {
+            LOG.warn("attempt to delete temp file was unsucessful, file has been added to deleteOnExit list " +
+                    "and will be removed when the JVM shutdown normally, file: {}", temp.getFileName().toString());
+            temp.toFile().deleteOnExit();
+        }
+    }
+
+    private static void writeJsonObjectToFile(Path temp, Path output, Object json) throws IOException {
+        // TODO
+        //  To fix defect Trello #616 I've refactored this code to ensure that the temp file is deleted immeditely
+        //  after use.
+        //  I am not sure why this first step of serialising to a temp file is required it seems unncessary to me?
+        //  However, this functionality is it at the centre of the website and publishing services so I've made a
+        //  concious tactical decision to only fix the immediate problem of ensuring the temp files are deleted rather
+        //  than rewriting/refactoring this whole process and risk introducing a regression.
+        // First serialise to a temp file
+        Gson gson = getBuilder().create();
+        try (Writer writer = Files.newBufferedWriter(temp, StandardCharsets.UTF_8)) {
+            gson.toJson(json, writer);
+        }
+
+        // Now do an optimised Channel-to-Channel transfer to the output file:
+        long size = Files.size(temp);
+        try (FileChannel tempChannel = FileChannel.open(temp, StandardOpenOption.READ);
+             FileChannel outputChannel = FileChannel.open(output, StandardOpenOption.WRITE, StandardOpenOption.CREATE)) {
+            // NB the lock will be released when the channel is closed:
+            writeLock(outputChannel);
+            outputChannel.truncate(0);
+            tempChannel.transferTo(0, size, outputChannel);
+            outputChannel.truncate(size);
+        }
+    }
+/*
+    public static void serialise(Path output, Object json) throws IOException {
 
         // First serialise to a temp file:
         Gson gson = getBuilder().create();
@@ -137,7 +204,7 @@ public class Serialiser {
             tempChannel.transferTo(0, size, outputChannel);
             outputChannel.truncate(size);
         }
-    }
+    }*/
 
     /**
      * Deserialises the given {@link InputStream} to a JSON String.
