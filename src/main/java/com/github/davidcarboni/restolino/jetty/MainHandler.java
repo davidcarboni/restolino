@@ -27,7 +27,6 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -235,20 +234,25 @@ public class MainHandler extends HandlerCollection {
     }
 
     public void runStartups(Reflections reflections) {
+        this.startups = getStartUpsOrdered(reflections);
+        this.startups.stream().forEach(startup -> startup.init());
+    }
 
-        Set<Startup> startups = new HashSet<>();
+    static List<Startup> getStartUpsOrdered(Reflections reflections) {
         Set<Class<? extends Startup>> startupClasses = reflections.getSubTypesOf(Startup.class);
+
+        List<Startup> startUpInstances = new ArrayList<>();
         for (Class<? extends Startup> startupClass : startupClasses) {
             try {
-                startups.add(startupClass.newInstance());
+                startUpInstances.add(startupClass.newInstance());
             } catch (InstantiationException | IllegalAccessException e) {
                 log.info("Error instantiating startup class {}", startupClass.getName());
                 e.printStackTrace();
             }
         }
-        for (Startup startup : startups) {
-            startup.init();
-        }
-        this.startups = startups;
+
+        Collections.sort(startUpInstances, new PriorityComparator(startupClasses.size()));
+        return startUpInstances;
     }
+
 }
