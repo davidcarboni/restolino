@@ -1,5 +1,5 @@
 .PHONY: all
-all: audit test build
+all: audit test build lint
 
 .PHONY: audit
 audit:
@@ -7,9 +7,13 @@ audit:
 
 .PHONY: build
 build:
-	mvn -Dmaven.test.skip -Dossindex.skip=true clean package
+	mvn clean package -Dmaven.test.skip -Dossindex.skip=true
 
 .PHONY: test
 test:
 	mvn -Dossindex.skip=true test
+
+.PHONY: lint
+lint:
+	exit
 

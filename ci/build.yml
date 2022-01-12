@@ -1,0 +1,16 @@
+---
+platform: linux
+
+image_resource:
+  type: docker-image
+  source:
+    repository: onsdigital/dp-concourse-tools-java
+
+inputs:
+  - name: restolino
+
+outputs:
+  - name: build
+
+run:
+  path: restolino/ci/scripts/build.sh
