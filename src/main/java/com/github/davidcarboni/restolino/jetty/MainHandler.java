@@ -235,6 +235,8 @@ public class MainHandler extends HandlerCollection {
 
     public void runStartups(Reflections reflections) {
         this.startups = getStartUpsOrdered(reflections);
+
+        log.info("running Startup classes in priority order: {}", startups);
         this.startups.stream().forEach(startup -> startup.init());
     }
 
