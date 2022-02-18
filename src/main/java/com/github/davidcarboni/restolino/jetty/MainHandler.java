@@ -135,40 +135,22 @@ public class MainHandler extends HandlerCollection {
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
         // Should we try redirecting to index.html?
-        boolean isRootRequest = isRootRequest(request);
         boolean isApiRequest = isApiRequest(target);
-        if (preFilter(request, response)) {
-            if (isApiRequest) {
-                try {
+        try {
+            if (preFilter(request, response)) {
+                if (isApiRequest) {
                     apiHandler.handle(target, baseRequest, request, response);
-                } finally {
-                    postFilters.stream().forEach(pf -> pf.filter(request, response));
+                } else if (filesHandler != null) {
+                    filesHandler.handle(target, baseRequest, request, response);
+                } else {
+                    notFound(target, response);
                 }
-            } else if (filesHandler != null) {
-                filesHandler.handle(target, baseRequest, request, response);
-            } else {
-                notFound(target, response);
             }
+        } finally {
+            postFilters.stream().forEach(pf -> pf.filter(request, response));
         }
 
         baseRequest.setHandled(true);
-    }
-
-    /**
-     * Determines if the given request is for the root resource (ie /).
-     *
-     * @param request The {@link HttpServletRequest}
-     * @return If {@link HttpServletRequest#getPathInfo()} is null, empty string
-     * or "/", then true.
-     */
-    boolean isRootRequest(HttpServletRequest request) {
-        String path = request.getPathInfo();
-        if (StringUtils.isBlank(path)) {
-            return true;
-        } else if (StringUtils.equals("/", path)) {
-            return true;
-        }
-        return false;
     }
 
     static boolean isApiRequest(String target) {
