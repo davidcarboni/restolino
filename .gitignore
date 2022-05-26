@@ -1,3 +1,19 @@
-.idea*
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+.idea/
 *.iml
-target/*
+*.iws
+
+# VSCode
+.vscode/
+
+# Mac
+.DS_Store
+
+# Maven
+log/
+target/
