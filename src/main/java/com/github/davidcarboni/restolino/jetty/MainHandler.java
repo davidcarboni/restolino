@@ -134,14 +134,15 @@ public class MainHandler extends HandlerCollection {
     @Override
     public void handle(String target, Request baseRequest, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
 
-        // Should we try redirecting to index.html?
-        boolean isApiRequest = isApiRequest(target);
         try {
             if (preFilter(request, response)) {
-                if (isApiRequest) {
+                if (isApiRequest(target)) {
                     apiHandler.handle(target, baseRequest, request, response);
                 } else if (filesHandler != null) {
                     filesHandler.handle(target, baseRequest, request, response);
+                    if (!baseRequest.isHandled()) {
+                        notFound(target, response);
+                    }
                 } else {
                     notFound(target, response);
                 }
