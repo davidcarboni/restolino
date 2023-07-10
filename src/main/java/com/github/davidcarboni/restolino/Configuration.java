@@ -22,6 +22,7 @@ public class Configuration {
 
     private static final Logger log = getLogger(Configuration.class);
     public static final String PORT = "PORT";
+    public static final String JETTY_MAX_THREADS = "JETTY_MAX_THREADS";
     public static final String CLASSES = "restolino.classes";
     public static final String PACKAGE_PREFIX = "restolino.packageprefix";
     public static final String FILES = "restolino.files";
@@ -34,6 +35,11 @@ public class Configuration {
      * The Jetty server port.
      */
     public int port = 8080;
+
+    /**
+     * The Jetty server max threads.
+     */
+    public int maxThreads = 200;
 
     /**
      * If files will be dynamically reloaded, true.
@@ -142,8 +148,9 @@ public class Configuration {
 
     public Configuration() {
 
-        // The server port:
+        // The server port and maxThreads:
         String port = getValue(PORT);
+        String maxThreads = getValue(JETTY_MAX_THREADS);
 
         // The reloadable parameters:
         String files = getValue(FILES);
@@ -156,6 +163,7 @@ public class Configuration {
 
         // Set up the configuration:
         configurePort(port);
+        configureMaxThreads(maxThreads);
         configureFiles(files);
         configureClasses(classes);
         configureAuthentication(username, password, realm);
@@ -175,6 +183,24 @@ public class Configuration {
                 log.info("Using port {}", this.port);
             } catch (NumberFormatException e) {
                 log.info("Unable to parse server PORT variable ({}). Defaulting to port {}", port, this.port);
+            }
+        }
+    }
+
+    /**
+     * Configures the server max threads by attempting to parse the given parameter,
+     * but failing gracefully if that doesn't work out.
+     *
+     * @param maxThreads The value of the {@value #JETTY_MAX_THREADS} parameter.
+     */
+    void configureMaxThreads(String maxThreads) {
+
+        if (StringUtils.isNotBlank(maxThreads)) {
+            try {
+                this.maxThreads = Integer.parseInt(maxThreads);
+                log.info("Using maxThreads {}", this.maxThreads);
+            } catch (NumberFormatException e) {
+                log.info("Unable to parse server JETTY_MAX_THREADS variable ({}). Defaulting to maxThreads {}", maxThreads, this.maxThreads);
             }
         }
     }

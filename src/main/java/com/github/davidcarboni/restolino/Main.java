@@ -5,9 +5,12 @@ import com.github.davidcarboni.restolino.jetty.MainHandler;
 import com.github.davidcarboni.restolino.reload.ClassReloader;
 import org.eclipse.jetty.security.SecurityHandler;
 import org.eclipse.jetty.server.Handler;
+import org.eclipse.jetty.server.HttpConnectionFactory;
 import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.StatisticsHandler;
 import org.eclipse.jetty.server.handler.gzip.GzipHandler;
+import org.eclipse.jetty.util.thread.QueuedThreadPool;
 import org.slf4j.Logger;
 
 import static org.slf4j.LoggerFactory.getLogger;
@@ -43,7 +46,11 @@ public class Main {
             configuration = new Configuration();
 
             // Create the Jetty server
-            server = new Server(configuration.port);
+            QueuedThreadPool qtp = new QueuedThreadPool(configuration.maxThreads);
+            org.eclipse.jetty.server.Server server = new Server(qtp);
+            ServerConnector http = new ServerConnector(server, new HttpConnectionFactory());
+            http.setPort(configuration.port);
+            server.addConnector(http);
 
             // Create the handlers
             mainHandler = new MainHandler();
