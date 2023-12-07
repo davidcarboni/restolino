@@ -40,7 +40,7 @@ public class ClassFinder {
 
         // We set up reflections to use the classLoader for loading classes
         // and also to use the classLoader to determine the list of URLs:
-        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder().addClassLoader(classLoader);
+        ConfigurationBuilder configurationBuilder = new ConfigurationBuilder().addClassLoaders(classLoader);
         if (StringUtils.isNotBlank(packagePrefix)) {
             configurationBuilder.addUrls(ClasspathHelper.forPackage(packagePrefix, classLoader));
         } else {
